@@ -11,9 +11,10 @@ video,canvas{max-width:100%}
 #code{font-size:40px;font-weight:bold}
 #err{color:#f55;font-weight:bold}
 .pad button{width:90px}
+.live{background:#c50}
 </style></head><body>
 <p id="err"></p>
-<div id="menu"><h2>Appli Cible v3</h2>
+<div id="menu"><h2>Appli Cible v4</h2>
 <button onclick="modeCamera()">Mode camera (S10)</button><br>
 <button onclick="show('tir')">Mode tireur</button></div>
 <div id="cam" hidden><p>Code a saisir sur le telephone du tireur :</p><div id="code">...</div>
@@ -21,6 +22,7 @@ video,canvas{max-width:100%}
 <div id="tir" hidden>
 <div id="connexion"><input id="codeIn" placeholder="Code" inputmode="numeric"><button onclick="connecter()">Connecter</button></div>
 <p id="status"></p>
+<button class="live" onclick="live(true)">Video de cadrage (60 s)</button><button class="live" onclick="live(false)">Stop video</button>
 <p>Zoom <input type="range" id="zoom" min="1" max="8" step="0.5" value="1" onchange="zoomer()"> <span id="zv">1x</span></p>
 <div class="pad"><button onclick="pan(0,-0.2)">Haut</button><br>
 <button onclick="pan(-0.2,0)">Gauche</button><button onclick="pan(0,0)">Centre</button><button onclick="pan(0.2,0)">Droite</button><br>
@@ -33,18 +35,23 @@ video,canvas{max-width:100%}
 <script>
 window.onerror=function(m){document.getElementById('err').textContent='Erreur : '+m};
 const P='cible-flo-';const R=20;let conn,ref=null,impacts=[];
-let track=null,caps=null,HW=1,DZ=1,PX=0,PY=0;
+let track=null,caps=null,HW=1,DZ=1,PX=0,PY=0,liveInt=null,liveFin=null,wake=null;
 function show(id){['menu','cam','tir'].forEach(x=>document.getElementById(x).hidden=x!==id)}
 function borne(x){return Math.max(-1,Math.min(1,x))}
 function infoCam(){return 'Zoom optique '+HW.toFixed(1)+'x, numerique '+DZ.toFixed(1)+'x'}
+async function garderEveille(){try{if(navigator.wakeLock&&!wake){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>{wake=null})}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')garderEveille()});
 async function appliquerZoom(z){let hw=1;
  if(caps&&caps.zoom){hw=Math.min(Math.max(z,caps.zoom.min),caps.zoom.max);
   try{await track.applyConstraints({advanced:[{zoom:hw}]})}catch(e){hw=1}}
  HW=hw;DZ=Math.max(1,z/hw);document.getElementById('camStatus').textContent=infoCam();}
-function capture(v){const vw=v.videoWidth,vh=v.videoHeight,sw=Math.round(vw/DZ),sh=Math.round(vh/DZ);
+function capture(v,maxW,q){const vw=v.videoWidth,vh=v.videoHeight,sw=Math.round(vw/DZ),sh=Math.round(vh/DZ);
  const sx=(vw-sw)/2*(1+PX),sy=(vh-sh)/2*(1+PY);
- const cv=document.createElement('canvas');cv.width=sw;cv.height=sh;
- cv.getContext('2d').drawImage(v,sx,sy,sw,sh,0,0,sw,sh);return cv.toDataURL('image/jpeg',0.6);}
+ const k=maxW?Math.min(1,maxW/sw):1;
+ const cv=document.createElement('canvas');cv.width=Math.round(sw*k);cv.height=Math.round(sh*k);
+ cv.getContext('2d').drawImage(v,sx,sy,sw,sh,0,0,cv.width,cv.height);return cv.toDataURL('image/jpeg',q||0.6);}
+function stopLive(c){if(liveInt){clearInterval(liveInt);liveInt=null}if(liveFin){clearTimeout(liveFin);liveFin=null}
+ if(c)c.send({type:'info',txt:'Video de cadrage arretee'});}
 async function modeCamera(){show('cam');
  try{
  if(typeof Peer==='undefined')throw new Error('bibliotheque PeerJS non chargee');
@@ -57,12 +64,18 @@ async function modeCamera(){show('cam');
  peer.on('open',()=>document.getElementById('code').textContent=code);
  peer.on('error',e=>document.getElementById('camStatus').textContent='Erreur : '+e.type);
  peer.on('connection',c=>{document.getElementById('camStatus').textContent='Tireur connecte';
+  c.on('close',()=>stopLive(null));
   c.on('data',async d=>{
    if(typeof d==='object'&&d.cmd==='zoom'){await appliquerZoom(+d.z);c.send({type:'info',txt:infoCam()});return}
    if(typeof d==='object'&&d.cmd==='pan'){if(d.x===0&&d.y===0){PX=0;PY=0}else{PX=borne(PX+d.x);PY=borne(PY+d.y)}
     c.send({type:'info',txt:DZ>1?'Cadrage deplace':'Cadrage : monte le zoom au-dela du zoom optique pour deplacer'});return}
+   if(typeof d==='object'&&d.cmd==='live'){stopLive(null);
+    if(d.on){liveInt=setInterval(()=>{try{c.send({type:'live',img:capture(v,480,0.5)})}catch(e){}},500);
+     liveFin=setTimeout(()=>stopLive(c),60000);}
+    else c.send({type:'info',txt:'Video de cadrage arretee'});
+    return}
    c.send({type:d,img:capture(v)})});});
- if(navigator.wakeLock)navigator.wakeLock.request('screen').catch(()=>{});
+ garderEveille();
  }catch(e){document.getElementById('err').textContent='Erreur camera : '+e.message}
 }
 function connecter(){
@@ -74,9 +87,11 @@ function connecter(){
  peer.on('error',e=>status('Erreur : '+e.type));}
 function status(t){document.getElementById('status').textContent=t}
 function demander(t){if(!conn)return status("Connecte-toi d'abord");status('Photo en cours...');conn.send(t)}
+function live(on){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'live',on:on});
+ if(on){ref=null;impacts=[];status('Video de cadrage en cours (60 s)...')}}
 function zoomer(){const z=+document.getElementById('zoom').value;document.getElementById('zv').textContent=z+'x';
  if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'zoom',z:z});ref=null;impacts=[];
- status('Zoom envoye : fais un apercu, puis une nouvelle reference');}
+ status('Zoom envoye : verifie le cadrage, puis fais une nouvelle reference');}
 function pan(x,y){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'pan',x:x,y:y});ref=null;impacts=[];}
 function moyenneLocale(g,W,H,r){const I=new Float64Array((W+1)*(H+1));
  for(let y=0;y<H;y++){let s=0;for(let x=0;x<W;x++){s+=g[y*W+x];I[(y+1)*(W+1)+x+1]=I[y*(W+1)+x+1]+s}}
@@ -103,6 +118,7 @@ function recevoir(d){if(d.type==='info'){status(d.txt);return}
  const im=new Image();im.onload=()=>{
  const W=600,H=Math.round(im.height*W/im.width);const cv=document.getElementById('vue');cv.width=W;cv.height=H;
  const ctx=cv.getContext('2d');ctx.drawImage(im,0,0,W,H);
+ if(d.type==='live'){ctx.strokeStyle='rgba(255,255,0,.8)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();return}
  if(d.type==='apercu'){status('Apercu du cadrage');return}
  const px=ctx.getImageData(0,0,W,H).data;
  let g=new Float32Array(W*H);for(let i=0;i<W*H;i++)g[i]=px[i*4]*.3+px[i*4+1]*.59+px[i*4+2]*.11;
