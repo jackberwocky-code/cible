@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Appli Cible</title>
@@ -10,9 +10,10 @@ input{font-size:18px;padding:10px;width:120px}
 video,canvas{max-width:100%}
 #code{font-size:40px;font-weight:bold}
 #err{color:#f55;font-weight:bold}
+.pad button{width:90px}
 </style></head><body>
 <p id="err"></p>
-<div id="menu"><h2>Appli Cible v2</h2>
+<div id="menu"><h2>Appli Cible v3</h2>
 <button onclick="modeCamera()">Mode camera (S10)</button><br>
 <button onclick="show('tir')">Mode tireur</button></div>
 <div id="cam" hidden><p>Code a saisir sur le telephone du tireur :</p><div id="code">...</div>
@@ -20,6 +21,11 @@ video,canvas{max-width:100%}
 <div id="tir" hidden>
 <div id="connexion"><input id="codeIn" placeholder="Code" inputmode="numeric"><button onclick="connecter()">Connecter</button></div>
 <p id="status"></p>
+<p>Zoom <input type="range" id="zoom" min="1" max="8" step="0.5" value="1" onchange="zoomer()"> <span id="zv">1x</span></p>
+<div class="pad"><button onclick="pan(0,-0.2)">Haut</button><br>
+<button onclick="pan(-0.2,0)">Gauche</button><button onclick="pan(0,0)">Centre</button><button onclick="pan(0.2,0)">Droite</button><br>
+<button onclick="pan(0,0.2)">Bas</button></div>
+<button onclick="demander('apercu')">Apercu du cadrage</button><br>
 <button onclick="demander('ref')">1. Reference (cible vierge)</button>
 <button onclick="demander('tir')">2. Voir mes tirs</button>
 <p>Sensibilite <input type="range" id="seuil" min="10" max="80" value="30"></p>
@@ -27,19 +33,35 @@ video,canvas{max-width:100%}
 <script>
 window.onerror=function(m){document.getElementById('err').textContent='Erreur : '+m};
 const P='cible-flo-';const R=20;let conn,ref=null,impacts=[];
+let track=null,caps=null,HW=1,DZ=1,PX=0,PY=0;
 function show(id){['menu','cam','tir'].forEach(x=>document.getElementById(x).hidden=x!==id)}
+function borne(x){return Math.max(-1,Math.min(1,x))}
+function infoCam(){return 'Zoom optique '+HW.toFixed(1)+'x, numerique '+DZ.toFixed(1)+'x'}
+async function appliquerZoom(z){let hw=1;
+ if(caps&&caps.zoom){hw=Math.min(Math.max(z,caps.zoom.min),caps.zoom.max);
+  try{await track.applyConstraints({advanced:[{zoom:hw}]})}catch(e){hw=1}}
+ HW=hw;DZ=Math.max(1,z/hw);document.getElementById('camStatus').textContent=infoCam();}
+function capture(v){const vw=v.videoWidth,vh=v.videoHeight,sw=Math.round(vw/DZ),sh=Math.round(vh/DZ);
+ const sx=(vw-sw)/2*(1+PX),sy=(vh-sh)/2*(1+PY);
+ const cv=document.createElement('canvas');cv.width=sw;cv.height=sh;
+ cv.getContext('2d').drawImage(v,sx,sy,sw,sh,0,0,sw,sh);return cv.toDataURL('image/jpeg',0.6);}
 async function modeCamera(){show('cam');
  try{
  if(typeof Peer==='undefined')throw new Error('bibliotheque PeerJS non chargee');
  const code=String(Math.floor(1000+Math.random()*9000));
  const v=document.getElementById('video');
- v.srcObject=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}});
+ const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}});
+ v.srcObject=stream;track=stream.getVideoTracks()[0];
+ caps=track.getCapabilities?track.getCapabilities():null;
  const peer=new Peer(P+code);
  peer.on('open',()=>document.getElementById('code').textContent=code);
  peer.on('error',e=>document.getElementById('camStatus').textContent='Erreur : '+e.type);
  peer.on('connection',c=>{document.getElementById('camStatus').textContent='Tireur connecte';
-  c.on('data',d=>{const cv=document.createElement('canvas');cv.width=v.videoWidth;cv.height=v.videoHeight;
-   cv.getContext('2d').drawImage(v,0,0);c.send({type:d,img:cv.toDataURL('image/jpeg',0.6)})});});
+  c.on('data',async d=>{
+   if(typeof d==='object'&&d.cmd==='zoom'){await appliquerZoom(+d.z);c.send({type:'info',txt:infoCam()});return}
+   if(typeof d==='object'&&d.cmd==='pan'){if(d.x===0&&d.y===0){PX=0;PY=0}else{PX=borne(PX+d.x);PY=borne(PY+d.y)}
+    c.send({type:'info',txt:DZ>1?'Cadrage deplace':'Cadrage : monte le zoom au-dela du zoom optique pour deplacer'});return}
+   c.send({type:d,img:capture(v)})});});
  if(navigator.wakeLock)navigator.wakeLock.request('screen').catch(()=>{});
  }catch(e){document.getElementById('err').textContent='Erreur camera : '+e.message}
 }
@@ -52,7 +74,10 @@ function connecter(){
  peer.on('error',e=>status('Erreur : '+e.type));}
 function status(t){document.getElementById('status').textContent=t}
 function demander(t){if(!conn)return status("Connecte-toi d'abord");status('Photo en cours...');conn.send(t)}
-// Moyenne locale (boite de rayon r) via image integrale
+function zoomer(){const z=+document.getElementById('zoom').value;document.getElementById('zv').textContent=z+'x';
+ if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'zoom',z:z});ref=null;impacts=[];
+ status('Zoom envoye : fais un apercu, puis une nouvelle reference');}
+function pan(x,y){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'pan',x:x,y:y});ref=null;impacts=[];}
 function moyenneLocale(g,W,H,r){const I=new Float64Array((W+1)*(H+1));
  for(let y=0;y<H;y++){let s=0;for(let x=0;x<W;x++){s+=g[y*W+x];I[(y+1)*(W+1)+x+1]=I[y*(W+1)+x+1]+s}}
  const o=new Float32Array(W*H);
@@ -60,7 +85,6 @@ function moyenneLocale(g,W,H,r){const I=new Float64Array((W+1)*(H+1));
   for(let x=0;x<W;x++){const x0=Math.max(0,x-r),x1=Math.min(W,x+r+1);
    const s=I[y1*(W+1)+x1]-I[y0*(W+1)+x1]-I[y1*(W+1)+x0]+I[y0*(W+1)+x0];o[y*W+x]=s/((x1-x0)*(y1-y0))}}
  return o;}
-// Compensation lumiere : on retire l'eclairage de fond et on normalise le contraste
 function normaliser(g,W,H){const fin=moyenneLocale(g,W,H,1);const fond=moyenneLocale(g,W,H,15);
  const o=new Float32Array(W*H);let s2=0;
  for(let i=0;i<W*H;i++){const f=fond[i]+1;o[i]=(fin[i]-fond[i])/f*100;s2+=o[i]*o[i]}
@@ -75,9 +99,12 @@ function recaler(a,b,W,H){let best=Infinity,bx=0,by=0;
  for(let dy=cy-2;dy<=cy+2;dy++)for(let dx=cx-2;dx<=cx+2;dx++){
   if(Math.abs(dx)>R||Math.abs(dy)>R)continue;const s=ecart(a,b,W,H,dx,dy,3);if(s<best){best=s;bx=dx;by=dy}}
  return [bx,by];}
-function recevoir(d){const im=new Image();im.onload=()=>{
+function recevoir(d){if(d.type==='info'){status(d.txt);return}
+ const im=new Image();im.onload=()=>{
  const W=600,H=Math.round(im.height*W/im.width);const cv=document.getElementById('vue');cv.width=W;cv.height=H;
- const ctx=cv.getContext('2d');ctx.drawImage(im,0,0,W,H);const px=ctx.getImageData(0,0,W,H).data;
+ const ctx=cv.getContext('2d');ctx.drawImage(im,0,0,W,H);
+ if(d.type==='apercu'){status('Apercu du cadrage');return}
+ const px=ctx.getImageData(0,0,W,H).data;
  let g=new Float32Array(W*H);for(let i=0;i<W*H;i++)g[i]=px[i*4]*.3+px[i*4+1]*.59+px[i*4+2]*.11;
  g=normaliser(g,W,H);
  if(d.type==='ref'||!ref){ref=g;impacts=[];status('Reference enregistree');}
