@@ -6,7 +6,8 @@
 <style>
 body{font-family:sans-serif;background:#111;color:#eee;margin:0;padding:10px;text-align:center}
 button{font-size:18px;padding:12px;margin:5px;border-radius:8px;border:0;background:#2a7;color:#fff}
-input{font-size:18px;padding:10px;width:120px}
+input,select{font-size:18px;padding:10px}
+input{width:120px}
 video,canvas{max-width:100%}
 #code{font-size:40px;font-weight:bold}
 #err{color:#f55;font-weight:bold}
@@ -14,7 +15,7 @@ video,canvas{max-width:100%}
 .live{background:#c50}
 </style></head><body>
 <p id="err"></p>
-<div id="menu"><h2>Appli Cible v4</h2>
+<div id="menu"><h2>Appli Cible v5</h2>
 <button onclick="modeCamera()">Mode camera (S10)</button><br>
 <button onclick="show('tir')">Mode tireur</button></div>
 <div id="cam" hidden><p>Code a saisir sur le telephone du tireur :</p><div id="code">...</div>
@@ -31,10 +32,12 @@ video,canvas{max-width:100%}
 <button onclick="demander('ref')">1. Reference (cible vierge)</button>
 <button onclick="demander('tir')">2. Voir mes tirs</button>
 <p>Sensibilite <input type="range" id="seuil" min="10" max="80" value="30"></p>
+<p>Numeros <select id="nums" onchange="redessiner()"><option value="der">Derniere serie</option><option value="tous">Tous</option><option value="aucun">Aucun</option></select>
+Taille repere <input type="range" id="taille" min="2" max="12" value="5" oninput="redessiner()"></p>
 <canvas id="vue"></canvas><p id="info"></p></div>
 <script>
 window.onerror=function(m){document.getElementById('err').textContent='Erreur : '+m};
-const P='cible-flo-';const R=20;let conn,ref=null,impacts=[];
+const P='cible-flo-';const R=20;let conn,ref=null,impacts=[],nbAvant=0,lastIm=null;
 let track=null,caps=null,HW=1,DZ=1,PX=0,PY=0,liveInt=null,liveFin=null,wake=null;
 function show(id){['menu','cam','tir'].forEach(x=>document.getElementById(x).hidden=x!==id)}
 function borne(x){return Math.max(-1,Math.min(1,x))}
@@ -88,11 +91,11 @@ function connecter(){
 function status(t){document.getElementById('status').textContent=t}
 function demander(t){if(!conn)return status("Connecte-toi d'abord");status('Photo en cours...');conn.send(t)}
 function live(on){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'live',on:on});
- if(on){ref=null;impacts=[];status('Video de cadrage en cours (60 s)...')}}
+ if(on){ref=null;impacts=[];lastIm=null;status('Video de cadrage en cours (60 s)...')}}
 function zoomer(){const z=+document.getElementById('zoom').value;document.getElementById('zv').textContent=z+'x';
- if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'zoom',z:z});ref=null;impacts=[];
+ if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'zoom',z:z});ref=null;impacts=[];lastIm=null;
  status('Zoom envoye : verifie le cadrage, puis fais une nouvelle reference');}
-function pan(x,y){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'pan',x:x,y:y});ref=null;impacts=[];}
+function pan(x,y){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'pan',x:x,y:y});ref=null;impacts=[];lastIm=null;}
 function moyenneLocale(g,W,H,r){const I=new Float64Array((W+1)*(H+1));
  for(let y=0;y<H;y++){let s=0;for(let x=0;x<W;x++){s+=g[y*W+x];I[(y+1)*(W+1)+x+1]=I[y*(W+1)+x+1]+s}}
  const o=new Float32Array(W*H);
@@ -123,10 +126,12 @@ function recevoir(d){if(d.type==='info'){status(d.txt);return}
  const px=ctx.getImageData(0,0,W,H).data;
  let g=new Float32Array(W*H);for(let i=0;i<W*H;i++)g[i]=px[i*4]*.3+px[i*4+1]*.59+px[i*4+2]*.11;
  g=normaliser(g,W,H);
- if(d.type==='ref'||!ref){ref=g;impacts=[];status('Reference enregistree');}
+ if(d.type==='ref'||!ref){ref=g;impacts=[];nbAvant=0;status('Reference enregistree');}
  else{const [dx,dy]=recaler(ref,g,W,H);impacts.forEach(p=>{p.x+=dx;p.y+=dy});
-  const n=detecter(ref,g,W,H,dx,dy);ref=g;status(n+' nouvel(s) impact(s) - recalage '+dx+','+dy+' px');}
- dessiner(ctx);};im.src=d.img;}
+  nbAvant=impacts.length;const n=detecter(ref,g,W,H,dx,dy);ref=g;status(n+' nouvel(s) impact(s) - recalage '+dx+','+dy+' px');}
+ lastIm=im;dessiner(ctx);};im.src=d.img;}
+function redessiner(){if(!lastIm)return;const cv=document.getElementById('vue');const ctx=cv.getContext('2d');
+ ctx.drawImage(lastIm,0,0,cv.width,cv.height);dessiner(ctx);}
 function detecter(a,b,W,H,dx,dy){const s=+document.getElementById('seuil').value;const m=new Uint8Array(W*H);
  const M=R+2;
  for(let y=M;y<H-M;y++)for(let x=M;x<W-M;x++){const i=y*W+x;if(Math.abs(b[i]-a[(y-dy)*W+(x-dx)])>s)m[i]=1}
@@ -136,8 +141,11 @@ function detecter(a,b,W,H,dx,dy){const s=+document.getElementById('seuil').value
    for(const q of [p-1,p+1,p-W,p+W])if(q>=0&&q<W*H&&m[q]){m[q]=0;pile.push(q)}}
   if(k>=4&&k<800){impacts.push({x:sx/k,y:sy/k});n++}}
  return n;}
-function dessiner(ctx){ctx.lineWidth=3;ctx.font='bold 16px sans-serif';
- impacts.forEach((p,i)=>{ctx.strokeStyle=ctx.fillStyle=i===impacts.length-1?'#f00':'#0f0';
-  ctx.beginPath();ctx.arc(p.x,p.y,10,0,7);ctx.stroke();ctx.fillText(i+1,p.x+12,p.y-12)});
- document.getElementById('info').textContent='Total : '+impacts.length+' impact(s)';}
+function dessiner(ctx){const r=+document.getElementById('taille').value;const mode=document.getElementById('nums').value;
+ ctx.font='bold '+Math.max(10,r*2)+'px sans-serif';
+ impacts.forEach((p,i)=>{const nouveau=i>=nbAvant;
+  ctx.lineWidth=nouveau?2:1.5;ctx.strokeStyle=ctx.fillStyle=nouveau?'#f00':'#0f0';
+  ctx.beginPath();ctx.arc(p.x,p.y,r,0,7);ctx.stroke();
+  if(mode==='tous'||(mode==='der'&&nouveau)){ctx.lineWidth=3;ctx.strokeStyle='#000';ctx.strokeText(i+1,p.x+r+2,p.y-r);ctx.fillText(i+1,p.x+r+2,p.y-r)}});
+ document.getElementById('info').textContent='Total : '+impacts.length+' impact(s) - derniere serie : '+(impacts.length-nbAvant);}
 </script></body></html>
