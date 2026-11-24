@@ -13,14 +13,14 @@ video,canvas{max-width:100%}
 #err{color:#f55;font-weight:bold}
 .pad button{width:90px}
 .live{background:#c50}
-#seuil{width:260px;padding:0}
+#seuil,#zoom{width:260px;padding:0}
 .grad{display:flex;justify-content:space-between;width:260px;margin:0 auto;font-size:13px;color:#aaa}
 .grad span{border-left:1px solid #777;padding-left:2px;height:14px}
 .pm{padding:6px 16px;font-size:22px}
-#sv{font-size:26px;color:#ff0}
+#sv,#zv{font-size:26px;color:#ff0}
 </style></head><body>
 <p id="err"></p>
-<div id="menu"><h2>Appli Cible v6</h2>
+<div id="menu"><h2>Appli Cible v7</h2>
 <button onclick="modeCamera()">Mode camera (S10)</button><br>
 <button onclick="show('tir')">Mode tireur</button></div>
 <div id="cam" hidden><p>Code a saisir sur le telephone du tireur :</p><div id="code">...</div>
@@ -29,7 +29,11 @@ video,canvas{max-width:100%}
 <div id="connexion"><input id="codeIn" placeholder="Code" inputmode="numeric"><button onclick="connecter()">Connecter</button></div>
 <p id="status"></p>
 <button class="live" onclick="live(true)">Video de cadrage (60 s)</button><button class="live" onclick="live(false)">Stop video</button>
-<p>Zoom <input type="range" id="zoom" min="1" max="8" step="0.5" value="1" onchange="zoomer()"> <span id="zv">1x</span></p>
+<p>Zoom : <b id="zv">1x</b></p>
+<p><button class="pm" onclick="regZoom(-0.5)">-</button>
+<input type="range" id="zoom" min="1" max="8" step="0.5" value="1" oninput="majZoom()" onchange="zoomer()">
+<button class="pm" onclick="regZoom(0.5)">+</button></p>
+<div class="grad"><span>1x</span><span>2x</span><span>3x</span><span>4x</span><span>5x</span><span>6x</span><span>7x</span><span>8x</span></div>
 <div class="pad"><button onclick="pan(0,-0.2)">Haut</button><br>
 <button onclick="pan(-0.2,0)">Gauche</button><button onclick="pan(0,0)">Centre</button><button onclick="pan(0.2,0)">Droite</button><br>
 <button onclick="pan(0,0.2)">Bas</button></div>
@@ -52,6 +56,9 @@ function majSeuil(){const v=document.getElementById('seuil').value;document.getE
 function regSeuil(d){const s=document.getElementById('seuil');s.value=Math.max(10,Math.min(80,+s.value+d));majSeuil()}
 try{const sv=localStorage.getItem('seuil');if(sv)document.getElementById('seuil').value=sv}catch(e){}
 majSeuil();
+function majZoom(){document.getElementById('zv').textContent=(+document.getElementById('zoom').value).toFixed(1)+'x'}
+function regZoom(d){const z=document.getElementById('zoom');z.value=Math.max(1,Math.min(8,+z.value+d));majZoom();zoomer()}
+majZoom();
 function show(id){['menu','cam','tir'].forEach(x=>document.getElementById(x).hidden=x!==id)}
 function borne(x){return Math.max(-1,Math.min(1,x))}
 function infoCam(){return 'Zoom optique '+HW.toFixed(1)+'x, numerique '+DZ.toFixed(1)+'x'}
@@ -105,9 +112,9 @@ function status(t){document.getElementById('status').textContent=t}
 function demander(t){if(!conn)return status("Connecte-toi d'abord");status('Photo en cours...');conn.send(t)}
 function live(on){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'live',on:on});
  if(on){ref=null;impacts=[];lastIm=null;status('Video de cadrage en cours (60 s)...')}}
-function zoomer(){const z=+document.getElementById('zoom').value;document.getElementById('zv').textContent=z+'x';
+function zoomer(){const z=+document.getElementById('zoom').value;majZoom();
  if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'zoom',z:z});ref=null;impacts=[];lastIm=null;
- status('Zoom envoye : verifie le cadrage, puis fais une nouvelle reference');}
+ status('Zoom '+z.toFixed(1)+'x envoye : verifie le cadrage, puis fais une nouvelle reference');}
 function pan(x,y){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'pan',x:x,y:y});ref=null;impacts=[];lastIm=null;}
 function moyenneLocale(g,W,H,r){const I=new Float64Array((W+1)*(H+1));
  for(let y=0;y<H;y++){let s=0;for(let x=0;x<W;x++){s+=g[y*W+x];I[(y+1)*(W+1)+x+1]=I[y*(W+1)+x+1]+s}}
