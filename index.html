@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b0f17">
-<title>Distant Eye v8</title>
+<title>Distant Eye v9</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='26' fill='%230b0f17'/%3E%3CclipPath id='c'%3E%3Cpath d='M8 60Q60 8 112 60Q60 112 8 60Z'/%3E%3C/clipPath%3E%3Cpath d='M8 60Q60 8 112 60Q60 112 8 60Z' fill='%23e8edf5'/%3E%3Cg clip-path='url(%23c)'%3E%3Ccircle cx='60' cy='60' r='30' fill='%23111827'/%3E%3Ccircle cx='60' cy='60' r='24' fill='%23e8edf5'/%3E%3Ccircle cx='60' cy='60' r='18' fill='%23111827'/%3E%3Ccircle cx='60' cy='60' r='12' fill='%23e8edf5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23f43f5e'/%3E%3C/g%3E%3Cpath d='M8 60Q60 8 112 60Q60 112 8 60Z' fill='none' stroke='%23f43f5e' stroke-width='5'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -79,7 +79,7 @@ footer{text-align:center;color:#4b5568;font-size:12px;margin-top:20px}
 </g>
 <path d="M8 60Q60 8 112 60Q60 112 8 60Z" fill="none" stroke="#f43f5e" stroke-width="4" stroke-linejoin="round"/>
 </svg>
-<div><h1>Distant <span>Eye</span> v8</h1><small>Analyse des impacts à distance</small></div>
+<div><h1>Distant <span>Eye</span> v9</h1><small>Analyse des impacts à distance</small></div>
 <button class="home" onclick="location.reload()">Accueil</button>
 </header>
 <p id="err"></p>
@@ -129,11 +129,15 @@ footer{text-align:center;color:#4b5568;font-size:12px;margin-top:20px}
 </div>
 
 <div class="card"><h3>Affichage</h3>
-<div class="disp"><div><label>Numéros</label><select id="nums" onchange="redessiner()"><option value="der">Dernière série</option><option value="tous">Tous</option><option value="aucun">Aucun</option></select></div>
+<div class="reg"><label>Derniers tirs en rouge</label><span class="val" id="dv">5</span></div>
+<div class="slider" style="margin-bottom:16px"><button class="pm" onclick="regDer(-1)">−</button>
+<input type="range" id="nder" min="1" max="20" step="1" value="5" oninput="majDer()">
+<button class="pm" onclick="regDer(1)">+</button></div>
+<div class="disp"><div><label>Numéros</label><select id="nums" onchange="redessiner()"><option value="der">Derniers tirs</option><option value="tous">Tous</option><option value="aucun">Aucun</option></select></div>
 <div><label>Taille des repères</label><input type="range" id="taille" min="2" max="12" value="5" oninput="redessiner()" style="width:100%"></div></div>
 </div>
 </div>
-<footer>Distant Eye v8</footer>
+<footer>Distant Eye v9</footer>
 </div>
 <script>
 window.onerror=function(m){document.getElementById('err').textContent='Erreur : '+m};
@@ -146,6 +150,10 @@ majSeuil();
 function majZoom(){document.getElementById('zv').textContent=(+document.getElementById('zoom').value).toFixed(1)+'x'}
 function regZoom(d){const z=document.getElementById('zoom');z.value=Math.max(1,Math.min(8,+z.value+d));majZoom();zoomer()}
 majZoom();
+function majDer(){const v=document.getElementById('nder').value;document.getElementById('dv').textContent=v;try{localStorage.setItem('nder',v)}catch(e){}redessiner()}
+function regDer(d){const s=document.getElementById('nder');s.value=Math.max(1,Math.min(20,+s.value+d));majDer()}
+try{const nv=localStorage.getItem('nder');if(nv)document.getElementById('nder').value=nv}catch(e){}
+majDer();
 function show(id){['menu','cam','tir'].forEach(x=>document.getElementById(x).hidden=x!==id)}
 function borne(x){return Math.max(-1,Math.min(1,x))}
 function infoCam(){return 'Zoom optique '+HW.toFixed(1)+'x, numérique '+DZ.toFixed(1)+'x'}
@@ -251,9 +259,10 @@ function detecter(a,b,W,H,dx,dy){const s=+document.getElementById('seuil').value
  return n;}
 function dessiner(ctx){const r=+document.getElementById('taille').value;const mode=document.getElementById('nums').value;
  ctx.font='bold '+Math.max(10,r*2)+'px sans-serif';
- impacts.forEach((p,i)=>{const nouveau=i>=nbAvant;
+ const N=+document.getElementById('nder').value;
+ impacts.forEach((p,i)=>{const nouveau=i>=impacts.length-N;
   ctx.lineWidth=nouveau?2:1.5;ctx.strokeStyle=ctx.fillStyle=nouveau?'#f43f5e':'#22c55e';
   ctx.beginPath();ctx.arc(p.x,p.y,r,0,7);ctx.stroke();
   if(mode==='tous'||(mode==='der'&&nouveau)){ctx.lineWidth=3;ctx.strokeStyle='#000';ctx.strokeText(i+1,p.x+r+2,p.y-r);ctx.fillText(i+1,p.x+r+2,p.y-r)}});
- document.getElementById('info').textContent='Total : '+impacts.length+' impact(s) · dernière série : '+(impacts.length-nbAvant);}
+ document.getElementById('info').textContent='Total : '+impacts.length+' impact(s) · en rouge : les '+Math.min(N,impacts.length)+' derniers';}
 </script></body></html>
