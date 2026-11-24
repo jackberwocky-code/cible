@@ -1,53 +1,140 @@
 <!DOCTYPE html>
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Appli Cible</title>
+<meta name="theme-color" content="#0b0f17">
+<title>Distant Eye v8</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='26' fill='%230b0f17'/%3E%3CclipPath id='c'%3E%3Cpath d='M8 60Q60 8 112 60Q60 112 8 60Z'/%3E%3C/clipPath%3E%3Cpath d='M8 60Q60 8 112 60Q60 112 8 60Z' fill='%23e8edf5'/%3E%3Cg clip-path='url(%23c)'%3E%3Ccircle cx='60' cy='60' r='30' fill='%23111827'/%3E%3Ccircle cx='60' cy='60' r='24' fill='%23e8edf5'/%3E%3Ccircle cx='60' cy='60' r='18' fill='%23111827'/%3E%3Ccircle cx='60' cy='60' r='12' fill='%23e8edf5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23f43f5e'/%3E%3C/g%3E%3Cpath d='M8 60Q60 8 112 60Q60 112 8 60Z' fill='none' stroke='%23f43f5e' stroke-width='5'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
-body{font-family:sans-serif;background:#111;color:#eee;margin:0;padding:10px;text-align:center}
-button{font-size:18px;padding:12px;margin:5px;border-radius:8px;border:0;background:#2a7;color:#fff}
-input,select{font-size:18px;padding:10px}
-input{width:120px}
-video,canvas{max-width:100%}
-#code{font-size:40px;font-weight:bold}
-#err{color:#f55;font-weight:bold}
-.pad button{width:90px}
-.live{background:#c50}
-#seuil,#zoom{width:260px;padding:0}
-.grad{display:flex;justify-content:space-between;width:260px;margin:0 auto;font-size:13px;color:#aaa}
-.grad span{border-left:1px solid #777;padding-left:2px;height:14px}
-.pm{padding:6px 16px;font-size:22px}
-#sv,#zv{font-size:26px;color:#ff0}
-</style></head><body>
+:root{--bg:#0b0f17;--card:#141a26;--card2:#1c2433;--line:#2a3447;--txt:#e8edf5;--mut:#8b97ab;--acc:#f43f5e;--acc2:#22c55e;--warn:#f59e0b;--yel:#facc15}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-tap-highlight-color:transparent}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -10%,#1d2740 0,var(--bg) 55%);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;padding:16px 14px 40px}
+.wrap{max-width:560px;margin:0 auto}
+header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+header svg{width:58px;height:58px;flex:none;filter:drop-shadow(0 4px 12px rgba(244,63,94,.35))}
+header h1{margin:0;font-size:24px;letter-spacing:.5px}
+header h1 span{color:var(--acc)}
+header small{display:block;color:var(--mut);font-size:13px;margin-top:2px}
+.home{margin-left:auto;background:var(--card2);color:var(--mut);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.card h3{margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);font-weight:600}
+button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:13px 16px;color:#fff;background:var(--card2);border:1px solid var(--line);cursor:pointer;transition:transform .08s,filter .15s}
+button:active{transform:scale(.97);filter:brightness(1.2)}
+.pri{background:linear-gradient(135deg,#f43f5e,#e11d48);border:0;box-shadow:0 6px 18px rgba(244,63,94,.35)}
+.ok{background:linear-gradient(135deg,#22c55e,#16a34a);border:0;box-shadow:0 6px 18px rgba(34,197,94,.3)}
+.live{background:linear-gradient(135deg,#f59e0b,#d97706);border:0}
+.big{display:block;width:100%;font-size:18px;padding:18px;margin-bottom:10px}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+input,select{font:inherit;color:var(--txt);background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px}
+#codeIn{flex:1;min-width:0;width:100%;font-size:22px;letter-spacing:6px;text-align:center}
+#err{color:#fecaca;background:#7f1d1d;border-radius:12px;padding:10px;font-weight:600}
+#err:empty{display:none}
+#status{min-height:20px;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:var(--card2);color:var(--mut);font-size:14px}
+#status:empty{display:none}
+.menu button{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:18px;margin-bottom:12px;font-size:18px}
+.menu button b{font-size:26px}
+.menu button small{display:block;font-weight:400;color:rgba(255,255,255,.75);font-size:13px;margin-top:2px}
+#code{font-size:56px;font-weight:800;letter-spacing:12px;text-align:center;color:var(--yel);margin:6px 0 4px;font-variant-numeric:tabular-nums}
+.hint{color:var(--mut);font-size:14px;text-align:center;margin:0}
+video,canvas{display:block;width:100%;border-radius:14px;background:#000}
+#vue{min-height:120px}
+#camStatus{text-align:center;color:var(--mut);font-size:14px;margin:10px 0 0}
+#info{margin:10px 0 12px;font-size:15px;text-align:center;color:var(--txt)}
+.reg{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.reg label{color:var(--mut);font-size:14px}
+.val{font-size:28px;font-weight:800;color:var(--yel);font-variant-numeric:tabular-nums}
+.slider{display:flex;align-items:center;gap:10px}
+.pm{width:48px;height:48px;padding:0;font-size:24px;border-radius:50%;flex:none}
+input[type=range]{flex:1;padding:0;height:6px;-webkit-appearance:none;appearance:none;background:var(--line);border:0;border-radius:6px;accent-color:var(--acc)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--acc);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.grad{display:flex;justify-content:space-between;margin:8px 58px 16px;font-size:12px;color:var(--mut);font-variant-numeric:tabular-nums}
+.grad span{border-left:1px solid #4b5568;padding:8px 0 0 3px;margin-top:-4px}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:300px;margin:4px auto 14px}
+.pad button{padding:14px 0}
+.pad .c{background:#26324a}
+.sub{color:var(--mut);font-size:13px;font-weight:400}
+button .sub{color:rgba(255,255,255,.8)}
+.disp{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.disp>div{flex:1;min-width:140px}
+.disp label{display:block;color:var(--mut);font-size:13px;margin-bottom:6px}
+.disp select{width:100%}
+footer{text-align:center;color:#4b5568;font-size:12px;margin-top:20px}
+</style></head><body><div class="wrap">
+<header>
+<svg viewBox="0 0 120 120" aria-label="Logo Distant Eye">
+<defs><clipPath id="oeil"><path d="M8 60Q60 8 112 60Q60 112 8 60Z"/></clipPath>
+<radialGradient id="blanc" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cbd5e1"/></radialGradient></defs>
+<path d="M8 60Q60 8 112 60Q60 112 8 60Z" fill="url(#blanc)"/>
+<g clip-path="url(#oeil)">
+<circle cx="60" cy="60" r="31" fill="#111827"/>
+<circle cx="60" cy="60" r="25" fill="#f1f5f9"/>
+<circle cx="60" cy="60" r="19" fill="#111827"/>
+<circle cx="60" cy="60" r="13" fill="#f1f5f9"/>
+<circle cx="60" cy="60" r="7" fill="#f43f5e"/>
+<path d="M60 26V40M60 80V94M26 60H40M80 60H94" stroke="#f43f5e" stroke-width="2"/>
+<circle cx="70" cy="49" r="4" fill="#fff" opacity=".85"/>
+</g>
+<path d="M8 60Q60 8 112 60Q60 112 8 60Z" fill="none" stroke="#f43f5e" stroke-width="4" stroke-linejoin="round"/>
+</svg>
+<div><h1>Distant <span>Eye</span> v8</h1><small>Analyse des impacts à distance</small></div>
+<button class="home" onclick="location.reload()">Accueil</button>
+</header>
 <p id="err"></p>
-<div id="menu"><h2>Appli Cible v7</h2>
-<button onclick="modeCamera()">Mode camera (S10)</button><br>
-<button onclick="show('tir')">Mode tireur</button></div>
-<div id="cam" hidden><p>Code a saisir sur le telephone du tireur :</p><div id="code">...</div>
-<video id="video" autoplay playsinline muted></video><p id="camStatus">En attente de connexion...</p></div>
+
+<div id="menu" class="menu">
+<button class="pri" onclick="modeCamera()"><b>&#128247;</b><span>Mode caméra<small>Sur le S10, posé près de la cible</small></span></button>
+<button class="ok" onclick="show('tir')"><b>&#127919;</b><span>Mode tireur<small>Sur ton téléphone, au poste de tir</small></span></button>
+</div>
+
+<div id="cam" hidden>
+<div class="card"><h3>Code de connexion</h3>
+<div id="code">····</div>
+<p class="hint">À saisir sur le téléphone du tireur</p></div>
+<div class="card"><h3>Caméra</h3>
+<video id="video" autoplay playsinline muted></video>
+<p id="camStatus">En attente de connexion…</p></div>
+</div>
+
 <div id="tir" hidden>
-<div id="connexion"><input id="codeIn" placeholder="Code" inputmode="numeric"><button onclick="connecter()">Connecter</button></div>
+<div id="connexion" class="card"><h3>Connexion</h3>
+<div class="row"><input id="codeIn" placeholder="0000" inputmode="numeric" maxlength="4"><button class="pri" onclick="connecter()" style="flex:none">Connecter</button></div></div>
 <p id="status"></p>
-<button class="live" onclick="live(true)">Video de cadrage (60 s)</button><button class="live" onclick="live(false)">Stop video</button>
-<p>Zoom : <b id="zv">1x</b></p>
-<p><button class="pm" onclick="regZoom(-0.5)">-</button>
-<input type="range" id="zoom" min="1" max="8" step="0.5" value="1" oninput="majZoom()" onchange="zoomer()">
-<button class="pm" onclick="regZoom(0.5)">+</button></p>
-<div class="grad"><span>1x</span><span>2x</span><span>3x</span><span>4x</span><span>5x</span><span>6x</span><span>7x</span><span>8x</span></div>
-<div class="pad"><button onclick="pan(0,-0.2)">Haut</button><br>
-<button onclick="pan(-0.2,0)">Gauche</button><button onclick="pan(0,0)">Centre</button><button onclick="pan(0.2,0)">Droite</button><br>
-<button onclick="pan(0,0.2)">Bas</button></div>
-<button onclick="demander('apercu')">Apercu du cadrage</button><br>
-<button onclick="demander('ref')">1. Reference (cible vierge)</button>
-<button onclick="demander('tir')">2. Voir mes tirs</button>
-<p>Sensibilite : <b id="sv">30</b> <small>(petit = plus sensible)</small></p>
-<p><button class="pm" onclick="regSeuil(-1)">-</button>
+
+<div class="card"><h3>Cible</h3>
+<canvas id="vue"></canvas>
+<p id="info"></p>
+<div class="row"><button class="ok big" onclick="demander('ref')">1. Référence<br><span class="sub">cible vierge</span></button>
+<button class="pri big" onclick="demander('tir')">2. Voir mes tirs<br><span class="sub">détecter</span></button></div>
+<div class="reg"><label>Sensibilité <span class="sub">(petit = plus sensible)</span></label><span class="val" id="sv">30</span></div>
+<div class="slider"><button class="pm" onclick="regSeuil(-1)">−</button>
 <input type="range" id="seuil" min="10" max="80" step="1" value="30" oninput="majSeuil()">
-<button class="pm" onclick="regSeuil(1)">+</button></p>
+<button class="pm" onclick="regSeuil(1)">+</button></div>
 <div class="grad"><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span></div>
-<p>Numeros <select id="nums" onchange="redessiner()"><option value="der">Derniere serie</option><option value="tous">Tous</option><option value="aucun">Aucun</option></select>
-Taille repere <input type="range" id="taille" min="2" max="12" value="5" oninput="redessiner()"></p>
-<canvas id="vue"></canvas><p id="info"></p></div>
+</div>
+
+<div class="card"><h3>Cadrage</h3>
+<div class="row" style="margin-bottom:14px"><button class="live" onclick="live(true)">&#9654; Vidéo 60 s</button><button onclick="live(false)">&#9632; Stop</button></div>
+<div class="reg"><label>Zoom</label><span class="val" id="zv">1x</span></div>
+<div class="slider"><button class="pm" onclick="regZoom(-0.5)">−</button>
+<input type="range" id="zoom" min="1" max="8" step="0.5" value="1" oninput="majZoom()" onchange="zoomer()">
+<button class="pm" onclick="regZoom(0.5)">+</button></div>
+<div class="grad"><span>1x</span><span>2x</span><span>3x</span><span>4x</span><span>5x</span><span>6x</span><span>7x</span><span>8x</span></div>
+<div class="pad"><span></span><button onclick="pan(0,-0.2)">&#9650;</button><span></span>
+<button onclick="pan(-0.2,0)">&#9664;</button><button class="c" onclick="pan(0,0)">&#9673;</button><button onclick="pan(0.2,0)">&#9654;</button>
+<span></span><button onclick="pan(0,0.2)">&#9660;</button><span></span></div>
+<button class="big" onclick="demander('apercu')">Aperçu du cadrage</button>
+</div>
+
+<div class="card"><h3>Affichage</h3>
+<div class="disp"><div><label>Numéros</label><select id="nums" onchange="redessiner()"><option value="der">Dernière série</option><option value="tous">Tous</option><option value="aucun">Aucun</option></select></div>
+<div><label>Taille des repères</label><input type="range" id="taille" min="2" max="12" value="5" oninput="redessiner()" style="width:100%"></div></div>
+</div>
+</div>
+<footer>Distant Eye v8</footer>
+</div>
 <script>
 window.onerror=function(m){document.getElementById('err').textContent='Erreur : '+m};
 const P='cible-flo-';const R=20;let conn,ref=null,impacts=[],nbAvant=0,lastIm=null;
@@ -61,7 +148,7 @@ function regZoom(d){const z=document.getElementById('zoom');z.value=Math.max(1,M
 majZoom();
 function show(id){['menu','cam','tir'].forEach(x=>document.getElementById(x).hidden=x!==id)}
 function borne(x){return Math.max(-1,Math.min(1,x))}
-function infoCam(){return 'Zoom optique '+HW.toFixed(1)+'x, numerique '+DZ.toFixed(1)+'x'}
+function infoCam(){return 'Zoom optique '+HW.toFixed(1)+'x, numérique '+DZ.toFixed(1)+'x'}
 async function garderEveille(){try{if(navigator.wakeLock&&!wake){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>{wake=null})}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')garderEveille()});
 async function appliquerZoom(z){let hw=1;
@@ -74,10 +161,10 @@ function capture(v,maxW,q){const vw=v.videoWidth,vh=v.videoHeight,sw=Math.round(
  const cv=document.createElement('canvas');cv.width=Math.round(sw*k);cv.height=Math.round(sh*k);
  cv.getContext('2d').drawImage(v,sx,sy,sw,sh,0,0,cv.width,cv.height);return cv.toDataURL('image/jpeg',q||0.6);}
 function stopLive(c){if(liveInt){clearInterval(liveInt);liveInt=null}if(liveFin){clearTimeout(liveFin);liveFin=null}
- if(c)c.send({type:'info',txt:'Video de cadrage arretee'});}
+ if(c)c.send({type:'info',txt:'Vidéo de cadrage arrêtée'});}
 async function modeCamera(){show('cam');
  try{
- if(typeof Peer==='undefined')throw new Error('bibliotheque PeerJS non chargee');
+ if(typeof Peer==='undefined')throw new Error('bibliothèque PeerJS non chargée');
  const code=String(Math.floor(1000+Math.random()*9000));
  const v=document.getElementById('video');
  const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}});
@@ -86,35 +173,36 @@ async function modeCamera(){show('cam');
  const peer=new Peer(P+code);
  peer.on('open',()=>document.getElementById('code').textContent=code);
  peer.on('error',e=>document.getElementById('camStatus').textContent='Erreur : '+e.type);
- peer.on('connection',c=>{document.getElementById('camStatus').textContent='Tireur connecte';
+ peer.on('connection',c=>{document.getElementById('camStatus').textContent='Tireur connecté';
   c.on('close',()=>stopLive(null));
   c.on('data',async d=>{
    if(typeof d==='object'&&d.cmd==='zoom'){await appliquerZoom(+d.z);c.send({type:'info',txt:infoCam()});return}
    if(typeof d==='object'&&d.cmd==='pan'){if(d.x===0&&d.y===0){PX=0;PY=0}else{PX=borne(PX+d.x);PY=borne(PY+d.y)}
-    c.send({type:'info',txt:DZ>1?'Cadrage deplace':'Cadrage : monte le zoom au-dela du zoom optique pour deplacer'});return}
+    c.send({type:'info',txt:DZ>1?'Cadrage déplacé':'Cadrage : monte le zoom au-delà du zoom optique pour déplacer'});return}
    if(typeof d==='object'&&d.cmd==='live'){stopLive(null);
     if(d.on){liveInt=setInterval(()=>{try{c.send({type:'live',img:capture(v,480,0.5)})}catch(e){}},500);
      liveFin=setTimeout(()=>stopLive(c),60000);}
-    else c.send({type:'info',txt:'Video de cadrage arretee'});
+    else c.send({type:'info',txt:'Vidéo de cadrage arrêtée'});
     return}
    c.send({type:d,img:capture(v)})});});
  garderEveille();
- }catch(e){document.getElementById('err').textContent='Erreur camera : '+e.message}
+ }catch(e){document.getElementById('err').textContent='Erreur caméra : '+e.message}
 }
 function connecter(){
- if(typeof Peer==='undefined')return status('Erreur : bibliotheque PeerJS non chargee');
+ if(typeof Peer==='undefined')return status('Erreur : bibliothèque PeerJS non chargée');
+ status('Connexion en cours…');
  const peer=new Peer();
  peer.on('open',()=>{conn=peer.connect(P+document.getElementById('codeIn').value);
-  conn.on('open',()=>{status('Connecte');document.getElementById('connexion').hidden=true});
+  conn.on('open',()=>{status('Connecté au S10');document.getElementById('connexion').hidden=true});
   conn.on('data',recevoir);});
  peer.on('error',e=>status('Erreur : '+e.type));}
 function status(t){document.getElementById('status').textContent=t}
-function demander(t){if(!conn)return status("Connecte-toi d'abord");status('Photo en cours...');conn.send(t)}
+function demander(t){if(!conn)return status("Connecte-toi d'abord");status('Photo en cours…');conn.send(t)}
 function live(on){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'live',on:on});
- if(on){ref=null;impacts=[];lastIm=null;status('Video de cadrage en cours (60 s)...')}}
+ if(on){ref=null;impacts=[];lastIm=null;status('Vidéo de cadrage en cours (60 s)…')}}
 function zoomer(){const z=+document.getElementById('zoom').value;majZoom();
  if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'zoom',z:z});ref=null;impacts=[];lastIm=null;
- status('Zoom '+z.toFixed(1)+'x envoye : verifie le cadrage, puis fais une nouvelle reference');}
+ status('Zoom '+z.toFixed(1)+'x envoyé : vérifie le cadrage, puis refais une référence');}
 function pan(x,y){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'pan',x:x,y:y});ref=null;impacts=[];lastIm=null;}
 function moyenneLocale(g,W,H,r){const I=new Float64Array((W+1)*(H+1));
  for(let y=0;y<H;y++){let s=0;for(let x=0;x<W;x++){s+=g[y*W+x];I[(y+1)*(W+1)+x+1]=I[y*(W+1)+x+1]+s}}
@@ -141,14 +229,14 @@ function recevoir(d){if(d.type==='info'){status(d.txt);return}
  const im=new Image();im.onload=()=>{
  const W=600,H=Math.round(im.height*W/im.width);const cv=document.getElementById('vue');cv.width=W;cv.height=H;
  const ctx=cv.getContext('2d');ctx.drawImage(im,0,0,W,H);
- if(d.type==='live'){ctx.strokeStyle='rgba(255,255,0,.8)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();return}
- if(d.type==='apercu'){status('Apercu du cadrage');return}
+ if(d.type==='live'){ctx.strokeStyle='rgba(250,204,21,.85)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();ctx.beginPath();ctx.arc(W/2,H/2,Math.min(W,H)/6,0,7);ctx.stroke();return}
+ if(d.type==='apercu'){status('Aperçu du cadrage');return}
  const px=ctx.getImageData(0,0,W,H).data;
  let g=new Float32Array(W*H);for(let i=0;i<W*H;i++)g[i]=px[i*4]*.3+px[i*4+1]*.59+px[i*4+2]*.11;
  g=normaliser(g,W,H);
- if(d.type==='ref'||!ref){ref=g;impacts=[];nbAvant=0;status('Reference enregistree');}
+ if(d.type==='ref'||!ref){ref=g;impacts=[];nbAvant=0;status('Référence enregistrée');}
  else{const [dx,dy]=recaler(ref,g,W,H);impacts.forEach(p=>{p.x+=dx;p.y+=dy});
-  nbAvant=impacts.length;const n=detecter(ref,g,W,H,dx,dy);ref=g;status(n+' nouvel(s) impact(s) - sensibilite '+document.getElementById('seuil').value+' - recalage '+dx+','+dy+' px');}
+  nbAvant=impacts.length;const n=detecter(ref,g,W,H,dx,dy);ref=g;status(n+' nouvel(s) impact(s) · sensibilité '+document.getElementById('seuil').value+' · recalage '+dx+','+dy+' px');}
  lastIm=im;dessiner(ctx);};im.src=d.img;}
 function redessiner(){if(!lastIm)return;const cv=document.getElementById('vue');const ctx=cv.getContext('2d');
  ctx.drawImage(lastIm,0,0,cv.width,cv.height);dessiner(ctx);}
@@ -164,8 +252,8 @@ function detecter(a,b,W,H,dx,dy){const s=+document.getElementById('seuil').value
 function dessiner(ctx){const r=+document.getElementById('taille').value;const mode=document.getElementById('nums').value;
  ctx.font='bold '+Math.max(10,r*2)+'px sans-serif';
  impacts.forEach((p,i)=>{const nouveau=i>=nbAvant;
-  ctx.lineWidth=nouveau?2:1.5;ctx.strokeStyle=ctx.fillStyle=nouveau?'#f00':'#0f0';
+  ctx.lineWidth=nouveau?2:1.5;ctx.strokeStyle=ctx.fillStyle=nouveau?'#f43f5e':'#22c55e';
   ctx.beginPath();ctx.arc(p.x,p.y,r,0,7);ctx.stroke();
   if(mode==='tous'||(mode==='der'&&nouveau)){ctx.lineWidth=3;ctx.strokeStyle='#000';ctx.strokeText(i+1,p.x+r+2,p.y-r);ctx.fillText(i+1,p.x+r+2,p.y-r)}});
- document.getElementById('info').textContent='Total : '+impacts.length+' impact(s) - derniere serie : '+(impacts.length-nbAvant);}
+ document.getElementById('info').textContent='Total : '+impacts.length+' impact(s) · dernière série : '+(impacts.length-nbAvant);}
 </script></body></html>
