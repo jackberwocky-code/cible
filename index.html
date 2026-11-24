@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye v12</title>
+<title>Distant Eye v13</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 4L108 32V88L60 116L12 88V32Z' fill='%230d0820' stroke='%2305d9e8' stroke-width='5'/%3E%3Cpath d='M14 60Q60 18 106 60Q60 102 14 60Z' fill='none' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -107,6 +107,9 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:18px;letter-
 .modal h3{margin:0 0 10px;color:var(--mag);letter-spacing:2px;text-transform:uppercase;font-size:15px}
 .modal table td{text-align:left}
 .modal table td:first-child{color:var(--mut);width:46%}
+.alerte{position:relative;z-index:1;background:rgba(40,10,30,.95);border:1px solid #f9a03f;border-radius:12px;padding:10px 38px 10px 12px;margin-bottom:12px;font-size:14px;line-height:1.5;box-shadow:0 0 16px rgba(249,160,63,.45)}
+.alerte b{color:#f9a03f}
+.alerte .x{position:absolute;right:6px;top:6px;padding:4px 9px;font-size:13px;background:transparent;border:1px solid rgba(249,160,63,.6);color:#f9a03f}
 </style></head><body>
 <div id="fond"><div class="halo h1"></div><div class="halo h2"></div><div class="halo h3"></div><div class="grille"></div>
 <svg viewBox="0 0 1000 300" fill="none" stroke-linejoin="round" stroke-linecap="round">
@@ -147,11 +150,12 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:18px;letter-
 </g>
 <path d="M60 22V36M60 84V98M8 60H26M94 60H112" stroke="#f9f871" stroke-width="2.5"/>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><small>v12 · impact analysis</small></div>
+<div><h1>Distant <span>Eye</span></h1><small>v13 · impact analysis</small></div>
 <button class="home" onclick="location.reload()">Accueil</button>
 </header>
 <nav class="tabs" id="tabs"><button id="tbC" class="on" onclick="tab('c')">&#127919; Cible</button><button id="tbK" onclick="tab('k')">&#129518; Calcul</button></nav>
 <p id="err"></p>
+<div id="alerte" class="alerte" hidden><button class="x" onclick="fermerAlerte()">&#10005;</button><div id="alerteTxt"></div></div>
 
 <div id="tabCible">
 <div id="menu" class="menu">
@@ -231,29 +235,22 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:18px;letter-
 </div>
 
 <div id="tabCalc" hidden>
-<div class="card"><h3>Arme et lunette</h3>
+<div class="card"><h3>1 · Arme et lunette</h3>
 <label class="fl">Profil</label><select id="selW" class="full" onchange="refresh()"></select>
 <div class="edit"><span class="fl">Modifier ce profil</span>
 <div class="grid2">
 <div class="s2"><label>Nom</label><input id="wName"></div>
 <div><label>Hauteur lunette / canon (cm)</label><input id="wSH" type="number" step="0.1"></div>
-<div><label>Distance de réglage (m)</label><input id="wZero" type="number"></div>
+<div><label>Distance de réglage du zéro (m)</label><input id="wZero" type="number"></div>
 <div><label>Unité de la lunette</label><select id="wUnit"><option>MOA</option><option>MRAD</option></select></div>
 <div><label>Valeur d'un clic</label><input id="wClick" type="number" step="0.01"></div>
 <div class="s2"><label>Notes (calibre, canon, pas)</label><input id="wNotes"></div>
-<div class="s2"><span class="fl">Conditions du zéro</span><span class="small">Les corrections sont calculées par rapport à ces conditions : à la distance de réglage et dans ces conditions, elles valent 0.</span></div>
-<div><label>Température (°C)</label><input id="zT" type="number" step="0.1"></div>
-<div><label>Pression (hPa)</label><input id="zP" type="number" step="0.1"></div>
-<div><label>Humidité (%)</label><input id="zRH" type="number"></div>
-<div><label>Vent latéral (m/s, + = vient de droite)</label><input id="zW" type="number" step="0.1"></div>
-<div class="s2"><label>Date du zéro</label><input id="zDate" type="date"></div>
-<div class="s2"><button class="full live" onclick="zeroIci()">&#128204; Mon zéro est fait ici (conditions actuelles)</button></div>
 </div>
 <div class="btns"><button class="ok" onclick="saveW()">Enregistrer les modifications</button></div></div>
 <div class="btns"><button onclick="newW()">+ Nouvelle arme</button><button onclick="delW()">Supprimer</button></div>
 </div>
 
-<div class="card"><h3>Munition</h3>
+<div class="card"><h3>2 · Munition</h3>
 <label class="fl">Profil (pour l'arme choisie)</label><select id="selA" class="full" onchange="showA()"></select>
 <div class="edit"><span class="fl">Modifier ce profil</span>
 <div class="grid2">
@@ -268,29 +265,7 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:18px;letter-
 <div class="btns"><button onclick="newA()">+ Nouvelle munition</button><button onclick="delA()">Supprimer</button></div>
 </div>
 
-<div class="card"><h3>Cibles</h3>
-<label class="fl">Profil</label><select id="selT" class="full" onchange="showT()"></select>
-<div class="edit"><span class="fl">Modifier ce profil</span>
-<div class="grid2">
-<div class="s2"><label>Nom</label><input id="tName"></div>
-<div><label>Largeur (cm)</label><input id="tW" type="number" step="0.1"></div>
-<div><label>Hauteur (cm)</label><input id="tH" type="number" step="0.1"></div>
-<div class="s2"><label>Zones de visée : nom, x, y, diamètre (cm, depuis le coin haut-gauche), une par ligne</label><textarea id="tZ" rows="5" style="width:100%;font:13px ui-monospace,monospace;color:var(--txt);background:rgba(6,4,13,.7);border:1px solid rgba(5,217,232,.3);border-radius:10px;padding:10px"></textarea></div>
-</div>
-<div class="btns"><button class="ok" onclick="saveT()">Enregistrer les modifications</button></div></div>
-<div class="btns"><button onclick="newT()">+ Nouvelle cible</button><button onclick="delT()">Supprimer</button></div>
-</div>
-
-<div class="card"><h3>Lieux de tir</h3>
-<label class="fl">Lieu</label><select id="selL" class="full" onchange="showL()"></select>
-<div class="edit"><span class="fl">Modifier ce lieu</span>
-<div class="grid2"><div class="s2"><label>Nom</label><input id="lName"></div><div class="s2"><label>Notes (abrité, plaine…)</label><input id="lNotes"></div></div>
-<div class="btns"><button class="ok" onclick="saveL()">Enregistrer les modifications</button></div></div>
-<div id="lInfo" class="res"></div>
-<div class="btns"><button onclick="newL()">+ Nouveau lieu</button><button onclick="delL()">Supprimer</button><button onclick="resetVentL()">Oublier le vent appris ici</button></div>
-</div>
-
-<div class="card"><h3>Conditions</h3>
+<div class="card"><h3>3 · Météo, zéro et séance</h3>
 <div class="grid2"><div class="s2"><label>Lieu de tir</label><select id="cL" onchange="saveCond();majVent()"></select></div></div>
 <button class="pri big" onclick="meteo()">&#128205; Météo ici</button>
 <p id="wxInfo" class="small"></p>
@@ -309,10 +284,52 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:18px;letter-
 <div class="s2"><label>Vent utilisé pour le calcul</label><select id="cSrc"><option value="meteo">Vent météo (corrigé pour ce lieu)</option><option value="man">Vent saisi au stand</option></select></div>
 <div><label>Vent saisi (m/s)</label><input id="manV" type="number" step="0.1" value="0"></div>
 <div><label>Vent saisi, heure (3 = vient de droite)</label><input id="manH" type="number" value="3"></div>
-<div class="s2"><label>Distances (m, séparées par des virgules)</label><input id="cD" value="100,150,200,250,300"></div>
 </div>
-<button class="ok big" onclick="calc()">Calculer</button>
+<div class="edit"><span class="fl">Zéro et séance</span>
+<div id="zInfo" class="res"></div>
+<button class="live big" onclick="zeroIci()">&#128204; Mon zéro est fait ici (conditions actuelles)</button>
+<button class="full" onclick="nouvelleSeance()">&#9654; Nouvelle séance, zéro inchangé</button>
+<div id="sessInfo" class="res"></div>
+<details><summary>Modifier les conditions du zéro à la main</summary>
+<div class="grid2">
+<div><label>Température (°C)</label><input id="zT" type="number" step="0.1"></div>
+<div><label>Pression (hPa)</label><input id="zP" type="number" step="0.1"></div>
+<div><label>Humidité (%)</label><input id="zRH" type="number"></div>
+<div><label>Vent latéral (m/s, + = vient de droite)</label><input id="zW" type="number" step="0.1"></div>
+<div class="s2"><label>Date du zéro</label><input id="zDate" type="date"></div>
+</div>
+<button class="full ok" onclick="saveZero()">Enregistrer les conditions du zéro</button>
+</details>
+</div>
+<div class="grid2" style="margin-top:10px"><div class="s2"><label>Distances du tableau (m, séparées par des virgules)</label><input id="cD" value="100,150,200,250,300"></div></div>
+<button class="ok big" onclick="calc()">Calculer les corrections</button>
 <div id="out"></div>
+</div>
+
+<div class="card"><h3>4 · Cibles</h3>
+<label class="fl">Profil</label><select id="selT" class="full" onchange="showT()"></select>
+<div class="edit"><span class="fl">Modifier ce profil</span>
+<div class="grid2">
+<div class="s2"><label>Nom</label><input id="tName"></div>
+<div><label>Largeur (cm)</label><input id="tW" type="number" step="0.1"></div>
+<div><label>Hauteur (cm)</label><input id="tH" type="number" step="0.1"></div>
+</div>
+<p class="small">Une fois la cible calée, l'appli repère toute seule les visuels noirs sur la photo (centre et taille). Rien d'autre à saisir.</p>
+<details><summary>Zones de visée (facultatif, si la détection ne suffit pas)</summary>
+<p class="small">Une zone par ligne : nom, x, y, diamètre, en cm depuis le coin haut-gauche.</p>
+<textarea id="tZ" rows="5" style="width:100%;font:13px ui-monospace,monospace;color:var(--txt);background:rgba(6,4,13,.7);border:1px solid rgba(5,217,232,.3);border-radius:10px;padding:10px"></textarea>
+</details>
+<div class="btns"><button class="ok" onclick="saveT()">Enregistrer les modifications</button></div></div>
+<div class="btns"><button onclick="newT()">+ Nouvelle cible</button><button onclick="delT()">Supprimer</button></div>
+</div>
+
+<div class="card"><h3>5 · Lieux de tir</h3>
+<label class="fl">Lieu</label><select id="selL" class="full" onchange="showL()"></select>
+<div class="edit"><span class="fl">Modifier ce lieu</span>
+<div class="grid2"><div class="s2"><label>Nom</label><input id="lName"></div><div class="s2"><label>Notes (abrité, plaine…)</label><input id="lNotes"></div></div>
+<div class="btns"><button class="ok" onclick="saveL()">Enregistrer les modifications</button></div></div>
+<div id="lInfo" class="res"></div>
+<div class="btns"><button onclick="newL()">+ Nouveau lieu</button><button onclick="delL()">Supprimer</button><button onclick="resetVentL()">Oublier le vent appris ici</button></div>
 </div>
 
 <div class="card"><h3>Apprentissage</h3>
@@ -335,7 +352,7 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:18px;letter-
 </div>
 <div id="modal" class="modal" hidden><div class="box"><h3>Vérification avant envoi</h3><div id="mBody"></div>
 <div class="btns" style="margin-top:12px"><button onclick="fermerModal()">Corriger</button><button class="pri" id="mOk">Confirmer l'envoi</button></div></div></div>
-<footer>DISTANT EYE v12</footer>
+<footer>DISTANT EYE v13</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -442,7 +459,7 @@ function fitAll(db,now){now=now||Date.now();const W=id=>db.w.find(x=>x.id==id),L
 window.onerror=function(m){document.getElementById('err').textContent='Erreur : '+m};
 const P='cible-flo-';const R=20;let conn,ref=null,impacts=[],lastIm=null;
 let track=null,caps=null,HW=1,DZ=1,PX=0,PY=0,liveInt=null,liveFin=null,wake=null;
-let tapMode=null,cal=null,calPts=[],aim=null,VIEW=null;
+let tapMode=null,cal=null,calPts=[],aim=null,VIEW=null,zonesDet=null;
 const $=id=>document.getElementById(id),num=id=>parseFloat($(id).value);
 function majSeuil(){const v=$('seuil').value;$('sv').textContent=v;try{localStorage.setItem('seuil',v)}catch(e){}}
 function regSeuil(d){const s=$('seuil');s.value=Math.max(10,Math.min(80,+s.value+d));majSeuil()}
@@ -501,7 +518,7 @@ function connecter(){
  peer.on('error',e=>status('Erreur : '+e.type));}
 function status(t){$('status').textContent=t}
 function demander(t){if(!conn)return status("Connecte-toi d'abord");status('Photo en cours…');conn.send(t)}
-function toutEffacer(){ref=null;impacts=[];lastIm=null;cal=null;calPts=[];aim=null;tapMode=null}
+function toutEffacer(){ref=null;impacts=[];lastIm=null;cal=null;calPts=[];aim=null;tapMode=null;zonesDet=null}
 function live(on){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'live',on:on});
  if(on){toutEffacer();status('Vidéo de cadrage en cours (60 s)… règle le zoom et le cadrage juste en dessous')}}
 function zoomer(){const z=+$('zoom').value;majZoom();
@@ -556,7 +573,22 @@ function vueCalc(){const H0=lastIm?Math.round(lastIm.height*600/lastIm.width):40
  return{sx:0,sy:0,sw:600,sh:H0,VW:600,VH:H0}}
 const versVue=p=>({x:(p.x-VIEW.sx)*VIEW.VW/VIEW.sw,y:(p.y-VIEW.sy)*VIEW.VH/VIEW.sh});
 const versImg=p=>({x:VIEW.sx+p.x*VIEW.sw/VIEW.VW,y:VIEW.sy+p.y*VIEW.sh/VIEW.VH});
-function zones(){const T=cible();return calOk()&&T.zones&&T.zones.length?T.zones:[]}
+function zones(){if(!calOk())return[];if(zonesDet&&zonesDet.length)return zonesDet;const T=cible();return T.zones&&T.zones.length?T.zones:[]}
+// Detection automatique des visuels noirs dans la cible calee
+function detecterVisuels(){zonesDet=null;if(!calOk()||!lastIm)return 0;const T=cible(),S=Math.min(6,700/Math.max(T.w,T.h)),Wt=Math.round(T.w*S),Ht=Math.round(T.h*S),f=lastIm.width/600;
+ const cv=document.createElement('canvas');cv.width=Wt;cv.height=Ht;const ctx=cv.getContext('2d');ctx.drawImage(lastIm,cal.tl.x*f,cal.tl.y*f,(cal.br.x-cal.tl.x)*f,(cal.br.y-cal.tl.y)*f,0,0,Wt,Ht);
+ const px=ctx.getImageData(0,0,Wt,Ht).data,N=Wt*Ht,L=new Uint8Array(N),h=new Float64Array(256);
+ for(let i=0;i<N;i++){L[i]=Math.round(px[i*4]*.3+px[i*4+1]*.59+px[i*4+2]*.11);h[L[i]]++}
+ let sum=0,sB=0,wB=0,best=0,th=100;for(let i=0;i<256;i++)sum+=i*h[i];for(let t=0;t<256;t++){wB+=h[t];if(!wB)continue;const wF=N-wB;if(!wF)break;sB+=t*h[t];const mB=sB/wB,mF=(sum-sB)/wF,v=wB*wF*(mB-mF)**2;if(v>best){best=v;th=t}}
+ const m=new Uint8Array(N);for(let i=0;i<N;i++)m[i]=L[i]<=th?1:0;const B=[],pile=[];
+ for(let i=0;i<N;i++)if(m[i]){let x0=1e9,y0=1e9,x1=-1,y1=-1,ar=0,bord=false;pile.push(i);m[i]=0;
+  while(pile.length){const p=pile.pop(),x=p%Wt,y=(p/Wt)|0;ar++;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;if(x<=1||y<=1||x>=Wt-2||y>=Ht-2)bord=true;
+   for(const q of [p-1,p+1,p-Wt,p+Wt])if(q>=0&&q<N&&m[q]&&Math.abs((q%Wt)-x)<=1){m[q]=0;pile.push(q)}}
+  const bw=x1-x0+1,bh=y1-y0+1,d=(bw+bh)/2/S;if(!bord&&d>=2&&bw/bh>.6&&bw/bh<1.6&&ar/(bw*bh)>.2)B.push({x:(x0+x1)/2/S,y:(y0+y1)/2/S,d})}
+ const top=B.filter(b=>!B.some(o=>o!==b&&o.d>b.d&&Math.hypot(o.x-b.x,o.y-b.y)<o.d/2));
+ const Z=T.zones||[];let R;
+ if(Z.length){let n=0;R=Z.map(z=>{let bz=null,bs=1e9;for(const b of B){const dist=Math.hypot(b.x-z.x,b.y-z.y),r=b.d/z.d;if(dist<z.d*.75&&r>.4&&r<1.8){const s=Math.abs(Math.log(r))+dist/z.d;if(s<bs){bs=s;bz=b}}}if(bz){n++;return{n:z.n,x:bz.x,y:bz.y,d:bz.d,auto:true}}return z});if(!n)return 0;zonesDet=R;return n}
+ R=top.sort((a,b)=>a.y-b.y||a.x-b.x).map((b,i)=>({n:'V'+(i+1),x:b.x,y:b.y,d:b.d,auto:true}));if(!R.length)return 0;zonesDet=R;return R.length}
 function zoneDe(p){const Z=zones();if(!Z.length)return -1;const c=imgVersCm(p);let b=0,bd=Infinity;Z.forEach((z,i)=>{const d=Math.hypot(c.x-z.x,c.y-z.y);if(d<bd){bd=d;b=i}});return b}
 function zoneChoisie(){const Z=zones();if(!Z.length)return -1;const v=$('gZ').value;if(v!=='auto')return Math.min(+v,Z.length-1);return impacts.length?zoneDe(impacts[impacts.length-1]):0}
 function rendu(){const cv=$('vue');if(!lastIm){if(typeof majGroupe=='function')majGroupe();return}
@@ -565,7 +597,7 @@ function rendu(){const cv=$('vue');if(!lastIm){if(typeof majGroupe=='function')m
  const k=VIEW.VW/VIEW.sw,cr=(x,y,r,col,lw)=>{ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();ctx.moveTo(x-r,y);ctx.lineTo(x+r,y);ctx.moveTo(x,y-r);ctx.lineTo(x,y+r);ctx.stroke()};
  // contour de la cible et zones
  if(calOk()){const a=versVue(cal.tl),b=versVue(cal.br);ctx.strokeStyle='rgba(5,217,232,.7)';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);ctx.strokeRect(a.x,a.y,b.x-a.x,b.y-a.y);ctx.setLineDash([]);
-  const zc=zoneChoisie();zones().forEach((z,i)=>{const c=versVue(cmVersImg(z)),r=z.d/2*(b.x-a.x)/cible().w;ctx.strokeStyle=i==zc?'#ff2a6d':'rgba(5,217,232,.55)';ctx.lineWidth=i==zc?2.5:1;ctx.beginPath();ctx.arc(c.x,c.y,r,0,7);ctx.stroke();
+  const zc=zoneChoisie();zones().forEach((z,i)=>{const c=versVue(cmVersImg(z)),r=z.d/2*(b.x-a.x)/cible().w;ctx.strokeStyle=i==zc?'#ff2a6d':'rgba(5,217,232,.55)';ctx.lineWidth=i==zc?2.5:1;ctx.setLineDash(z.auto?[]:[5,4]);ctx.beginPath();ctx.arc(c.x,c.y,r,0,7);ctx.stroke();ctx.setLineDash([]);
    ctx.font='bold 11px ui-monospace,monospace';ctx.fillStyle=i==zc?'#ff2a6d':'rgba(5,217,232,.8)';ctx.fillText(z.n,c.x-r,c.y-r-3)})}
  calPts.forEach(p=>{const v=versVue(p);ctx.fillStyle='#05d9e8';ctx.beginPath();ctx.arc(v.x,v.y,5,0,7);ctx.fill()});
  // impacts
@@ -587,13 +619,13 @@ function groupe(){if(!calOk())return null;const N=+$('gN').value,z=zoneChoisie()
  return{n:P.length,dx:cx-a.x,dy:a.y-cy,size,cImg:cmVersImg({x:cx,y:cy}),zone:z>=0?zones()[z].n:null}}
 function msgTap(t){$('gTap').textContent=t}
 function modeTap(m){if(!lastIm)return msgTap('Fais d\'abord une photo (Tirs → Référence)');tapMode=m;$('vue').classList.add('tap');
- if(m=='cal'){cal=null;calPts=[];aim=null;rendu();msgTap('Touche le coin HAUT-GAUCHE de la cible sur l\'image')}else msgTap('Touche le point visé sur l\'image');window.scrollTo({top:0,behavior:'smooth'})}
-function annulerCalage(){cal=null;calPts=[];aim=null;tapMode=null;$('vue').classList.remove('tap');msgTap('Calage effacé.');rendu()}
+ if(m=='cal'){cal=null;calPts=[];aim=null;zonesDet=null;rendu();msgTap('Touche le coin HAUT-GAUCHE de la cible sur l\'image')}else msgTap('Touche le point visé sur l\'image');window.scrollTo({top:0,behavior:'smooth'})}
+function annulerCalage(){cal=null;calPts=[];aim=null;tapMode=null;zonesDet=null;$('vue').classList.remove('tap');msgTap('Calage effacé.');rendu()}
 $('vue').addEventListener('click',e=>{if(!lastIm||!VIEW)return;const cv=e.currentTarget,r=cv.getBoundingClientRect(),p=versImg({x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height});
  if(tapMode=='aim'){aim=p;tapMode=null;cv.classList.remove('tap');msgTap('Point visé placé à la main.')}
  else if(tapMode=='cal'){calPts.push(p);if(calPts.length==1)msgTap('Touche maintenant le coin BAS-DROIT de la cible');
   else{cal={tl:{x:Math.min(calPts[0].x,calPts[1].x),y:Math.min(calPts[0].y,calPts[1].y)},br:{x:Math.max(calPts[0].x,calPts[1].x),y:Math.max(calPts[0].y,calPts[1].y)}};calPts=[];tapMode=null;cv.classList.remove('tap');
-   msgTap(calOk()?'Cible calée : la vue est redressée au format '+cible().name+'.':'Calage invalide : recommence.')}}
+   if(calOk()){const n=detecterVisuels(),Z=zones();if(typeof majZonesSel=='function')majZonesSel('auto');msgTap('Cible calée au format '+cible().name+'. '+(n?n+' visuel(s) détecté(s)'+(Z.length==1?' (Ø '+Z[0].d.toFixed(1)+' cm)':'')+'.':'Aucun visuel détecté : les zones du profil sont utilisées.'))}else msgTap('Calage invalide : recommence.')}}
  else if(zones().length){const c=imgVersCm(p),Z=zones();let b=0,bd=Infinity;Z.forEach((z,i)=>{const d=Math.hypot(c.x-z.x,c.y-z.y);if(d<bd){bd=d;b=i}});if(bd<Z[b].d){$('gZ').value=b;aim=null;if(typeof gSave=='function')gSave()}}
  rendu()});
 
@@ -640,8 +672,8 @@ function meteo(){$('wxInfo').textContent='Localisation en cours…';
   if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json(),c=j.current;if(!c||c.temperature_2m==null)throw new Error('réponse vide');
   const wx={T:c.temperature_2m,P:c.surface_pressure,RH:c.relative_humidity_2m,v:c.wind_speed_10m,dir:c.wind_direction_10m,time:c.time,lat:la,lon:lo,got:Date.now()};lsSet('balWx',wx);applyWx(wx,false)}
   catch(e){wxOff(e.message)}},e=>wxOff('position refusée ou introuvable'),{enableHighAccuracy:false,timeout:15000,maximumAge:600000})}
-function applyWx(wx,off){$('cT').value=wx.T;$('cP').value=wx.P;$('cRH').value=wx.RH;$('wxV').value=wx.v;$('wxDir').value=wx.dir;
- $('wxInfo').innerHTML=(off?'<span class="warn">Hors ligne : dernière météo enregistrée, mesurée le ':'Météo mesurée le ')+fmtT(wx.time)+(off?'</span>':'')+' · vent à 10 m de haut';saveCond();majVent()}
+function applyWx(wx,off,auto){$('cT').value=wx.T;$('cP').value=wx.P;$('cRH').value=wx.RH;$('wxV').value=wx.v;$('wxDir').value=wx.dir;
+ $('wxInfo').innerHTML=(off?'<span class="warn">Hors ligne : dernière météo enregistrée, mesurée le ':'Météo mesurée le ')+fmtT(wx.time)+(off?'</span>':'')+(auto?' (relue automatiquement)':'')+' · vent à 10 m de haut';saveCond();majVent();verifierSeance()}
 function wxOff(why){const wx=lsGet('balWx',null);if(wx)applyWx(wx,true);else $('wxInfo').innerHTML='<span class="warn">Météo indisponible ('+esc(why)+') et aucune météo enregistrée : saisis les valeurs à la main.</span>'}
 async function viser(){const info=$('azInfo');info.textContent='Tiens le téléphone à plat, le haut pointé vers la cible, sans bouger…';
  try{if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted')throw new Error('autorisation refusée')}}
@@ -659,7 +691,7 @@ function curA(){return db.a.find(x=>x.id==$('selA').value)}
 function curT(){return db.t.find(x=>x.id==$('selT').value)}
 function curL(){return db.l.find(x=>x.id==$('selL').value)}
 function refresh(sel,selA){sel=sel||$('selW').value;$('selW').innerHTML=opts(db.w,sel);const w=curW();
- if(w){$('wName').value=w.name;$('wSH').value=w.sh;$('wZero').value=w.zero;$('wUnit').value=w.unit;$('wClick').value=w.click;$('wNotes').value=w.notes||'';const z=zeroCond(w);$('zT').value=z.T;$('zP').value=z.P;$('zRH').value=z.RH;$('zW').value=+z.cross.toFixed(2);$('zDate').value=z.date||''}
+ if(w){$('wName').value=w.name;$('wSH').value=w.sh;$('wZero').value=w.zero;$('wUnit').value=w.unit;$('wClick').value=w.click;$('wNotes').value=w.notes||''}showZero();
  selA=selA||$('selA').value;$('selA').innerHTML=opts(db.a.filter(a=>w&&a.wid==w.id),selA);
  $('selT').innerHTML=opts(db.t,$('selT').value);$('selL').innerHTML=opts(db.l,$('selL').value);const cl=$('cL').value;$('cL').innerHTML=opts(db.l,cl);if(!$('cL').value&&db.l[0])$('cL').value=db.l[0].id;
  showA();showT();showL()}
@@ -671,8 +703,41 @@ function showL(){const l=curL();if(!l){$('lInfo').innerHTML='';return}$('lName')
  else{h+='Coefficient global : <b>'+L.c.toFixed(2)+'</b> (vent réel ≈ '+Math.round(L.c*100)+' % du vent météo)<br><span class="small">Par direction d\'où vient le vent :</span><table><tr>'+SECT.map(s=>'<th>'+s+'</th>').join('')+'</tr><tr>'+L.sec.map(s=>'<td>'+(s.ok?'<b>'+s.c.toFixed(2)+'</b>':'<span class="small">'+L.c.toFixed(2)+'</span>')+'</td>').join('')+'</tr></table><span class="small">En gras : secteur appris (3 séances venteuses). Sinon, le coefficient global est utilisé.</span>'}
  $('lInfo').innerHTML=h}
 function newW(){const w={id:''+Date.now(),name:'Nouvelle arme',sh:6.5,zero:100,unit:'MOA',click:.25,notes:''};db.w.push(w);store();refresh(w.id);$('wName').focus()}
-function saveW(){const w=curW();if(!w)return alert("Crée d'abord une arme");w.name=$('wName').value;w.sh=num('wSH');w.zero=Math.round(num('wZero'));w.unit=$('wUnit').value;w.click=num('wClick');w.notes=$('wNotes').value;w.zc={T:num('zT'),P:num('zP'),RH:num('zRH'),cross:num('zW')||0,date:$('zDate').value||null};ZC.clear();fitAll(db);store();refresh(w.id);flash('Arme enregistrée')}
-function zeroIci(){const w=curW();if(!w)return alert("Crée d'abord une arme");const c=getCond();$('zT').value=c.T;$('zP').value=c.P;$('zRH').value=c.RH;$('zW').value=crossEff(c);$('zDate').value=new Date().toISOString().slice(0,10);saveW();flash('Conditions du zéro enregistrées pour '+w.name+' : '+c.T+' °C, '+c.P+' hPa, '+c.RH+' %, vent latéral '+crossEff(c).toFixed(1)+' m/s')}
+function saveW(){const w=curW();if(!w)return alert("Crée d'abord une arme");w.name=$('wName').value;w.sh=num('wSH');w.zero=Math.round(num('wZero'));w.unit=$('wUnit').value;w.click=num('wClick');w.notes=$('wNotes').value;ZC.clear();fitAll(db);store();refresh(w.id);flash('Arme enregistrée')}
+function showZero(){const w=curW();if(!w){$('zInfo').innerHTML='Crée d\'abord une arme.';return}const z=zeroCond(w);
+ $('zT').value=z.T;$('zP').value=z.P;$('zRH').value=z.RH;$('zW').value=+(+z.cross).toFixed(2);$('zDate').value=z.date||'';
+ $('zInfo').innerHTML=z.set?'Zéro de <b>'+esc(w.name)+'</b> à '+w.zero+' m, fait le '+(z.date?z.date.split('-').reverse().join('/'):'?')+' : '+z.T+' °C, '+z.P+' hPa, '+z.RH+' %, vent latéral '+(+z.cross).toFixed(1)+' m/s. À '+w.zero+' m dans ces conditions, la correction vaut 0.'
+  :'<span class="warn">Conditions du zéro de '+esc(w.name)+' non enregistrées</span> : l\'appli suppose 15 °C, 1013 hPa, 50 % et pas de vent. Appuie sur « Mon zéro est fait ici » une fois ton zéro confirmé.'}
+function zeroIci(){const w=curW();if(!w)return alert("Crée d'abord une arme");saveCond();const c=getCond(),cr=crossEff(c);
+ w.zc={T:c.T,P:c.P,RH:c.RH,cross:cr,date:new Date().toISOString().slice(0,10)};ZC.clear();fitAll(db);store();showZero();nouvelleSeance(true);
+ flash('Zéro enregistré pour '+w.name+' : '+c.T+' °C, '+c.P+' hPa, '+c.RH+' %, vent latéral '+cr.toFixed(1)+' m/s. Séance démarrée.')}
+function saveZero(){const w=curW();if(!w)return;w.zc={T:num('zT'),P:num('zP'),RH:num('zRH'),cross:num('zW')||0,date:$('zDate').value||null};ZC.clear();fitAll(db);store();showZero();flash('Conditions du zéro enregistrées.')}
+// ===== Seance : suivi de la meteo et alertes =====
+let sess=lsGet('deSession',null);
+function ctxSeance(){const g=gWA(),w=g.w||curW(),a=(g.a&&g.w?g.a:null)||curA(),d=num('gD')||200;return{w,a,d}}
+function instantane(){const{w,a,d}=ctxSeance();if(!w||!a)return null;const c=getCond(),p=predict(w,a,c,d),uc=unitCm(w,d);
+ return{t:Date.now(),w:w.id,a:a.id,d,kv:Math.round(-p.cm/uc/w.click),kh:Math.round(-p.drift/uc/w.click),T:c.T,P:c.P,wxV:c.wxV,wxDir:c.wxDir,cross:crossEff(c)}}
+const hm=t=>new Date(t).toTimeString().slice(0,5),clk=(k,p,n)=>Math.abs(k)+' '+(k>=0?p:n);
+function nouvelleSeance(silencieux){const s=instantane();sess={start:Date.now(),s0:s,last:s,log:[]};lsSet('deSession',sess);fermerAlerte();majSeance();if(!silencieux)flash('Nouvelle séance démarrée à '+hm(sess.start)+'.')}
+function seanceActive(){return sess&&Date.now()-sess.start<12*36e5}
+function majSeance(){const el=$('sessInfo');if(!el)return;if(!seanceActive()){el.innerHTML='Pas de séance en cours. Elle démarre avec « Mon zéro est fait ici » ou « Nouvelle séance ».';return}
+ const s0=sess.s0,s=instantane();if(!s0||!s){el.innerHTML='Séance en cours depuis '+hm(sess.start)+'.';return}const w=db.w.find(x=>x.id==s.w);
+ let h='Séance en cours depuis <b>'+hm(sess.start)+'</b> · météo relue automatiquement toutes les 15 min<br>À '+s.d+' m : réglage de départ <b>'+clk(s0.kv,'H','B')+' / '+clk(s0.kh,'D','G')+'</b>, maintenant <b>'+clk(s.kv,'H','B')+' / '+clk(s.kh,'D','G')+'</b>';
+ if(sess.log.length)h+='<br><span class="small">'+sess.log.slice(-5).map(l=>hm(l.t)+' : '+l.txt).join('<br>')+'</span>';el.innerHTML=h}
+function verifierSeance(){if(!seanceActive()||!sess.s0)return majSeance();const s=instantane();if(!s)return;const L=sess.last||sess.s0;
+ if(s.w!=L.w||s.a!=L.a||s.d!=L.d){sess.last=s;lsSet('deSession',sess);return majSeance()}
+ if(Math.abs(s.kv-L.kv)>=1||Math.abs(s.kh-L.kh)>=1){const s0=sess.s0,ch=[];
+  if(Math.abs(s.wxV-s0.wxV)>=.5||Math.abs(s.cross-s0.cross)>=.5)ch.push('vent '+(+s0.wxV).toFixed(1)+' → '+(+s.wxV).toFixed(1)+' m/s (latéral pris en compte '+s0.cross.toFixed(1)+' → '+s.cross.toFixed(1)+')');
+  if(Math.abs(s.T-s0.T)>=1)ch.push('température '+s0.T+' → '+s.T+' °C');if(Math.abs(s.P-s0.P)>=2)ch.push('pression '+s0.P+' → '+s.P+' hPa');
+  const txt='À '+s.d+' m, le réglage passe de '+clk(L.kv,'H','B')+' / '+clk(L.kh,'D','G')+' à <b>'+clk(s.kv,'H','B')+' / '+clk(s.kh,'D','G')+'</b>'+(ch.length?' ('+ch.join(', ')+')':'');
+  sess.log.push({t:s.t,txt});sess.last=s;lsSet('deSession',sess);
+  $('alerteTxt').innerHTML='<b>La météo a changé depuis le début de séance ('+hm(sess.start)+')</b><br>'+txt;$('alerte').hidden=false}
+ majSeance()}
+function fermerAlerte(){$('alerte').hidden=true}
+async function meteoAuto(){const wx=lsGet('balWx',null);if(!seanceActive()||!wx||!wx.lat||!navigator.onLine)return;if(Date.now()-(wx.got||0)<15*6e4)return;
+ try{const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+wx.lat+'&longitude='+wx.lon+'&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_direction_10m&wind_speed_unit=ms&timezone=auto');if(!r.ok)return;
+  const c=(await r.json()).current;if(!c||c.temperature_2m==null)return;const n={T:c.temperature_2m,P:c.surface_pressure,RH:c.relative_humidity_2m,v:c.wind_speed_10m,dir:c.wind_direction_10m,time:c.time,lat:wx.lat,lon:wx.lon,got:Date.now()};lsSet('balWx',n);applyWx(n,false,true)}catch(e){}}
+setInterval(meteoAuto,6e4);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')meteoAuto()});
 function delW(){const w=curW();if(!w||!confirm('Supprimer '+w.name+' et ses munitions ?'))return;db.a=db.a.filter(a=>a.wid!=w.id);db.w=db.w.filter(x=>x!==w);fitAll(db);store();refresh(db.w[0]&&db.w[0].id)}
 function newA(){const w=curW();if(!w)return alert("Crée d'abord une arme");const a={id:''+Date.now(),wid:w.id,name:'Nouvelle munition',wt:69,mod:'G7',bc:.17,v0:900,tr:0,hist:[],groups:[]};db.a.push(a);store();refresh(w.id,a.id);$('aName').focus()}
 function saveA(){const a=curA();if(!a)return alert("Crée d'abord une munition");a.name=$('aName').value;a.wt=num('aWt');a.mod=$('aMod').value;a.bc=num('aBC');a.v0=num('aV0');a.tr=num('aTr')||0;fitAll(db);store();refresh(a.wid,a.id);flash('Munition enregistrée')}
@@ -754,8 +819,8 @@ function gSave(){lsSet('deG',{w:$('gW').value,a:$('gA').value,l:$('gL').value,d:
 function gFill(){const o=lsGet('deG',{});$('gW').innerHTML=opts(db.w,o.w);$('gL').innerHTML=opts(db.l,o.l||$('cL').value);$('gT').innerHTML=opts(db.t,o.t);
  if(o.d)$('gD').value=o.d;if(o.n)$('gN').value=o.n;gFillA(o.a);majZonesSel(o.z)}
 function gFillA(sel){const wid=$('gW').value;$('gA').innerHTML=opts(db.a.filter(a=>a.wid==wid),sel);majGroupe()}
-function majZonesSel(sel){const T=cible();$('gZ').innerHTML='<option value="auto">Automatique (zone du dernier tir)</option>'+(T&&T.zones?T.zones.map((z,i)=>'<option value="'+i+'">'+esc(z.n)+'</option>').join(''):'');if(sel!=null&&[...$('gZ').options].some(o=>o.value==sel))$('gZ').value=sel}
-function choixCible(){majZonesSel('auto');gSave();rendu()}
+function majZonesSel(sel){const T=cible(),Z=calOk()?zones():(T&&T.zones)||[];$('gZ').innerHTML='<option value="auto">Automatique (zone du dernier tir)</option>'+(Z.length?Z.map((z,i)=>'<option value="'+i+'">'+esc(z.n)+'</option>').join(''):'');if(sel!=null&&[...$('gZ').options].some(o=>o.value==sel))$('gZ').value=sel}
+function choixCible(){zonesDet=null;if(calOk())detecterVisuels();majZonesSel('auto');gSave();rendu()}
 function gWA(){return{w:db.w.find(x=>x.id==$('gW').value),a:db.a.find(x=>x.id==$('gA').value)}}
 function majGroupe(){const el=$('gRes');if(!el)return;const G=groupe(),{w}=gWA(),d=num('gD');
  if(!G){const m=[];if(!lastIm)m.push('une photo');if(!calOk())m.push('le calage de la cible (onglet Calage)');if(lastIm&&calOk())m.push('au moins 3 impacts dans la zone visée');el.innerHTML='Pour calculer le groupement, il manque : '+m.join(', ')+'.';return}
@@ -771,7 +836,7 @@ function verifierEnvoi(){const{w,a}=gWA(),d=Math.round(num('gD')),G=groupe();
  if(d<w.zero)return alert('Distance en deçà de la distance de réglage ('+w.zero+' m) : pas d\'apprentissage');
  const T=cible(),r=groupeRecord(w,a,$('gL').value,d,G.n,G.dx,G.dy,G.size,num('gCV')||0,num('gCH')||0,{cible:T?T.name:null,zone:G.zone});
  ouvrirModal(w,a,r,()=>{enfiler(r);$('gMsg').innerHTML='Groupement envoyé ('+G.n+' tirs, '+d+' m). Il sera appris à l\'ouverture de l\'onglet Calcul.'})}
-CF.forEach(k=>$(k).addEventListener('change',()=>{saveCond();majVent()}));
-fitAll(db);store();loadCond();refresh();gFill();majDer();majVent();
+CF.forEach(k=>$(k).addEventListener('change',()=>{saveCond();majVent();verifierSeance()}));
+fitAll(db);store();loadCond();refresh();gFill();majDer();majVent();majSeance();
 
 </script></body></html>
