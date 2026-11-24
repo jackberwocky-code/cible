@@ -1,215 +1,290 @@
 <!DOCTYPE html>
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b0f17">
-<title>Distant Eye v10</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='26' fill='%230b0f17'/%3E%3CclipPath id='c'%3E%3Cpath d='M8 60Q60 8 112 60Q60 112 8 60Z'/%3E%3C/clipPath%3E%3Cpath d='M8 60Q60 8 112 60Q60 112 8 60Z' fill='%23e8edf5'/%3E%3Cg clip-path='url(%23c)'%3E%3Ccircle cx='60' cy='60' r='30' fill='%23111827'/%3E%3Ccircle cx='60' cy='60' r='24' fill='%23e8edf5'/%3E%3Ccircle cx='60' cy='60' r='18' fill='%23111827'/%3E%3Ccircle cx='60' cy='60' r='12' fill='%23e8edf5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23f43f5e'/%3E%3C/g%3E%3Cpath d='M8 60Q60 8 112 60Q60 112 8 60Z' fill='none' stroke='%23f43f5e' stroke-width='5'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#06040d">
+<title>Distant Eye v11</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 4L108 32V88L60 116L12 88V32Z' fill='%230d0820' stroke='%2305d9e8' stroke-width='5'/%3E%3Cpath d='M14 60Q60 18 106 60Q60 102 14 60Z' fill='none' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
-:root{--bg:#0b0f17;--card:#141a26;--card2:#1c2433;--line:#2a3447;--txt:#e8edf5;--mut:#8b97ab;--acc:#f43f5e;--acc2:#22c55e;--warn:#f59e0b;--yel:#facc15}
+:root{--bg:#06040d;--card:rgba(18,12,34,.72);--card2:rgba(30,20,56,.85);--line:rgba(5,217,232,.22);--txt:#e9e6ff;--mut:#9a93c4;--mag:#ff2a6d;--cya:#05d9e8;--vio:#7c3aed;--yel:#f9f871;--ok:#00f5a0}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html{-webkit-tap-highlight-color:transparent}
-body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -10%,#1d2740 0,var(--bg) 55%);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;padding:16px 14px 40px}
+html{-webkit-tap-highlight-color:transparent;background:var(--bg)}
+body{margin:0;min-height:100vh;color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;padding:14px 12px 40px;background:transparent}
+/* ---- fond anime ---- */
+#fond{position:fixed;inset:0;z-index:-1;overflow:hidden;background:#06040d}
+#fond .halo{position:absolute;width:90vmax;height:90vmax;border-radius:50%;filter:blur(70px);opacity:.42;animation:derive 26s ease-in-out infinite alternate}
+#fond .h1{background:radial-gradient(circle,#ff2a6d 0,transparent 60%);left:-35vmax;top:-30vmax}
+#fond .h2{background:radial-gradient(circle,#05d9e8 0,transparent 60%);right:-40vmax;top:20vh;animation-duration:31s;opacity:.3}
+#fond .h3{background:radial-gradient(circle,#7c3aed 0,transparent 60%);left:-10vmax;bottom:-50vmax;animation-duration:37s}
+@keyframes derive{0%{transform:translate(0,0) scale(1);filter:blur(70px) hue-rotate(0deg)}100%{transform:translate(8vmax,6vmax) scale(1.15);filter:blur(70px) hue-rotate(35deg)}}
+#fond .grille{position:absolute;left:-50%;right:-50%;bottom:-10%;height:55%;background-image:linear-gradient(rgba(5,217,232,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(255,42,109,.16) 1px,transparent 1px);background-size:46px 46px;transform:perspective(420px) rotateX(62deg);transform-origin:bottom;-webkit-mask-image:linear-gradient(to top,#000 20%,transparent 85%);mask-image:linear-gradient(to top,#000 20%,transparent 85%)}
+#fond svg{position:absolute;left:50%;top:64%;width:120vmin;max-width:760px;transform:translate(-50%,-50%) rotate(-6deg);opacity:.24;filter:drop-shadow(0 0 6px #05d9e8) drop-shadow(0 0 18px #ff2a6d)}
+#fond .scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);pointer-events:none}
+@media (prefers-reduced-motion:reduce){#fond .halo{animation:none}}
+/* ---- structure ---- */
 .wrap{max-width:560px;margin:0 auto}
-header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-header svg{width:58px;height:58px;flex:none;filter:drop-shadow(0 4px 12px rgba(244,63,94,.35))}
-header h1{margin:0;font-size:24px;letter-spacing:.5px}
-header h1 span{color:var(--acc)}
-header small{display:block;color:var(--mut);font-size:13px;margin-top:2px}
-.home{margin-left:auto;background:var(--card2);color:var(--mut);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
-.card h3{margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);font-weight:600}
-button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:13px 16px;color:#fff;background:var(--card2);border:1px solid var(--line);cursor:pointer;transition:transform .08s,filter .15s}
-button:active{transform:scale(.97);filter:brightness(1.2)}
-.pri{background:linear-gradient(135deg,#f43f5e,#e11d48);border:0;box-shadow:0 6px 18px rgba(244,63,94,.35)}
-.ok{background:linear-gradient(135deg,#22c55e,#16a34a);border:0;box-shadow:0 6px 18px rgba(34,197,94,.3)}
-.live{background:linear-gradient(135deg,#f59e0b,#d97706);border:0}
-.big{display:block;width:100%;font-size:18px;padding:18px;margin-bottom:10px}
+header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+header svg{width:60px;height:60px;flex:none;filter:drop-shadow(0 0 8px rgba(5,217,232,.7)) drop-shadow(0 0 16px rgba(255,42,109,.45))}
+header h1{margin:0;font-size:23px;letter-spacing:2.5px;text-transform:uppercase;font-weight:800;color:#fff;text-shadow:0 0 6px var(--cya),0 0 18px rgba(5,217,232,.6)}
+header h1 span{color:var(--mag);text-shadow:0 0 6px var(--mag),0 0 18px rgba(255,42,109,.7)}
+header small{display:block;color:var(--cya);font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-top:3px;font-family:ui-monospace,Menlo,Consolas,monospace;opacity:.85}
+.home{margin-left:auto;background:transparent;color:var(--cya);border:1px solid var(--cya);border-radius:8px;padding:7px 10px;font-size:13px;box-shadow:0 0 8px rgba(5,217,232,.35)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 0 0 1px rgba(255,42,109,.06),0 10px 30px rgba(0,0,0,.45);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.card h3{margin:0 0 12px;font-size:12px;text-transform:uppercase;letter-spacing:3px;color:var(--cya);font-weight:700;font-family:ui-monospace,Menlo,Consolas,monospace;text-shadow:0 0 8px rgba(5,217,232,.6)}
+.card h3::before{content:'// ';color:var(--mag)}
+button{font:inherit;font-weight:600;border-radius:10px;padding:12px 14px;color:#fff;background:var(--card2);border:1px solid rgba(154,147,196,.3);cursor:pointer;transition:transform .08s,box-shadow .15s}
+button:active{transform:scale(.97)}
+.pri{background:linear-gradient(135deg,#ff2a6d,#b5179e);border:0;box-shadow:0 0 14px rgba(255,42,109,.55)}
+.ok{background:linear-gradient(135deg,#05d9e8,#0077b6);border:0;color:#021018;box-shadow:0 0 14px rgba(5,217,232,.5)}
+.live{background:linear-gradient(135deg,#f9a03f,#ff2a6d);border:0;box-shadow:0 0 12px rgba(249,160,63,.45)}
+.big{display:block;width:100%;font-size:17px;padding:16px;margin-bottom:10px}
 .row{display:flex;gap:10px}
 .row>*{flex:1}
-input,select{font:inherit;color:var(--txt);background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px}
-#codeIn{flex:1;min-width:0;width:100%;font-size:22px;letter-spacing:6px;text-align:center}
-#err{color:#fecaca;background:#7f1d1d;border-radius:12px;padding:10px;font-weight:600}
+input,select{font:inherit;color:var(--txt);background:rgba(6,4,13,.7);border:1px solid rgba(5,217,232,.3);border-radius:10px;padding:11px;min-width:0}
+input:focus,select:focus{outline:none;border-color:var(--mag);box-shadow:0 0 10px rgba(255,42,109,.4)}
+#codeIn{flex:1;width:100%;font-size:24px;letter-spacing:8px;text-align:center;font-family:ui-monospace,Menlo,Consolas,monospace}
+#err{color:#ffd1dc;background:rgba(127,29,29,.8);border:1px solid var(--mag);border-radius:10px;padding:10px;font-weight:600}
 #err:empty{display:none}
-#status{min-height:20px;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:var(--card2);color:var(--mut);font-size:14px}
+#status{margin:8px 0 0;padding:8px 10px;border-radius:8px;background:rgba(6,4,13,.75);color:var(--cya);font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace;border-left:3px solid var(--mag)}
 #status:empty{display:none}
 .menu button{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:18px;margin-bottom:12px;font-size:18px}
 .menu button b{font-size:26px}
-.menu button small{display:block;font-weight:400;color:rgba(255,255,255,.75);font-size:13px;margin-top:2px}
-#code{font-size:56px;font-weight:800;letter-spacing:12px;text-align:center;color:var(--yel);margin:6px 0 4px;font-variant-numeric:tabular-nums}
-.hint{color:var(--mut);font-size:14px;text-align:center;margin:0}
-video,canvas{display:block;width:100%;border-radius:14px;background:#000}
-#vue{min-height:120px}
-#camStatus{text-align:center;color:var(--mut);font-size:14px;margin:10px 0 0}
-#info{margin:10px 0 12px;font-size:15px;text-align:center;color:var(--txt)}
+.menu button small{display:block;font-weight:400;opacity:.85;font-size:13px;margin-top:2px}
+#code{font-size:58px;font-weight:800;letter-spacing:14px;text-align:center;color:var(--yel);margin:6px 0 4px;font-family:ui-monospace,Menlo,Consolas,monospace;text-shadow:0 0 12px rgba(249,248,113,.7)}
+.hint{color:var(--mut);font-size:13px;text-align:center;margin:6px 0}
+.hint:empty{display:none}
+video{display:block;width:100%;border-radius:12px;background:#000;border:1px solid var(--line)}
+/* ---- visionneuse collante ---- */
+.viewer{position:sticky;top:0;z-index:20;margin:-14px -14px 12px;padding:10px 10px 8px;background:rgba(6,4,13,.92);border-bottom:1px solid var(--line);border-radius:16px 16px 0 0;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#vue{display:block;margin:0 auto;max-width:100%;max-height:46vh;width:auto;height:auto;border-radius:10px;background:#000;border:1px solid rgba(5,217,232,.35);box-shadow:0 0 18px rgba(5,217,232,.25);touch-action:manipulation;min-height:90px}
+#vue.tap{border-color:var(--mag);box-shadow:0 0 18px rgba(255,42,109,.6)}
+#info{margin:6px 0 0;font-size:13px;text-align:center;color:var(--mut);font-family:ui-monospace,Menlo,Consolas,monospace}
+.seg{display:flex;gap:4px;overflow-x:auto;margin:0 0 12px;padding:3px;background:rgba(6,4,13,.6);border-radius:10px;border:1px solid var(--line)}
+.seg button{flex:1;padding:9px 6px;font-size:13px;border:0;background:transparent;color:var(--mut);white-space:nowrap;border-radius:8px}
+.seg button.on{background:linear-gradient(135deg,rgba(255,42,109,.9),rgba(124,58,237,.9));color:#fff;box-shadow:0 0 10px rgba(255,42,109,.5)}
+.tabs{display:flex;gap:6px;margin-bottom:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:5px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--mut);padding:11px;font-size:16px;letter-spacing:1px}
+.tabs button.on{background:linear-gradient(135deg,#ff2a6d,#7c3aed);color:#fff;box-shadow:0 0 14px rgba(255,42,109,.5)}
 .reg{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .reg label{color:var(--mut);font-size:14px}
-.val{font-size:28px;font-weight:800;color:var(--yel);font-variant-numeric:tabular-nums}
+.val{font-size:26px;font-weight:800;color:var(--yel);font-family:ui-monospace,Menlo,Consolas,monospace;text-shadow:0 0 10px rgba(249,248,113,.5)}
 .slider{display:flex;align-items:center;gap:10px}
-.pm{width:48px;height:48px;padding:0;font-size:24px;border-radius:50%;flex:none}
-input[type=range]{flex:1;padding:0;height:6px;-webkit-appearance:none;appearance:none;background:var(--line);border:0;border-radius:6px;accent-color:var(--acc)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--acc);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-.grad{display:flex;justify-content:space-between;margin:8px 58px 16px;font-size:12px;color:var(--mut);font-variant-numeric:tabular-nums}
-.grad span{border-left:1px solid #4b5568;padding:8px 0 0 3px;margin-top:-4px}
-.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:300px;margin:4px auto 14px}
-.pad button{padding:14px 0}
-.pad .c{background:#26324a}
-.sub{color:var(--mut);font-size:13px;font-weight:400}
-button .sub{color:rgba(255,255,255,.8)}
-.disp{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.disp>div{flex:1;min-width:140px}
-.disp label{display:block;color:var(--mut);font-size:13px;margin-bottom:6px}
-.disp select{width:100%}
-footer{text-align:center;color:#4b5568;font-size:12px;margin-top:20px}
-.tabs{display:flex;gap:8px;margin-bottom:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px}
-.tabs button{flex:1;border:0;background:transparent;color:var(--mut);padding:12px;font-size:17px}
-.tabs button.on{background:linear-gradient(135deg,#f43f5e,#e11d48);color:#fff;box-shadow:0 4px 14px rgba(244,63,94,.35)}
+.pm{width:46px;height:46px;padding:0;font-size:24px;border-radius:50%;flex:none;border-color:var(--cya);color:var(--cya)}
+input[type=range]{flex:1;padding:0;height:4px;-webkit-appearance:none;appearance:none;background:linear-gradient(90deg,var(--cya),var(--mag));border:0;border-radius:4px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#06040d;border:3px solid var(--mag);box-shadow:0 0 10px var(--mag)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#06040d;border:3px solid var(--mag)}
+.grad{display:flex;justify-content:space-between;margin:8px 56px 14px;font-size:11px;color:var(--mut);font-family:ui-monospace,Menlo,Consolas,monospace}
+.grad span{border-left:1px solid rgba(5,217,232,.5);padding:7px 0 0 3px;margin-top:-4px}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:270px;margin:4px auto 12px}
+.pad button{padding:12px 0;color:var(--cya)}
+.pad .c{color:var(--mag);border-color:var(--mag)}
+.sub{font-size:12px;font-weight:400;opacity:.85}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .grid2>div{min-width:0}
-.grid2 label,.fl{display:block;color:var(--mut);font-size:13px;margin:0 0 5px}
+.grid2 label,.fl{display:block;color:var(--mut);font-size:12px;margin:0 0 5px}
 .grid2 input,.grid2 select,.grid2 button,.full{width:100%}
+.s2{grid-column:1/3}
 .btns{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
-.btns button{flex:1;min-width:130px}
-.res{background:var(--card2);border-radius:12px;padding:12px;margin:10px 0;font-size:15px;line-height:1.5}
+.btns button{flex:1;min-width:110px;font-size:14px}
+.res{background:rgba(6,4,13,.7);border:1px solid var(--line);border-left:3px solid var(--cya);border-radius:10px;padding:11px;margin:10px 0;font-size:14px;line-height:1.55}
 .res:empty{display:none}
 .res b{color:var(--yel)}
-.small{font-size:13px;color:var(--mut)}
-table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
-th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
-td,th{border-bottom:1px solid var(--line);padding:7px 4px;text-align:center}
-.tag{display:inline-block;border-radius:8px;padding:2px 8px;font-size:12px;font-weight:700}
-.t-ok{background:#14532d;color:#bbf7d0}.t-mid{background:#713f12;color:#fde68a}.t-low{background:#7f1d1d;color:#fecaca}.t-off{background:#1f2937;color:#9ca3af}
-details summary{cursor:pointer;color:var(--mut);margin:8px 0}
-#vue{touch-action:manipulation}
-.warn{color:#fde68a}
-</style></head><body><div class="wrap">
+.small{font-size:12px;color:var(--mut)}
+.warn{color:#ffb86b}
+table{width:100%;border-collapse:collapse;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace}
+th{color:var(--cya);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+td,th{border-bottom:1px solid rgba(5,217,232,.15);padding:6px 3px;text-align:center}
+.tag{display:inline-block;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:700;font-family:ui-monospace,Menlo,Consolas,monospace}
+.t-ok{background:rgba(0,245,160,.15);color:var(--ok);border:1px solid var(--ok)}.t-mid{background:rgba(249,160,63,.15);color:#f9a03f;border:1px solid #f9a03f}.t-low{background:rgba(255,42,109,.15);color:var(--mag);border:1px solid var(--mag)}.t-off{background:transparent;color:var(--mut);border:1px solid rgba(154,147,196,.4)}
+details summary{cursor:pointer;color:var(--cya);margin:8px 0;font-size:14px}
+.edit{border:1px dashed rgba(255,42,109,.35);border-radius:12px;padding:10px;margin-top:8px}
+.edit .fl{color:var(--mag)}
+footer{text-align:center;color:var(--mut);font-size:11px;margin-top:18px;letter-spacing:3px;font-family:ui-monospace,Menlo,Consolas,monospace;opacity:.6}
+/* ---- fenetre de verification ---- */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(3,2,8,.82);display:flex;align-items:flex-end;justify-content:center;padding:12px;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.modal .box{width:100%;max-width:540px;max-height:88vh;overflow:auto;background:#0d0820;border:1px solid var(--mag);border-radius:16px;padding:16px;box-shadow:0 0 30px rgba(255,42,109,.45)}
+.modal h3{margin:0 0 10px;color:var(--mag);letter-spacing:2px;text-transform:uppercase;font-size:15px}
+.modal table td{text-align:left}
+.modal table td:first-child{color:var(--mut);width:46%}
+</style></head><body>
+<div id="fond"><div class="halo h1"></div><div class="halo h2"></div><div class="halo h3"></div><div class="grille"></div>
+<svg viewBox="0 0 1000 300" fill="none" stroke-linejoin="round" stroke-linecap="round">
+<g stroke="#05d9e8" stroke-width="3">
+<path d="M300 104H470V136H300Z"/>
+<path d="M470 110H640V132H470Z"/><path d="M490 116H620M490 126H620" stroke-width="1.5" stroke-dasharray="14 8"/>
+<path d="M640 115H965V125H640Z"/><path d="M955 111H992V129H955Z"/><path d="M962 111V129M972 111V129M982 111V129" stroke-width="1.5"/>
+<path d="M40 106L130 98H300V142L210 146L150 158L120 182L60 190L32 186Z"/><path d="M130 98L130 84H250V98" />
+<path d="M70 120H180M70 132H160" stroke-width="1.5"/>
+<path d="M305 140L282 206L308 210L330 142"/>
+<path d="M336 136C340 160 380 162 392 136"/><circle cx="364" cy="142" r="3"/>
+<path d="M398 136L404 186H440L436 136"/>
+<path d="M610 132L655 262M610 132L570 262M648 244L662 262M577 244L563 262" stroke-width="2.5"/>
+</g>
+<g stroke="#ff2a6d" stroke-width="3">
+<rect x="286" y="62" width="258" height="20" rx="10"/><path d="M544 64L606 54V94L544 82"/><path d="M262 66H290V80H262Z"/>
+<path d="M404 46H426V62H404Z"/><path d="M406 82V104M486 82V104M386 82V104M466 82V104" stroke-width="2"/>
+<path d="M340 154L352 170" stroke-width="5"/><circle cx="356" cy="175" r="7"/>
+</g>
+<g stroke="#f9f871" stroke-width="1" opacity=".6"><path d="M0 240H1000" stroke-dasharray="2 12"/></g>
+</svg><div class="scan"></div></div>
+<div class="wrap">
 <header>
 <svg viewBox="0 0 120 120" aria-label="Logo Distant Eye">
-<defs><clipPath id="oeil"><path d="M8 60Q60 8 112 60Q60 112 8 60Z"/></clipPath>
-<radialGradient id="blanc" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cbd5e1"/></radialGradient></defs>
-<path d="M8 60Q60 8 112 60Q60 112 8 60Z" fill="url(#blanc)"/>
+<defs>
+<linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#05d9e8"/><stop offset="1" stop-color="#ff2a6d"/></linearGradient>
+<clipPath id="oeil"><path d="M14 60Q60 18 106 60Q60 102 14 60Z"/></clipPath>
+</defs>
+<path d="M60 4L108 32V88L60 116L12 88V32Z" fill="#0d0820" stroke="url(#lg)" stroke-width="3"/>
+<path d="M60 12L101 36V84L60 108L19 84V36Z" fill="none" stroke="#05d9e8" stroke-width="1" opacity=".35"/>
+<path d="M14 60Q60 18 106 60Q60 102 14 60Z" fill="#150c2c" stroke="url(#lg)" stroke-width="3"/>
 <g clip-path="url(#oeil)">
-<circle cx="60" cy="60" r="31" fill="#111827"/>
-<circle cx="60" cy="60" r="25" fill="#f1f5f9"/>
-<circle cx="60" cy="60" r="19" fill="#111827"/>
-<circle cx="60" cy="60" r="13" fill="#f1f5f9"/>
-<circle cx="60" cy="60" r="7" fill="#f43f5e"/>
-<path d="M60 26V40M60 80V94M26 60H40M80 60H94" stroke="#f43f5e" stroke-width="2"/>
-<circle cx="70" cy="49" r="4" fill="#fff" opacity=".85"/>
+<circle cx="60" cy="60" r="26" fill="none" stroke="#05d9e8" stroke-width="3"/>
+<circle cx="60" cy="60" r="19" fill="none" stroke="#ff2a6d" stroke-width="3"/>
+<circle cx="60" cy="60" r="12" fill="none" stroke="#05d9e8" stroke-width="3"/>
+<circle cx="60" cy="60" r="5.5" fill="#ff2a6d"/>
+<circle cx="69" cy="50" r="3" fill="#fff" opacity=".9"/>
 </g>
-<path d="M8 60Q60 8 112 60Q60 112 8 60Z" fill="none" stroke="#f43f5e" stroke-width="4" stroke-linejoin="round"/>
+<path d="M60 22V36M60 84V98M8 60H26M94 60H112" stroke="#f9f871" stroke-width="2.5"/>
 </svg>
-<div><h1>Distant <span>Eye</span> v10</h1><small>Analyse des impacts à distance</small></div>
+<div><h1>Distant <span>Eye</span></h1><small>v11 · impact analysis</small></div>
 <button class="home" onclick="location.reload()">Accueil</button>
 </header>
 <nav class="tabs" id="tabs"><button id="tbC" class="on" onclick="tab('c')">&#127919; Cible</button><button id="tbK" onclick="tab('k')">&#129518; Calcul</button></nav>
 <p id="err"></p>
-<div id="tabCible">
 
+<div id="tabCible">
 <div id="menu" class="menu">
 <button class="pri" onclick="modeCamera()"><b>&#128247;</b><span>Mode caméra<small>Sur le S10, posé près de la cible</small></span></button>
 <button class="ok" onclick="show('tir')"><b>&#127919;</b><span>Mode tireur<small>Sur ton téléphone, au poste de tir</small></span></button>
 </div>
 
 <div id="cam" hidden>
-<div class="card"><h3>Code de connexion</h3>
-<div id="code">····</div>
-<p class="hint">À saisir sur le téléphone du tireur</p></div>
-<div class="card"><h3>Caméra</h3>
-<video id="video" autoplay playsinline muted></video>
-<p id="camStatus">En attente de connexion…</p></div>
+<div class="card"><h3>Code de connexion</h3><div id="code">····</div><p class="hint">À saisir sur le téléphone du tireur</p></div>
+<div class="card"><h3>Caméra</h3><video id="video" autoplay playsinline muted></video><p id="camStatus" class="hint">En attente de connexion…</p></div>
 </div>
 
 <div id="tir" hidden>
 <div id="connexion" class="card"><h3>Connexion</h3>
 <div class="row"><input id="codeIn" placeholder="0000" inputmode="numeric" maxlength="4"><button class="pri" onclick="connecter()" style="flex:none">Connecter</button></div></div>
-<p id="status"></p>
 
-<div class="card"><h3>Cible</h3>
-<canvas id="vue"></canvas>
-<p id="info"></p>
+<div class="card">
+<div class="viewer"><canvas id="vue" width="600" height="400"></canvas><p id="info"></p><p id="status"></p></div>
+<div class="seg" id="seg"><button data-p="pTirs" class="on">Tirs</button><button data-p="pCal">Calage</button><button data-p="pCad">Cadrage</button><button data-p="pGrp">Groupe</button><button data-p="pAff">Affichage</button></div>
+
+<div id="pTirs">
 <div class="row"><button class="ok big" onclick="demander('ref')">1. Référence<br><span class="sub">cible vierge</span></button>
 <button class="pri big" onclick="demander('tir')">2. Voir mes tirs<br><span class="sub">détecter</span></button></div>
 <div class="reg"><label>Sensibilité <span class="sub">(petit = plus sensible)</span></label><span class="val" id="sv">30</span></div>
-<div class="slider"><button class="pm" onclick="regSeuil(-1)">−</button>
-<input type="range" id="seuil" min="10" max="80" step="1" value="30" oninput="majSeuil()">
-<button class="pm" onclick="regSeuil(1)">+</button></div>
+<div class="slider"><button class="pm" onclick="regSeuil(-1)">−</button><input type="range" id="seuil" min="10" max="80" step="1" value="30" oninput="majSeuil()"><button class="pm" onclick="regSeuil(1)">+</button></div>
 <div class="grad"><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span></div>
 </div>
 
-<div class="card"><h3>Groupement</h3>
+<div id="pCal" hidden>
+<div class="grid2">
+<div class="s2"><label>Cible utilisée</label><select id="gT" onchange="choixCible()"></select></div>
+<div class="s2"><label>Zone visée</label><select id="gZ" onchange="gSave();rendu()"></select></div>
+</div>
+<button class="ok big" onclick="modeTap('cal')">&#8689; Caler la cible (2 coins)</button>
+<button class="full" onclick="modeTap('aim')">&#8982; Point visé à la main (sans calage)</button>
+<p class="hint">Caler = toucher le coin haut-gauche puis le coin bas-droit de la cible sur l'image. L'appli redresse alors la vue au format de la cible et sait combien mesure un centimètre.</p>
+<p id="gTap" class="hint"></p>
+<button class="full" onclick="annulerCalage()">Effacer le calage</button>
+</div>
+
+<div id="pCad" hidden>
+<div class="row" style="margin-bottom:12px"><button class="live" onclick="live(true)">&#9654; Vidéo 60 s</button><button onclick="live(false)">&#9632; Stop</button></div>
+<div class="reg"><label>Zoom</label><span class="val" id="zv">1x</span></div>
+<div class="slider"><button class="pm" onclick="regZoom(-0.5)">−</button><input type="range" id="zoom" min="1" max="8" step="0.5" value="1" oninput="majZoom()" onchange="zoomer()"><button class="pm" onclick="regZoom(0.5)">+</button></div>
+<div class="grad"><span>1x</span><span>2x</span><span>3x</span><span>4x</span><span>5x</span><span>6x</span><span>7x</span><span>8x</span></div>
+<div class="pad"><span></span><button onclick="pan(0,-0.2)">&#9650;</button><span></span><button onclick="pan(-0.2,0)">&#9664;</button><button class="c" onclick="pan(0,0)">&#9673;</button><button onclick="pan(0.2,0)">&#9654;</button><span></span><button onclick="pan(0,0.2)">&#9660;</button><span></span></div>
+<button class="full" onclick="demander('apercu')">Aperçu du cadrage</button>
+<p class="hint">L'image reste visible en haut pendant que tu règles.</p>
+</div>
+
+<div id="pGrp" hidden>
 <div class="grid2">
 <div><label>Arme</label><select id="gW" onchange="gFillA();gSave()"></select></div>
-<div><label>Munition</label><select id="gA" onchange="gSave();redessiner()"></select></div>
-<div><label>Distance (m)</label><input id="gD" type="number" value="200" oninput="gSave();redessiner()"></div>
-<div><label>Tirs pris en compte</label><select id="gN" onchange="gSave();redessiner()"><option>3</option><option selected>5</option><option>10</option><option>20</option></select></div>
-<div><label>Taille réelle du repère (cm)</label><input id="gSize" type="number" step="0.1" value="10" oninput="gSave();redessiner()"></div>
-<div><label>&nbsp;</label><button onclick="modeTap('scale')">Échelle (4 touches)</button></div>
+<div><label>Munition</label><select id="gA" onchange="gSave();rendu()"></select></div>
+<div><label>Lieu de tir</label><select id="gL" onchange="gSave()"></select></div>
+<div><label>Distance (m)</label><input id="gD" type="number" value="200" oninput="gSave();rendu()"></div>
+<div class="s2"><label>Tirs pris en compte (derniers de la zone)</label><select id="gN" onchange="gSave();rendu()"><option>3</option><option selected>5</option><option>10</option><option>20</option></select></div>
 </div>
-<button class="big" onclick="modeTap('aim')">&#8982; Placer le point visé</button>
-<p id="gTap" class="hint"></p>
 <div id="gRes" class="res"></div>
 <div class="grid2">
 <div><label>Clics affichés vertical (+ = haut)</label><input id="gCV" type="number" value="0"></div>
 <div><label>Clics affichés horizontal (+ = droite)</label><input id="gCH" type="number" value="0"></div>
 </div>
 <button class="full" onclick="clicsConseilles()">Reprendre les clics conseillés par le calcul</button>
-<button class="ok big" style="margin-top:10px" onclick="envoyerGroupe()">Envoyer au calculateur</button>
+<button class="pri big" style="margin-top:10px" onclick="verifierEnvoi()">Vérifier et envoyer au calculateur</button>
 <p id="gMsg" class="hint"></p>
 </div>
 
-<div class="card"><h3>Cadrage</h3>
-<div class="row" style="margin-bottom:14px"><button class="live" onclick="live(true)">&#9654; Vidéo 60 s</button><button onclick="live(false)">&#9632; Stop</button></div>
-<div class="reg"><label>Zoom</label><span class="val" id="zv">1x</span></div>
-<div class="slider"><button class="pm" onclick="regZoom(-0.5)">−</button>
-<input type="range" id="zoom" min="1" max="8" step="0.5" value="1" oninput="majZoom()" onchange="zoomer()">
-<button class="pm" onclick="regZoom(0.5)">+</button></div>
-<div class="grad"><span>1x</span><span>2x</span><span>3x</span><span>4x</span><span>5x</span><span>6x</span><span>7x</span><span>8x</span></div>
-<div class="pad"><span></span><button onclick="pan(0,-0.2)">&#9650;</button><span></span>
-<button onclick="pan(-0.2,0)">&#9664;</button><button class="c" onclick="pan(0,0)">&#9673;</button><button onclick="pan(0.2,0)">&#9654;</button>
-<span></span><button onclick="pan(0,0.2)">&#9660;</button><span></span></div>
-<button class="big" onclick="demander('apercu')">Aperçu du cadrage</button>
+<div id="pAff" hidden>
+<div class="reg"><label>Derniers tirs en rouge</label><span class="val" id="dv">5</span></div>
+<div class="slider" style="margin-bottom:14px"><button class="pm" onclick="regDer(-1)">−</button><input type="range" id="nder" min="1" max="20" step="1" value="5" oninput="majDer()"><button class="pm" onclick="regDer(1)">+</button></div>
+<div class="grid2"><div><label>Numéros</label><select id="nums" onchange="rendu()"><option value="der">Derniers tirs</option><option value="tous">Tous</option><option value="aucun">Aucun</option></select></div>
+<div><label>Taille des repères</label><input type="range" id="taille" min="2" max="12" value="5" oninput="rendu()" style="width:100%;margin-top:18px"></div></div>
+</div>
+</div>
+</div>
 </div>
 
-<div class="card"><h3>Affichage</h3>
-<div class="reg"><label>Derniers tirs en rouge</label><span class="val" id="dv">5</span></div>
-<div class="slider" style="margin-bottom:16px"><button class="pm" onclick="regDer(-1)">−</button>
-<input type="range" id="nder" min="1" max="20" step="1" value="5" oninput="majDer()">
-<button class="pm" onclick="regDer(1)">+</button></div>
-<div class="disp"><div><label>Numéros</label><select id="nums" onchange="redessiner()"><option value="der">Derniers tirs</option><option value="tous">Tous</option><option value="aucun">Aucun</option></select></div>
-<div><label>Taille des repères</label><input type="range" id="taille" min="2" max="12" value="5" oninput="redessiner()" style="width:100%"></div></div>
-</div>
-</div>
-</div>
 <div id="tabCalc" hidden>
 <div class="card"><h3>Arme et lunette</h3>
-<select id="selW" class="full" onchange="refresh()" style="margin-bottom:10px"></select>
+<label class="fl">Profil</label><select id="selW" class="full" onchange="refresh()"></select>
+<div class="edit"><span class="fl">Modifier ce profil</span>
 <div class="grid2">
-<div style="grid-column:1/3"><label>Nom</label><input id="wName"></div>
+<div class="s2"><label>Nom</label><input id="wName"></div>
 <div><label>Hauteur lunette / canon (cm)</label><input id="wSH" type="number" step="0.1"></div>
 <div><label>Distance de réglage (m)</label><input id="wZero" type="number"></div>
 <div><label>Unité de la lunette</label><select id="wUnit"><option>MOA</option><option>MRAD</option></select></div>
 <div><label>Valeur d'un clic</label><input id="wClick" type="number" step="0.01"></div>
-<div style="grid-column:1/3"><label>Notes (calibre, canon, pas)</label><input id="wNotes"></div>
+<div class="s2"><label>Notes (calibre, canon, pas)</label><input id="wNotes"></div>
 </div>
-<div class="btns"><button class="ok" onclick="saveW()">Enregistrer</button><button onclick="newW()">Nouvelle arme</button><button onclick="delW()">Supprimer</button></div>
+<div class="btns"><button class="ok" onclick="saveW()">Enregistrer les modifications</button></div></div>
+<div class="btns"><button onclick="newW()">+ Nouvelle arme</button><button onclick="delW()">Supprimer</button></div>
 </div>
 
 <div class="card"><h3>Munition</h3>
-<select id="selA" class="full" onchange="showA()" style="margin-bottom:10px"></select>
+<label class="fl">Profil (pour l'arme choisie)</label><select id="selA" class="full" onchange="showA()"></select>
+<div class="edit"><span class="fl">Modifier ce profil</span>
 <div class="grid2">
-<div style="grid-column:1/3"><label>Nom</label><input id="aName"></div>
+<div class="s2"><label>Nom</label><input id="aName"></div>
 <div><label>Poids (gr)</label><input id="aWt" type="number"></div>
 <div><label>Modèle</label><select id="aMod"><option>G7</option><option>G1</option></select></div>
 <div><label>Coefficient balistique</label><input id="aBC" type="number" step="0.001"></div>
 <div><label>Vitesse initiale catalogue (m/s)</label><input id="aV0" type="number"></div>
-<div style="grid-column:1/3"><label>Correction manuelle de vitesse (%) — utilisée tant que rien n'est appris</label><input id="aTr" type="number" step="0.1"></div>
+<div class="s2"><label>Correction manuelle de vitesse (%) — tant que rien n'est appris</label><input id="aTr" type="number" step="0.1"></div>
 </div>
-<div class="btns"><button class="ok" onclick="saveA()">Enregistrer</button><button onclick="newA()">Nouvelle munition</button><button onclick="delA()">Supprimer</button></div>
+<div class="btns"><button class="ok" onclick="saveA()">Enregistrer les modifications</button></div></div>
+<div class="btns"><button onclick="newA()">+ Nouvelle munition</button><button onclick="delA()">Supprimer</button></div>
+</div>
+
+<div class="card"><h3>Cibles</h3>
+<label class="fl">Profil</label><select id="selT" class="full" onchange="showT()"></select>
+<div class="edit"><span class="fl">Modifier ce profil</span>
+<div class="grid2">
+<div class="s2"><label>Nom</label><input id="tName"></div>
+<div><label>Largeur (cm)</label><input id="tW" type="number" step="0.1"></div>
+<div><label>Hauteur (cm)</label><input id="tH" type="number" step="0.1"></div>
+<div class="s2"><label>Zones de visée : nom, x, y, diamètre (cm, depuis le coin haut-gauche), une par ligne</label><textarea id="tZ" rows="5" style="width:100%;font:13px ui-monospace,monospace;color:var(--txt);background:rgba(6,4,13,.7);border:1px solid rgba(5,217,232,.3);border-radius:10px;padding:10px"></textarea></div>
+</div>
+<div class="btns"><button class="ok" onclick="saveT()">Enregistrer les modifications</button></div></div>
+<div class="btns"><button onclick="newT()">+ Nouvelle cible</button><button onclick="delT()">Supprimer</button></div>
+</div>
+
+<div class="card"><h3>Lieux de tir</h3>
+<label class="fl">Lieu</label><select id="selL" class="full" onchange="showL()"></select>
+<div class="edit"><span class="fl">Modifier ce lieu</span>
+<div class="grid2"><div class="s2"><label>Nom</label><input id="lName"></div><div class="s2"><label>Notes (abrité, plaine…)</label><input id="lNotes"></div></div>
+<div class="btns"><button class="ok" onclick="saveL()">Enregistrer les modifications</button></div></div>
+<div id="lInfo" class="res"></div>
+<div class="btns"><button onclick="newL()">+ Nouveau lieu</button><button onclick="delL()">Supprimer</button><button onclick="resetVentL()">Oublier le vent appris ici</button></div>
 </div>
 
 <div class="card"><h3>Conditions</h3>
+<div class="grid2"><div class="s2"><label>Lieu de tir</label><select id="cL" onchange="saveCond();majVent()"></select></div></div>
 <button class="pri big" onclick="meteo()">&#128205; Météo ici</button>
 <p id="wxInfo" class="small"></p>
 <div class="grid2">
@@ -224,10 +299,10 @@ details summary{cursor:pointer;color:var(--mut);margin:8px 0}
 <p id="azInfo" class="small"></p>
 <div id="windInfo" class="res"></div>
 <div class="grid2">
-<div style="grid-column:1/3"><label>Vent utilisé pour le calcul</label><select id="cSrc"><option value="meteo">Vent météo (corrigé par l'apprentissage)</option><option value="man">Vent saisi au stand</option></select></div>
+<div class="s2"><label>Vent utilisé pour le calcul</label><select id="cSrc"><option value="meteo">Vent météo (corrigé pour ce lieu)</option><option value="man">Vent saisi au stand</option></select></div>
 <div><label>Vent saisi (m/s)</label><input id="manV" type="number" step="0.1" value="0"></div>
 <div><label>Vent saisi, heure (3 = vient de droite)</label><input id="manH" type="number" value="3"></div>
-<div style="grid-column:1/3"><label>Distances (m, séparées par des virgules)</label><input id="cD" value="100,150,200,250,300"></div>
+<div class="s2"><label>Distances (m, séparées par des virgules)</label><input id="cD" value="100,150,200,250,300"></div>
 </div>
 <button class="ok big" onclick="calc()">Calculer</button>
 <div id="out"></div>
@@ -236,7 +311,7 @@ details summary{cursor:pointer;color:var(--mut);margin:8px 0}
 <div class="card"><h3>Apprentissage</h3>
 <div id="learnSum" class="res"></div>
 <div id="learnInfo"></div>
-<div class="btns"><button onclick="annulerDernier()">Annuler le dernier apprentissage</button><button onclick="repartirZero()">Repartir à zéro</button></div>
+<div class="btns"><button onclick="annulerDernier()">Annuler le dernier envoi</button><button onclick="repartirZero()">Repartir à zéro (munition)</button></div>
 <div id="grpList"></div>
 <details ontoggle="if(this.open)prefillManuel()"><summary>Saisir un groupement à la main</summary>
 <div class="grid2">
@@ -247,11 +322,13 @@ details summary{cursor:pointer;color:var(--mut);margin:8px 0}
 <div><label>Clics affichés vertical</label><input id="fCV" type="number" value="0"></div>
 <div><label>Clics affichés horizontal</label><input id="fCH" type="number" value="0"></div>
 </div>
-<button class="full" onclick="saisieManuelle()">Ajouter et apprendre</button>
+<button class="full" onclick="saisieManuelle()">Vérifier et ajouter</button>
 </details>
 </div>
 </div>
-<footer>Distant Eye v10</footer>
+<div id="modal" class="modal" hidden><div class="box"><h3>Vérification avant envoi</h3><div id="mBody"></div>
+<div class="btns" style="margin-top:12px"><button onclick="fermerModal()">Corriger</button><button class="pri" id="mOk">Confirmer l'envoi</button></div></div></div>
+<footer>DISTANT EYE v11</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -275,13 +352,6 @@ function clockOf(th){return Math.round(th/30)%12||12}
 function compsOf(v,th){const r=th*Math.PI/180;return{cross:v*Math.sin(r),head:v*Math.cos(r)}}
 // Vitesse du modele pour une temperature
 function vModel(a,T){const L=a.learn;if(L&&L.vOk)return L.V+(L.kOk?L.k*(T-TREF):0);return a.v0*(1+(a.tr||0)/100)}
-// Vent lateral effectif (m/s, + = vient de droite)
-function crossEff(a,c){if(c.src=='man')return compsOf(c.manV||0,(c.manH||0)*30).cross;
- if(c.az==null||isNaN(c.az)||c.wxV==null||isNaN(c.wxV))return 0;
- const L=a.learn,k=L&&L.cOk?L.c:1;return compsOf(c.wxV,relAng(c.wxDir,c.az)).cross*k}
-// Prediction a une distance : hauteur (cm, + = haut), derive (cm, + = droite)
-function predict(w,a,c,d){const v=vModel(a,c.T),p=pathV(w,a,c,d,v),cr=crossEff(a,c),L=a.learn;
- let dr=-cr*(p.t-d/v)*100;if(L&&L.bOk)dr+=L.b*moaCm(d);return{cm:p.cm,drift:dr,t:p.t,v}}
 // Vitesse qui explique une hauteur observee
 function solveV(w,a,c,d,yTrue){let lo=a.v0*.6,hi=a.v0*1.4;
  if(pathV(w,a,c,d,lo).cm>yTrue||pathV(w,a,c,d,hi).cm<yTrue)return null;
@@ -300,50 +370,75 @@ function robust(P,pr,slope){P.forEach(p=>p.out=false);let f=gls(P,pr,slope);
   const r=P.map(p=>Math.abs(p.y-f0.a-f0.b*p.x)),lim=3*Math.max(1.4826*median(r),sdm),K=P.filter((p,i)=>r[i]<=lim);
   if(K.length>=3&&K.length<P.length){P.forEach((p,i)=>p.out=r[i]>lim);f=gls(K,pr,slope);P=K}}return{f,P}}
 const lvl=(s,a,b)=>s<a?'bonne':s<b?'moyenne':'faible';
-// Apprentissage complet a partir de l'historique (recalcule a chaque fois)
-function fitAmmo(w,a,now){now=now||Date.now();const G=(a.groups||[]).filter(g=>!g.ign&&g.n>=3&&g.d>=w.zero);G.forEach(g=>g.flag='');
- const rec=g=>Math.pow(.5,(now-Date.parse(g.date))/(180*DAY)),sdCm=g=>1.5/Math.sqrt(Math.min(g.n,20))+.3;
- const L={Tref:TREF,vOk:false,kOk:false,cOk:false,bOk:false,c:1,b:0,V:a.v0,k:0,nV:0,nH:0,nWind:0,sV:0,sH:0,msgs:[],updated:new Date(now).toISOString()};
- // a) Vitesse reelle et sensibilite a la temperature : ecarts verticaux, au-dela de la distance de reglage
+
+// ===== Lieux de tir, vent et apprentissage (v11) =====
+const SECT=['N','NE','E','SE','S','SO','O','NO'];
+function secteur(dir){return Math.round((((dir%360)+360)%360)/45)%8}
+// Coefficient de vent appris pour un lieu et une direction de vent (vent reel / vent meteo)
+function coefFor(loc,dir){const L=loc&&loc.learn;if(!L||!L.cOk)return 1;const s=L.sec&&L.sec[secteur(dir)];return s&&s.ok?s.c:L.c}
+// Vent lateral effectif (m/s, + = vient de droite)
+function crossEff(c){if(c.src=='man')return compsOf(c.manV||0,(c.manH||0)*30).cross;
+ if(c.az==null||isNaN(c.az)||c.wxV==null||isNaN(c.wxV))return 0;
+ return compsOf(c.wxV,relAng(c.wxDir,c.az)).cross*coefFor(c.loc,c.wxDir)}
+// Prediction : hauteur (cm, + = haut), derive (cm, + = droite)
+function predict(w,a,c,d){const v=vModel(a,c.T),p=pathV(w,a,c,d,v),cr=crossEff(c),L=a.learn;
+ let dr=-cr*(p.t-d/v)*100;if(L&&L.bOk)dr+=L.b*moaCm(d);return{cm:p.cm,drift:dr,t:p.t,v}}
+const REC=(g,now)=>Math.pow(.5,(now-Date.parse(g.date))/(180*DAY)),SDCM=g=>1.5/Math.sqrt(Math.min(g.n,20))+.3;
+// a) Vitesse reelle et sensibilite a la temperature (ecarts verticaux, au-dela de la distance de reglage)
+function fitVitesse(w,a,G,now){const L={Tref:TREF,vOk:false,kOk:false,bOk:false,b:0,V:a.v0,k:0,nV:0,nH:0,sV:0,sH:0,msgs:[]};
  const PV=[];for(const g of G){if(g.d<=w.zero)continue;const c={T:g.T,P:g.P,RH:g.RH},yT=g.dy-g.clV*w.click*unitCm(w,g.d),v=solveV(w,a,c,g.d,yT);
-  if(v==null){g.flag='aberrant';continue}const s=Math.abs(pathV(w,a,c,g.d,v+5).cm-pathV(w,a,c,g.d,v-5).cm)/10,sd=sdCm(g)/s;
-  PV.push({x:g.T-TREF,y:v,sd,w:rec(g)/(sd*sd),g})}
+  if(v==null){g.flag='aberrant';continue}const s=Math.abs(pathV(w,a,c,g.d,v+5).cm-pathV(w,a,c,g.d,v-5).cm)/10,sd=SDCM(g)/s;
+  PV.push({x:g.T-TREF,y:v,sd,w:REC(g,now)/(sd*sd),g})}
  if(PV.length){const Ts=PV.map(p=>p.g.T),span=Math.max(...Ts)-Math.min(...Ts),useK=days(PV)>=3&&span>=8,pr={a0:a.v0,sa:20,b0:0,sb:1};
   const R=robust(PV,pr,useK);PV.forEach(p=>{if(p.out)p.g.flag='aberrant'});let V=R.f.a,k=R.f.b;
   if(useK){if(k<-.3||k>2){k=clamp(k,-.3,2);V=gls(R.P.map(p=>({x:0,y:p.y-k*p.x,w:p.w})),pr,false).a}L.kOk=true}
   else L.msgs.push('Sensibilité à la température inactive : il faut 3 séances couvrant au moins 8 °C ('+days(PV)+' séance(s), '+span.toFixed(1)+' °C).');
   L.V=clamp(V,a.v0*.85,a.v0*1.15);L.k=L.kOk?k:0;L.vOk=true;L.nV=R.P.length;L.sV=R.f.sa}
- else if(G.some(g=>g.d>w.zero))L.msgs.push('Vitesse non apprise : écarts verticaux impossibles à expliquer, vérifie les clics affichés sur la lunette.');
+ else if(G.some(g=>g.d>w.zero))L.msgs.push('Vitesse non apprise : écarts verticaux impossibles à expliquer, vérifie les clics affichés.');
  else if(G.length)L.msgs.push('Vitesse non apprise : il faut des groupements au-delà de '+w.zero+' m.');
- // b) Coefficient de vent (vent reel / vent meteo) et decalage horizontal : ecarts horizontaux
- const PH=[];for(const g of G){const c={T:g.T,P:g.P,RH:g.RH},v=L.vOk?L.V+L.k*(g.T-TREF):a.v0*(1+(a.tr||0)/100),p=pathV(w,a,c,g.d,v),lag=p.t-g.d/v,m=moaCm(g.d);
-  const h=(g.dx-g.clH*w.click*unitCm(w,g.d))/m,cm=(g.wxV!=null&&!isNaN(g.wxV)&&g.az!=null&&!isNaN(g.az))?compsOf(g.wxV,relAng(g.wxDir,g.az)).cross:null;
-  const sd=(sdCm(g)+.5)/m;PH.push({x:cm==null?null:-cm*lag*100/m,y:h,Du:-(g.crossUsed||0)*lag*100/m,sd,w:rec(g)/(sd*sd),g,windy:cm!=null&&Math.abs(cm)>=1.5})}
- if(PH.length){const nW=days(PH.filter(p=>p.windy));L.nWind=nW;let R;
-  if(nW>=3){const PM=PH.filter(p=>p.x!=null);R=robust(PM,{a0:0,sa:1,b0:1,sb:.3},true);let c=R.f.b,b=R.f.a;
-   if(c<.3||c>1.5){c=clamp(c,.3,1.5);b=gls(R.P.map(p=>({x:0,y:p.y-c*p.x,w:p.w})),{a0:0,sa:1},false).a}L.c=c;L.cOk=true;L.b=b}
-  else{L.msgs.push('Coefficient de vent inactif : il faut 3 séances venteuses ('+nW+' pour l\'instant).');
-   const PB=PH.map(p=>({x:0,y:p.y-(p.g.src=='man'||p.x==null?p.Du:p.x),sd:p.sd,w:p.w,g:p.g}));R=robust(PB,{a0:0,sa:1},false);L.b=R.f.a;PB.forEach(p=>{if(p.out)p.g.flag='aberrant'})}
-  L.b=clamp(L.b,-3,3);L.nH=R.P.length;L.sH=R.f.sa;L.bOk=L.nH>=2;if(!L.bOk)L.msgs.push('Décalage horizontal inactif : il faut au moins 2 groupements.')}
- L.confV=L.vOk?lvl(L.sV,6,12):'—';L.confH=L.bOk||L.cOk?lvl(L.sH,.15,.3):'—';
- return L}
-if(typeof module!=='undefined')module.exports={rhoAir,pathV,predict,solveV,fitAmmo,vModel,moaCm,unitCm,compsOf,relAng,clockOf,crossEff};
+ L.confV=L.vOk?lvl(L.sV,6,12):'—';return L}
+// Apprentissage complet : vitesse par munition, decalage horizontal par munition, vent par lieu et par secteur
+function fitAll(db,now){now=now||Date.now();const W=id=>db.w.find(x=>x.id==id),LOC=id=>db.l.find(x=>x.id==id);
+ const H=[];// points horizontaux de toutes les munitions
+ for(const a of db.a){const w=W(a.wid);if(!w){a.learn=null;continue}const G=(a.groups||[]).filter(g=>!g.ign&&g.n>=3&&g.d>=w.zero);G.forEach(g=>g.flag='');
+  const L=fitVitesse(w,a,G,now);a.learn=L;
+  for(const g of G){const c={T:g.T,P:g.P,RH:g.RH},v=L.vOk?L.V+L.k*(g.T-TREF):a.v0*(1+(a.tr||0)/100),p=pathV(w,a,c,g.d,v),lag=p.t-g.d/v,m=moaCm(g.d);
+   const cm=(g.src!='man'&&g.wxV!=null&&!isNaN(g.wxV)&&g.az!=null&&!isNaN(g.az))?compsOf(g.wxV,relAng(g.wxDir,g.az)).cross:null,sd=(SDCM(g)+.5)/m;
+   H.push({a,g,y:(g.dx-g.clH*w.click*unitCm(w,g.d))/m,x:cm==null?null:-cm*lag*100/m,Du:-(g.crossUsed||0)*lag*100/m,cm,sd,w:REC(g,now)/(sd*sd)})}}
+ for(const l of db.l)l.learn={c:1,cOk:false,sc:0,nWind:0,n:0,sec:SECT.map(()=>({c:1,ok:false,n:0,nWind:0}))};
+ const cof=p=>{const l=LOC(p.g.loc);return coefFor(l,p.g.wxDir)};
+ for(let it=0;it<4;it++){
+  // Decalage horizontal fixe par munition (zero de la lunette)
+  for(const a of db.a){if(!a.learn)continue;const P=H.filter(p=>p.a===a).map(p=>({x:0,y:p.y-(p.x==null?p.Du:cof(p)*p.x),sd:p.sd,w:p.w,g:p.g}));
+   if(!P.length)continue;const R=robust(P,{a0:0,sa:1},false);a.learn.b=clamp(R.f.a,-3,3);a.learn.nH=R.P.length;a.learn.sH=R.f.sa;a.learn.bOk=R.P.length>=2;
+   if(it==3)P.forEach(p=>{if(p.out&&!p.g.flag)p.g.flag='aberrant'})}
+  // Coefficient de vent par lieu, puis par secteur de vent (retrait vers le coefficient du lieu)
+  for(const l of db.l){const P=H.filter(p=>p.g.loc==l.id&&p.x!=null&&!p.g.ignW&&p.g.flag!='aberrant').map(p=>({x:p.x,y:p.y-(p.a.learn.bOk?p.a.learn.b:0),w:p.w,g:p.g,windy:Math.abs(p.cm)>=1.5}));
+   const L=l.learn;L.n=P.length;L.nWind=days(P.filter(p=>p.windy));if(!P.length)continue;
+   const slope=(Q,c0,s)=>{let A=1/(s*s),B=c0/(s*s);for(const p of Q){A+=p.w*p.x*p.x;B+=p.w*p.x*p.y}return{c:B/A,sd:Math.sqrt(1/A)}};
+   if(L.nWind>=3){const f=slope(P,1,.3);L.c=clamp(f.c,.2,1.5);L.sc=f.sd;L.cOk=true;
+    L.sec.forEach((S,i)=>{const Q=P.filter(p=>secteur(p.g.wxDir)==i);S.n=Q.length;S.nWind=days(Q.filter(p=>p.windy));if(S.nWind>=3){S.c=clamp(slope(Q,L.c,.2).c,.2,1.5);S.ok=true}else{S.c=L.c;S.ok=false}})}}}
+ for(const a of db.a)if(a.learn){const L=a.learn;if(!L.bOk&&H.some(p=>p.a===a))L.msgs.push('Décalage horizontal inactif : il faut au moins 2 groupements.');L.confH=L.bOk?lvl(L.sH,.15,.3):'—';L.updated=new Date(now).toISOString()}
+ for(const l of db.l){const L=l.learn;L.conf=L.cOk?lvl(L.sc,.08,.15):'—'}}
 
+// ===== Distant Eye : camera, connexion, detection, vue de la cible =====
 window.onerror=function(m){document.getElementById('err').textContent='Erreur : '+m};
-const P='cible-flo-';const R=20;let conn,ref=null,impacts=[],nbAvant=0,lastIm=null;
+const P='cible-flo-';const R=20;let conn,ref=null,impacts=[],lastIm=null;
 let track=null,caps=null,HW=1,DZ=1,PX=0,PY=0,liveInt=null,liveFin=null,wake=null;
-function majSeuil(){const v=document.getElementById('seuil').value;document.getElementById('sv').textContent=v;try{localStorage.setItem('seuil',v)}catch(e){}}
-function regSeuil(d){const s=document.getElementById('seuil');s.value=Math.max(10,Math.min(80,+s.value+d));majSeuil()}
-try{const sv=localStorage.getItem('seuil');if(sv)document.getElementById('seuil').value=sv}catch(e){}
+let tapMode=null,cal=null,calPts=[],aim=null,VIEW=null;
+const $=id=>document.getElementById(id),num=id=>parseFloat($(id).value);
+function majSeuil(){const v=$('seuil').value;$('sv').textContent=v;try{localStorage.setItem('seuil',v)}catch(e){}}
+function regSeuil(d){const s=$('seuil');s.value=Math.max(10,Math.min(80,+s.value+d));majSeuil()}
+try{const sv=localStorage.getItem('seuil');if(sv)$('seuil').value=sv}catch(e){}
 majSeuil();
-function majZoom(){document.getElementById('zv').textContent=(+document.getElementById('zoom').value).toFixed(1)+'x'}
-function regZoom(d){const z=document.getElementById('zoom');z.value=Math.max(1,Math.min(8,+z.value+d));majZoom();zoomer()}
+function majZoom(){$('zv').textContent=(+$('zoom').value).toFixed(1)+'x'}
+function regZoom(d){const z=$('zoom');z.value=Math.max(1,Math.min(8,+z.value+d));majZoom();zoomer()}
 majZoom();
-function majDer(){const v=document.getElementById('nder').value;document.getElementById('dv').textContent=v;try{localStorage.setItem('nder',v)}catch(e){}redessiner()}
-function regDer(d){const s=document.getElementById('nder');s.value=Math.max(1,Math.min(20,+s.value+d));majDer()}
-try{const nv=localStorage.getItem('nder');if(nv)document.getElementById('nder').value=nv}catch(e){}
-majDer();
-function show(id){['menu','cam','tir'].forEach(x=>document.getElementById(x).hidden=x!==id)}
+function majDer(){const v=$('nder').value;$('dv').textContent=v;try{localStorage.setItem('nder',v)}catch(e){}rendu()}
+function regDer(d){const s=$('nder');s.value=Math.max(1,Math.min(20,+s.value+d));majDer()}
+try{const nv=localStorage.getItem('nder');if(nv)$('nder').value=nv}catch(e){}
+function show(id){['menu','cam','tir'].forEach(x=>$(x).hidden=x!==id)}
+document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#seg button').forEach(x=>{x.classList.toggle('on',x===b);$(x.dataset.p).hidden=x!==b})});
 function borne(x){return Math.max(-1,Math.min(1,x))}
 function infoCam(){return 'Zoom optique '+HW.toFixed(1)+'x, numérique '+DZ.toFixed(1)+'x'}
 async function garderEveille(){try{if(navigator.wakeLock&&!wake){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>{wake=null})}}catch(e){}}
@@ -351,56 +446,52 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 async function appliquerZoom(z){let hw=1;
  if(caps&&caps.zoom){hw=Math.min(Math.max(z,caps.zoom.min),caps.zoom.max);
   try{await track.applyConstraints({advanced:[{zoom:hw}]})}catch(e){hw=1}}
- HW=hw;DZ=Math.max(1,z/hw);document.getElementById('camStatus').textContent=infoCam();}
+ HW=hw;DZ=Math.max(1,z/hw);$('camStatus').textContent=infoCam();}
 function capture(v,maxW,q){const vw=v.videoWidth,vh=v.videoHeight,sw=Math.round(vw/DZ),sh=Math.round(vh/DZ);
- const sx=(vw-sw)/2*(1+PX),sy=(vh-sh)/2*(1+PY);
- const k=maxW?Math.min(1,maxW/sw):1;
+ const sx=(vw-sw)/2*(1+PX),sy=(vh-sh)/2*(1+PY),k=maxW?Math.min(1,maxW/sw):1;
  const cv=document.createElement('canvas');cv.width=Math.round(sw*k);cv.height=Math.round(sh*k);
  cv.getContext('2d').drawImage(v,sx,sy,sw,sh,0,0,cv.width,cv.height);return cv.toDataURL('image/jpeg',q||0.6);}
 function stopLive(c){if(liveInt){clearInterval(liveInt);liveInt=null}if(liveFin){clearTimeout(liveFin);liveFin=null}
  if(c)c.send({type:'info',txt:'Vidéo de cadrage arrêtée'});}
-async function modeCamera(){show('cam');document.getElementById('tabs').hidden=true;
+async function modeCamera(){show('cam');$('tabs').hidden=true;
  try{
  if(typeof Peer==='undefined')throw new Error('bibliothèque PeerJS non chargée');
- const code=String(Math.floor(1000+Math.random()*9000));
- const v=document.getElementById('video');
+ const code=String(Math.floor(1000+Math.random()*9000)),v=$('video');
  const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}});
- v.srcObject=stream;track=stream.getVideoTracks()[0];
- caps=track.getCapabilities?track.getCapabilities():null;
+ v.srcObject=stream;track=stream.getVideoTracks()[0];caps=track.getCapabilities?track.getCapabilities():null;
  const peer=new Peer(P+code);
- peer.on('open',()=>document.getElementById('code').textContent=code);
- peer.on('error',e=>document.getElementById('camStatus').textContent='Erreur : '+e.type);
- peer.on('connection',c=>{document.getElementById('camStatus').textContent='Tireur connecté';
+ peer.on('open',()=>$('code').textContent=code);
+ peer.on('error',e=>$('camStatus').textContent='Erreur : '+e.type);
+ peer.on('connection',c=>{$('camStatus').textContent='Tireur connecté';
   c.on('close',()=>stopLive(null));
   c.on('data',async d=>{
    if(typeof d==='object'&&d.cmd==='zoom'){await appliquerZoom(+d.z);c.send({type:'info',txt:infoCam()});return}
    if(typeof d==='object'&&d.cmd==='pan'){if(d.x===0&&d.y===0){PX=0;PY=0}else{PX=borne(PX+d.x);PY=borne(PY+d.y)}
     c.send({type:'info',txt:DZ>1?'Cadrage déplacé':'Cadrage : monte le zoom au-delà du zoom optique pour déplacer'});return}
    if(typeof d==='object'&&d.cmd==='live'){stopLive(null);
-    if(d.on){liveInt=setInterval(()=>{try{c.send({type:'live',img:capture(v,480,0.5)})}catch(e){}},500);
-     liveFin=setTimeout(()=>stopLive(c),60000);}
-    else c.send({type:'info',txt:'Vidéo de cadrage arrêtée'});
-    return}
+    if(d.on){liveInt=setInterval(()=>{try{c.send({type:'live',img:capture(v,480,0.5)})}catch(e){}},500);liveFin=setTimeout(()=>stopLive(c),60000)}
+    else c.send({type:'info',txt:'Vidéo de cadrage arrêtée'});return}
    c.send({type:d,img:capture(v)})});});
  garderEveille();
- }catch(e){document.getElementById('err').textContent='Erreur caméra : '+e.message}
+ }catch(e){$('err').textContent='Erreur caméra : '+e.message}
 }
 function connecter(){
  if(typeof Peer==='undefined')return status('Erreur : bibliothèque PeerJS non chargée');
- status('Connexion en cours…');
- const peer=new Peer();
- peer.on('open',()=>{conn=peer.connect(P+document.getElementById('codeIn').value);
-  conn.on('open',()=>{status('Connecté au S10');document.getElementById('connexion').hidden=true});
+ status('Connexion en cours…');const peer=new Peer();
+ peer.on('open',()=>{conn=peer.connect(P+$('codeIn').value);
+  conn.on('open',()=>{status('Connecté au S10');$('connexion').hidden=true});
   conn.on('data',recevoir);});
  peer.on('error',e=>status('Erreur : '+e.type));}
-function status(t){document.getElementById('status').textContent=t}
+function status(t){$('status').textContent=t}
 function demander(t){if(!conn)return status("Connecte-toi d'abord");status('Photo en cours…');conn.send(t)}
+function toutEffacer(){ref=null;impacts=[];lastIm=null;cal=null;calPts=[];aim=null;tapMode=null}
 function live(on){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'live',on:on});
- if(on){ref=null;impacts=[];lastIm=null;resetCadre();status('Vidéo de cadrage en cours (60 s)…')}}
-function zoomer(){const z=+document.getElementById('zoom').value;majZoom();
- if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'zoom',z:z});ref=null;impacts=[];lastIm=null;resetCadre();
- status('Zoom '+z.toFixed(1)+'x envoyé : vérifie le cadrage, puis refais une référence');}
-function pan(x,y){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'pan',x:x,y:y});ref=null;impacts=[];lastIm=null;resetCadre();}
+ if(on){toutEffacer();status('Vidéo de cadrage en cours (60 s)… règle le zoom et le cadrage juste en dessous')}}
+function zoomer(){const z=+$('zoom').value;majZoom();
+ if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'zoom',z:z});toutEffacer();
+ status('Zoom '+z.toFixed(1)+'x envoyé : vérifie le cadrage, puis refais une référence et le calage');}
+function pan(x,y){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'pan',x:x,y:y});toutEffacer()}
+// ---- detection des impacts ----
 function moyenneLocale(g,W,H,r){const I=new Float64Array((W+1)*(H+1));
  for(let y=0;y<H;y++){let s=0;for(let x=0;x<W;x++){s+=g[y*W+x];I[(y+1)*(W+1)+x+1]=I[y*(W+1)+x+1]+s}}
  const o=new Float32Array(W*H);
@@ -408,79 +499,123 @@ function moyenneLocale(g,W,H,r){const I=new Float64Array((W+1)*(H+1));
   for(let x=0;x<W;x++){const x0=Math.max(0,x-r),x1=Math.min(W,x+r+1);
    const s=I[y1*(W+1)+x1]-I[y0*(W+1)+x1]-I[y1*(W+1)+x0]+I[y0*(W+1)+x0];o[y*W+x]=s/((x1-x0)*(y1-y0))}}
  return o;}
-function normaliser(g,W,H){const fin=moyenneLocale(g,W,H,1);const fond=moyenneLocale(g,W,H,15);
- const o=new Float32Array(W*H);let s2=0;
+function normaliser(g,W,H){const fin=moyenneLocale(g,W,H,1),fond=moyenneLocale(g,W,H,15),o=new Float32Array(W*H);let s2=0;
  for(let i=0;i<W*H;i++){const f=fond[i]+1;o[i]=(fin[i]-fond[i])/f*100;s2+=o[i]*o[i]}
- const sd=Math.sqrt(s2/(W*H))||1;for(let i=0;i<W*H;i++)o[i]=o[i]/sd*10;
- return o;}
-function ecart(a,b,W,H,dx,dy,pas){let s=0;
- for(let y=R;y<H-R;y+=pas)for(let x=R;x<W-R;x+=pas)s+=Math.abs(b[y*W+x]-a[(y-dy)*W+(x-dx)]);
- return s;}
+ const sd=Math.sqrt(s2/(W*H))||1;for(let i=0;i<W*H;i++)o[i]=o[i]/sd*10;return o;}
+function ecart(a,b,W,H,dx,dy,pas){let s=0;for(let y=R;y<H-R;y+=pas)for(let x=R;x<W-R;x+=pas)s+=Math.abs(b[y*W+x]-a[(y-dy)*W+(x-dx)]);return s;}
 function recaler(a,b,W,H){let best=Infinity,bx=0,by=0;
  for(let dy=-R;dy<=R;dy+=2)for(let dx=-R;dx<=R;dx+=2){const s=ecart(a,b,W,H,dx,dy,6);if(s<best){best=s;bx=dx;by=dy}}
  const cx=bx,cy=by;best=Infinity;
- for(let dy=cy-2;dy<=cy+2;dy++)for(let dx=cx-2;dx<=cx+2;dx++){
-  if(Math.abs(dx)>R||Math.abs(dy)>R)continue;const s=ecart(a,b,W,H,dx,dy,3);if(s<best){best=s;bx=dx;by=dy}}
+ for(let dy=cy-2;dy<=cy+2;dy++)for(let dx=cx-2;dx<=cx+2;dx++){if(Math.abs(dx)>R||Math.abs(dy)>R)continue;const s=ecart(a,b,W,H,dx,dy,3);if(s<best){best=s;bx=dx;by=dy}}
  return [bx,by];}
-function recevoir(d){if(d.type==='info'){status(d.txt);return}
- const im=new Image();im.onload=()=>{
- const W=600,H=Math.round(im.height*W/im.width);const cv=document.getElementById('vue');cv.width=W;cv.height=H;
- const ctx=cv.getContext('2d');ctx.drawImage(im,0,0,W,H);
- if(d.type==='live'){ctx.strokeStyle='rgba(250,204,21,.85)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();ctx.beginPath();ctx.arc(W/2,H/2,Math.min(W,H)/6,0,7);ctx.stroke();return}
- if(d.type==='apercu'){status('Aperçu du cadrage');return}
- const px=ctx.getImageData(0,0,W,H).data;
- let g=new Float32Array(W*H);for(let i=0;i<W*H;i++)g[i]=px[i*4]*.3+px[i*4+1]*.59+px[i*4+2]*.11;
- g=normaliser(g,W,H);
- if(d.type==='ref'||!ref){ref=g;impacts=[];nbAvant=0;status('Référence enregistrée');}
- else{const [dx,dy]=recaler(ref,g,W,H);impacts.forEach(p=>{p.x+=dx;p.y+=dy});if(aim){aim.x+=dx;aim.y+=dy}scalePts.forEach(p=>{p.x+=dx;p.y+=dy});
-  nbAvant=impacts.length;const n=detecter(ref,g,W,H,dx,dy);ref=g;status(n+' nouvel(s) impact(s) · sensibilité '+document.getElementById('seuil').value+' · recalage '+dx+','+dy+' px');}
- lastIm=im;dessiner(ctx);};im.src=d.img;}
-function redessiner(){if(!lastIm)return;const cv=document.getElementById('vue');const ctx=cv.getContext('2d');
- ctx.drawImage(lastIm,0,0,cv.width,cv.height);dessiner(ctx);}
-function detecter(a,b,W,H,dx,dy){const s=+document.getElementById('seuil').value;const m=new Uint8Array(W*H);
- const M=R+2;
+function detecter(a,b,W,H,dx,dy){const s=+$('seuil').value,m=new Uint8Array(W*H),M=R+2;
  for(let y=M;y<H-M;y++)for(let x=M;x<W-M;x++){const i=y*W+x;if(Math.abs(b[i]-a[(y-dy)*W+(x-dx)])>s)m[i]=1}
  let n=0;const pile=[];
  for(let i=0;i<W*H;i++)if(m[i]){let sx=0,sy=0,k=0;pile.push(i);m[i]=0;
-  while(pile.length){const p=pile.pop(),x=p%W,y=(p/W)|0;sx+=x;sy+=y;k++;
-   for(const q of [p-1,p+1,p-W,p+W])if(q>=0&&q<W*H&&m[q]){m[q]=0;pile.push(q)}}
+  while(pile.length){const p=pile.pop(),x=p%W,y=(p/W)|0;sx+=x;sy+=y;k++;for(const q of [p-1,p+1,p-W,p+W])if(q>=0&&q<W*H&&m[q]){m[q]=0;pile.push(q)}}
   if(k>=4&&k<800){impacts.push({x:sx/k,y:sy/k});n++}}
  return n;}
-function dessiner(ctx){const r=+document.getElementById('taille').value;const mode=document.getElementById('nums').value;
- ctx.font='bold '+Math.max(10,r*2)+'px sans-serif';
- const N=+document.getElementById('nder').value;
- impacts.forEach((p,i)=>{const nouveau=i>=impacts.length-N;
-  ctx.lineWidth=nouveau?2:1.5;ctx.strokeStyle=ctx.fillStyle=nouveau?'#f43f5e':'#22c55e';
-  ctx.beginPath();ctx.arc(p.x,p.y,r,0,7);ctx.stroke();
-  if(mode==='tous'||(mode==='der'&&nouveau)){ctx.lineWidth=3;ctx.strokeStyle='#000';ctx.strokeText(i+1,p.x+r+2,p.y-r);ctx.fillText(i+1,p.x+r+2,p.y-r)}});
- drawGroupe(ctx);document.getElementById('info').textContent='Total : '+impacts.length+' impact(s) · en rouge : les '+Math.min(N,impacts.length)+' derniers';}
+function dessinBrut(im,croix){const cv=$('vue'),W=600,H=Math.round(im.height*W/im.width);cv.width=W;cv.height=H;const ctx=cv.getContext('2d');ctx.drawImage(im,0,0,W,H);
+ if(croix){ctx.strokeStyle='rgba(249,248,113,.85)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();ctx.beginPath();ctx.arc(W/2,H/2,Math.min(W,H)/6,0,7);ctx.stroke()}}
+function recevoir(d){if(d.type==='info'){status(d.txt);return}
+ const im=new Image();im.onload=()=>{
+ if(d.type==='live'){dessinBrut(im,true);return}
+ if(d.type==='apercu'){dessinBrut(im,true);status('Aperçu du cadrage');return}
+ const W=600,H=Math.round(im.height*W/im.width),o=document.createElement('canvas');o.width=W;o.height=H;const c=o.getContext('2d');c.drawImage(im,0,0,W,H);
+ const px=c.getImageData(0,0,W,H).data;let g=new Float32Array(W*H);for(let i=0;i<W*H;i++)g[i]=px[i*4]*.3+px[i*4+1]*.59+px[i*4+2]*.11;
+ g=normaliser(g,W,H);
+ if(d.type==='ref'||!ref){ref=g;impacts=[];status('Référence enregistrée'+(cal?'':' · pense à caler la cible (onglet Calage)'));}
+ else{const [dx,dy]=recaler(ref,g,W,H),sh=p=>{if(p){p.x+=dx;p.y+=dy}};impacts.forEach(sh);sh(aim);if(cal){sh(cal.tl);sh(cal.br)}
+  const n=detecter(ref,g,W,H,dx,dy);ref=g;status(n+' nouvel(s) impact(s) · sensibilité '+$('seuil').value+' · recalage '+dx+','+dy+' px');}
+ lastIm=im;rendu()};im.src=d.img;}
+// ---- vue redressee au format de la cible ----
+function cible(){return typeof db!=='undefined'?db.t.find(x=>x.id==$('gT').value):null}
+function imgVersCm(p){const T=cible();return{x:(p.x-cal.tl.x)/(cal.br.x-cal.tl.x)*T.w,y:(p.y-cal.tl.y)/(cal.br.y-cal.tl.y)*T.h}}
+function cmVersImg(p){const T=cible();return{x:cal.tl.x+p.x/T.w*(cal.br.x-cal.tl.x),y:cal.tl.y+p.y/T.h*(cal.br.y-cal.tl.y)}}
+function calOk(){const T=cible();return!!(cal&&T&&T.w>0&&T.h>0&&Math.abs(cal.br.x-cal.tl.x)>10&&Math.abs(cal.br.y-cal.tl.y)>10)}
+function vueCalc(){const H0=lastIm?Math.round(lastIm.height*600/lastIm.width):400;
+ if(calOk()){const T=cible(),wp=cal.br.x-cal.tl.x,hp=cal.br.y-cal.tl.y,m=.06,VW=600,VH=Math.round(600*T.h/T.w*(1+2*m)/(1+2*m));
+  return{sx:cal.tl.x-m*wp,sy:cal.tl.y-m*hp,sw:wp*(1+2*m),sh:hp*(1+2*m),VW,VH}}
+ return{sx:0,sy:0,sw:600,sh:H0,VW:600,VH:H0}}
+const versVue=p=>({x:(p.x-VIEW.sx)*VIEW.VW/VIEW.sw,y:(p.y-VIEW.sy)*VIEW.VH/VIEW.sh});
+const versImg=p=>({x:VIEW.sx+p.x*VIEW.sw/VIEW.VW,y:VIEW.sy+p.y*VIEW.sh/VIEW.VH});
+function zones(){const T=cible();return calOk()&&T.zones&&T.zones.length?T.zones:[]}
+function zoneDe(p){const Z=zones();if(!Z.length)return -1;const c=imgVersCm(p);let b=0,bd=Infinity;Z.forEach((z,i)=>{const d=Math.hypot(c.x-z.x,c.y-z.y);if(d<bd){bd=d;b=i}});return b}
+function zoneChoisie(){const Z=zones();if(!Z.length)return -1;const v=$('gZ').value;if(v!=='auto')return Math.min(+v,Z.length-1);return impacts.length?zoneDe(impacts[impacts.length-1]):0}
+function rendu(){const cv=$('vue');if(!lastIm){if(typeof majGroupe=='function')majGroupe();return}
+ VIEW=vueCalc();cv.width=VIEW.VW;cv.height=VIEW.VH;const ctx=cv.getContext('2d'),f=lastIm.width/600;
+ ctx.fillStyle='#000';ctx.fillRect(0,0,VIEW.VW,VIEW.VH);ctx.drawImage(lastIm,VIEW.sx*f,VIEW.sy*f,VIEW.sw*f,VIEW.sh*f,0,0,VIEW.VW,VIEW.VH);
+ const k=VIEW.VW/VIEW.sw,cr=(x,y,r,col,lw)=>{ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();ctx.moveTo(x-r,y);ctx.lineTo(x+r,y);ctx.moveTo(x,y-r);ctx.lineTo(x,y+r);ctx.stroke()};
+ // contour de la cible et zones
+ if(calOk()){const a=versVue(cal.tl),b=versVue(cal.br);ctx.strokeStyle='rgba(5,217,232,.7)';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);ctx.strokeRect(a.x,a.y,b.x-a.x,b.y-a.y);ctx.setLineDash([]);
+  const zc=zoneChoisie();zones().forEach((z,i)=>{const c=versVue(cmVersImg(z)),r=z.d/2*(b.x-a.x)/cible().w;ctx.strokeStyle=i==zc?'#ff2a6d':'rgba(5,217,232,.55)';ctx.lineWidth=i==zc?2.5:1;ctx.beginPath();ctx.arc(c.x,c.y,r,0,7);ctx.stroke();
+   ctx.font='bold 11px ui-monospace,monospace';ctx.fillStyle=i==zc?'#ff2a6d':'rgba(5,217,232,.8)';ctx.fillText(z.n,c.x-r,c.y-r-3)})}
+ calPts.forEach(p=>{const v=versVue(p);ctx.fillStyle='#05d9e8';ctx.beginPath();ctx.arc(v.x,v.y,5,0,7);ctx.fill()});
+ // impacts
+ const r=+$('taille').value,mode=$('nums').value,N=+$('nder').value;ctx.font='bold '+Math.max(10,r*2)+'px sans-serif';
+ impacts.forEach((p,i)=>{const v=versVue(p),nouveau=i>=impacts.length-N;
+  ctx.lineWidth=nouveau?2:1.5;ctx.strokeStyle=ctx.fillStyle=nouveau?'#ff2a6d':'#00f5a0';ctx.beginPath();ctx.arc(v.x,v.y,r,0,7);ctx.stroke();
+  if(mode==='tous'||(mode==='der'&&nouveau)){ctx.lineWidth=3;ctx.strokeStyle='#000';ctx.strokeText(i+1,v.x+r+2,v.y-r);ctx.fillText(i+1,v.x+r+2,v.y-r)}});
+ // point vise et centre du groupement
+ const G=groupe();const A=pointVise();if(A){const v=versVue(A);cr(v.x,v.y,14,'#000',4);cr(v.x,v.y,14,'#05d9e8',2)}
+ if(G){const v=versVue(G.cImg);cr(v.x,v.y,12,'#000',5);cr(v.x,v.y,12,'#f9f871',2.5);
+  if(A){const a=versVue(A);ctx.setLineDash([4,4]);ctx.strokeStyle='#f9f871';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(v.x,v.y);ctx.stroke();ctx.setLineDash([])}
+  const t=(G.dy>=0?'↑':'↓')+Math.abs(G.dy).toFixed(1)+' '+(G.dx>=0?'→':'←')+Math.abs(G.dx).toFixed(1)+' cm';ctx.font='bold 15px ui-monospace,monospace';ctx.lineWidth=4;ctx.strokeStyle='#000';ctx.strokeText(t,v.x+16,v.y+20);ctx.fillStyle='#f9f871';ctx.fillText(t,v.x+16,v.y+20)}
+ $('info').textContent='Total : '+impacts.length+' impact(s) · en rouge : les '+Math.min(N,impacts.length)+' derniers'+(calOk()?' · '+cible().name:' · cible non calée');
+ if(typeof majGroupe=='function')majGroupe()}
+function pointVise(){if(aim)return aim;if(!calOk())return null;const Z=zones(),T=cible();const z=zoneChoisie();return cmVersImg(z>=0?Z[z]:{x:T.w/2,y:T.h/2})}
+function groupe(){if(!calOk())return null;const N=+$('gN').value,z=zoneChoisie(),A=pointVise();const P=impacts.filter(p=>z<0||zoneDe(p)==z).slice(-N);if(P.length<3||!A)return null;
+ const C=P.map(imgVersCm),cx=C.reduce((s,p)=>s+p.x,0)/C.length,cy=C.reduce((s,p)=>s+p.y,0)/C.length,a=imgVersCm(A);let size=0;
+ for(let i=0;i<C.length;i++)for(let j=i+1;j<C.length;j++)size=Math.max(size,Math.hypot(C[i].x-C[j].x,C[i].y-C[j].y));
+ return{n:P.length,dx:cx-a.x,dy:a.y-cy,size,cImg:cmVersImg({x:cx,y:cy}),zone:z>=0?zones()[z].n:null}}
+function msgTap(t){$('gTap').textContent=t}
+function modeTap(m){if(!lastIm)return msgTap('Fais d\'abord une photo (Tirs → Référence)');tapMode=m;$('vue').classList.add('tap');
+ if(m=='cal'){cal=null;calPts=[];aim=null;rendu();msgTap('Touche le coin HAUT-GAUCHE de la cible sur l\'image')}else msgTap('Touche le point visé sur l\'image');window.scrollTo({top:0,behavior:'smooth'})}
+function annulerCalage(){cal=null;calPts=[];aim=null;tapMode=null;$('vue').classList.remove('tap');msgTap('Calage effacé.');rendu()}
+$('vue').addEventListener('click',e=>{if(!lastIm||!VIEW)return;const cv=e.currentTarget,r=cv.getBoundingClientRect(),p=versImg({x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height});
+ if(tapMode=='aim'){aim=p;tapMode=null;cv.classList.remove('tap');msgTap('Point visé placé à la main.')}
+ else if(tapMode=='cal'){calPts.push(p);if(calPts.length==1)msgTap('Touche maintenant le coin BAS-DROIT de la cible');
+  else{cal={tl:{x:Math.min(calPts[0].x,calPts[1].x),y:Math.min(calPts[0].y,calPts[1].y)},br:{x:Math.max(calPts[0].x,calPts[1].x),y:Math.max(calPts[0].y,calPts[1].y)}};calPts=[];tapMode=null;cv.classList.remove('tap');
+   msgTap(calOk()?'Cible calée : la vue est redressée au format '+cible().name+'.':'Calage invalide : recommence.')}}
+ else if(zones().length){const c=imgVersCm(p),Z=zones();let b=0,bd=Infinity;Z.forEach((z,i)=>{const d=Math.hypot(c.x-z.x,c.y-z.y);if(d<bd){bd=d;b=i}});if(bd<Z[b].d){$('gZ').value=b;aim=null;if(typeof gSave=='function')gSave()}}
+ rendu()});
 
 // ===== Donnees partagees =====
-const $=id=>document.getElementById(id),num=id=>parseFloat($(id).value);
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function lsGet(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-let db=lsGet('balDB',{w:[],a:[]});db.w=db.w||[];db.a=db.a||[];db.a.forEach(a=>{a.groups=a.groups||[];a.batches=a.batches||[]});
-function store(){lsSet('balDB',db)}
 const fx=(x,n)=>(x>=0?'+':'')+x.toFixed(n);
+const CIBLES_DEFAUT=[
+ {id:'c50',name:'C50',w:53,h:53,zones:[{n:'Visuel',x:26.5,y:26.5,d:20}]},
+ {id:'hunter',name:'Hunter loisirs (A3)',w:42,h:29.7,zones:[{n:'R1',x:5.5,y:5,d:8.2},{n:'R2',x:5.5,y:14.85,d:8.2},{n:'R3',x:5.5,y:24.7,d:8.2},
+  {n:'M1',x:16.5,y:5,d:8.2},{n:'M2',x:26.5,y:5,d:8.2},{n:'M3',x:36.5,y:5,d:8.2},{n:'M4',x:16.5,y:14.85,d:8.2},{n:'M5',x:26.5,y:14.85,d:8.2},{n:'M6',x:36.5,y:14.85,d:8.2},
+  {n:'M7',x:16.5,y:24.7,d:8.2},{n:'M8',x:26.5,y:24.7,d:8.2},{n:'M9',x:36.5,y:24.7,d:8.2}]}];
+let db=lsGet('balDB',{w:[],a:[]});db.w=db.w||[];db.a=db.a||[];db.t=db.t||JSON.parse(JSON.stringify(CIBLES_DEFAUT));db.l=db.l||[];
+if(!db.l.length)db.l.push({id:'stand',name:'Mon stand',notes:''});
+db.a.forEach(a=>{a.groups=a.groups||[];a.groups.forEach(g=>{if(!g.loc)g.loc=db.l[0].id})});
+function store(){lsSet('balDB',db)}
+store();
 
 // ===== Onglets =====
 function tab(t){$('tabCible').hidden=t!='c';$('tabCalc').hidden=t!='k';$('tbC').classList.toggle('on',t=='c');$('tbK').classList.toggle('on',t=='k');
- if(t=='k'){const s=processQueue();if(s)$('learnSum').innerHTML=s;refresh()}else gFill();window.scrollTo(0,0)}
+ if(t=='k'){const s=processQueue();if(s)$('learnSum').innerHTML=s;refresh()}else{gFill();rendu()}window.scrollTo(0,0)}
+const opts=(L,sel)=>L.map(x=>'<option value="'+x.id+'"'+(x.id==sel?' selected':'')+'>'+esc(x.name)+'</option>').join('');
 
 // ===== Conditions (partagees entre les onglets) =====
-const CF=['cT','cP','cRH','wxV','wxDir','cAz','cSrc','manV','manH','cD'];
+const CF=['cT','cP','cRH','wxV','wxDir','cAz','cSrc','manV','manH','cD','cL'];
 function saveCond(){const o={};CF.forEach(k=>o[k]=$(k).value);lsSet('balCond',o)}
-function loadCond(){const o=lsGet('balCond',null);if(o)CF.forEach(k=>{if(o[k]!=null)$(k).value=o[k]});const wx=lsGet('balWx',null);if(wx)$('wxInfo').textContent='Dernière météo : '+fmtT(wx.time)}
-function getCond(){const az=parseFloat($('cAz').value);return{T:num('cT'),P:num('cP'),RH:num('cRH'),wxV:num('wxV'),wxDir:num('wxDir'),az:isNaN(az)?null:az,manV:num('manV')||0,manH:num('manH')||0,src:$('cSrc').value}}
+function loadCond(){$('cL').innerHTML=opts(db.l);const o=lsGet('balCond',null);if(o)CF.forEach(k=>{if(o[k]!=null&&o[k]!=='')$(k).value=o[k]});if(!db.l.some(l=>l.id==$('cL').value))$('cL').value=db.l[0].id;
+ const wx=lsGet('balWx',null);if(wx)$('wxInfo').textContent='Dernière météo : '+fmtT(wx.time)}
+function locById(id){return db.l.find(l=>l.id==id)}
+function getCond(locId){const az=parseFloat($('cAz').value),l=locId||$('cL').value;return{T:num('cT'),P:num('cP'),RH:num('cRH'),wxV:num('wxV'),wxDir:num('wxDir'),az:isNaN(az)?null:az,manV:num('manV')||0,manH:num('manH')||0,src:$('cSrc').value,locId:l,loc:locById(l)}}
 function fmtT(t){if(!t)return'?';const m=String(t).match(/(\d+)-(\d+)-(\d+)T(\d+:\d+)/);return m?m[3]+'/'+m[2]+' à '+m[4]:t}
 function majVent(){const c=getCond();let h='';
- if(c.az!=null&&!isNaN(c.wxV)){const th=relAng(c.wxDir,c.az),k=compsOf(c.wxV,th);
+ if(c.az!=null&&!isNaN(c.wxV)){const th=relAng(c.wxDir,c.az),k=compsOf(c.wxV,th),cf=coefFor(c.loc,c.wxDir);
   h+='Vent météo : <b>'+Math.abs(k.cross).toFixed(1)+' m/s</b> latéral ('+(k.cross>=0?'vient de droite':'vient de gauche')+'), <b>'+Math.abs(k.head).toFixed(1)+' m/s</b> '+(k.head>=0?'de face':'dans le dos')+' · position <b>'+clockOf(th)+' h</b>';
-  const a=curA();if(a&&a.learn&&a.learn.cOk)h+='<br>Corrigé par l\'apprentissage : '+Math.abs(k.cross*a.learn.c).toFixed(1)+' m/s latéral (coefficient '+a.learn.c.toFixed(2)+')'}
+  h+='<br>À '+esc(c.loc?c.loc.name:'?')+', vent '+SECT[secteur(c.wxDir)]+' : coefficient <b>'+cf.toFixed(2)+'</b>'+(cf!=1?' → '+Math.abs(k.cross*cf).toFixed(1)+' m/s latéral pris en compte':' (rien d\'appris ici pour l\'instant)')}
  else h+='Vent météo : donne l\'azimut de tir pour calculer les composantes.';
  const km=compsOf(c.manV,c.manH*30);h+='<br>Vent saisi : '+Math.abs(km.cross).toFixed(1)+' m/s latéral, '+Math.abs(km.head).toFixed(1)+' m/s '+(km.head>=0?'de face':'dans le dos');
- h+='<br><span class="small">Utilisé pour le calcul : '+(c.src=='man'?'vent saisi':'vent météo')+'</span>';$('windInfo').innerHTML=h}
+ h+='<br><span class="small">Utilisé pour le calcul : '+(c.src=='man'?'vent saisi':'vent météo corrigé')+'</span>';$('windInfo').innerHTML=h}
 function meteo(){$('wxInfo').textContent='Localisation en cours…';
  if(!navigator.geolocation)return wxOff('pas de GPS');
  navigator.geolocation.getCurrentPosition(async pos=>{try{const la=pos.coords.latitude.toFixed(4),lo=pos.coords.longitude.toFixed(4);$('wxInfo').textContent='Interrogation de la météo…';
@@ -489,7 +624,7 @@ function meteo(){$('wxInfo').textContent='Localisation en cours…';
   const wx={T:c.temperature_2m,P:c.surface_pressure,RH:c.relative_humidity_2m,v:c.wind_speed_10m,dir:c.wind_direction_10m,time:c.time,lat:la,lon:lo,got:Date.now()};lsSet('balWx',wx);applyWx(wx,false)}
   catch(e){wxOff(e.message)}},e=>wxOff('position refusée ou introuvable'),{enableHighAccuracy:false,timeout:15000,maximumAge:600000})}
 function applyWx(wx,off){$('cT').value=wx.T;$('cP').value=wx.P;$('cRH').value=wx.RH;$('wxV').value=wx.v;$('wxDir').value=wx.dir;
- $('wxInfo').innerHTML=(off?'<span class="warn">Hors ligne : dernière météo enregistrée, mesurée le ':'Météo mesurée le ')+fmtT(wx.time)+(off?'</span>':'')+' · vent à 10 m de haut, à vérifier au stand';saveCond();majVent()}
+ $('wxInfo').innerHTML=(off?'<span class="warn">Hors ligne : dernière météo enregistrée, mesurée le ':'Météo mesurée le ')+fmtT(wx.time)+(off?'</span>':'')+' · vent à 10 m de haut';saveCond();majVent()}
 function wxOff(why){const wx=lsGet('balWx',null);if(wx)applyWx(wx,true);else $('wxInfo').innerHTML='<span class="warn">Météo indisponible ('+esc(why)+') et aucune météo enregistrée : saisis les valeurs à la main.</span>'}
 async function viser(){const info=$('azInfo');info.textContent='Tiens le téléphone à plat, le haut pointé vers la cible, sans bouger…';
  try{if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted')throw new Error('autorisation refusée')}}
@@ -499,104 +634,126 @@ async function viser(){const info=$('azInfo');info.textContent='Tiens le télép
  window.addEventListener(ev,h);setTimeout(()=>{window.removeEventListener(ev,h);
   if(S.length<3){info.textContent='Boussole indisponible sur ce téléphone : saisis l\'azimut à la main.';return}
   let sx=0,sy=0;S.forEach(d=>{sx+=Math.cos(d*Math.PI/180);sy+=Math.sin(d*Math.PI/180)});const m=(Math.atan2(sy,sx)*180/Math.PI+360)%360;
-  $('cAz').value=Math.round(m);info.textContent='Azimut enregistré : '+Math.round(m)+'° ('+S.length+' mesures). Éloigne-toi des objets métalliques pour plus de précision.';saveCond();majVent()},2500)}
+  $('cAz').value=Math.round(m);info.textContent='Azimut enregistré : '+Math.round(m)+'° ('+S.length+' mesures). Éloigne-toi des objets métalliques.';saveCond();majVent()},2500)}
 
-// ===== Armes et munitions =====
+// ===== Profils : armes, munitions, cibles, lieux =====
 function curW(){return db.w.find(x=>x.id==$('selW').value)}
 function curA(){return db.a.find(x=>x.id==$('selA').value)}
-function refresh(sel,selA){sel=sel||$('selW').value;$('selW').innerHTML=db.w.map(w=>'<option value="'+w.id+'">'+esc(w.name)+'</option>').join('');if(sel)$('selW').value=sel;const w=curW();
+function curT(){return db.t.find(x=>x.id==$('selT').value)}
+function curL(){return db.l.find(x=>x.id==$('selL').value)}
+function refresh(sel,selA){sel=sel||$('selW').value;$('selW').innerHTML=opts(db.w,sel);const w=curW();
  if(w){$('wName').value=w.name;$('wSH').value=w.sh;$('wZero').value=w.zero;$('wUnit').value=w.unit;$('wClick').value=w.click;$('wNotes').value=w.notes||''}
- selA=selA||$('selA').value;$('selA').innerHTML=db.a.filter(a=>w&&a.wid==w.id).map(a=>'<option value="'+a.id+'">'+esc(a.name)+'</option>').join('');if(selA)$('selA').value=selA;if(!curA()&&$('selA').options.length)$('selA').selectedIndex=0;showA()}
+ selA=selA||$('selA').value;$('selA').innerHTML=opts(db.a.filter(a=>w&&a.wid==w.id),selA);
+ $('selT').innerHTML=opts(db.t,$('selT').value);$('selL').innerHTML=opts(db.l,$('selL').value);const cl=$('cL').value;$('cL').innerHTML=opts(db.l,cl);if(!$('cL').value&&db.l[0])$('cL').value=db.l[0].id;
+ showA();showT();showL()}
 function showA(){const a=curA();if(a){$('aName').value=a.name;$('aWt').value=a.wt;$('aMod').value=a.mod;$('aBC').value=a.bc;$('aV0').value=a.v0;$('aTr').value=(a.tr||0).toFixed(2)}showLearn();majVent()}
-function newW(){const w={id:''+Date.now(),name:'Nouvelle arme',sh:6.5,zero:100,unit:'MOA',click:.25,notes:''};db.w.push(w);store();refresh(w.id)}
-function saveW(){const w=curW();if(!w)return alert("Crée d'abord une arme");w.name=$('wName').value;w.sh=num('wSH');w.zero=Math.round(num('wZero'));w.unit=$('wUnit').value;w.click=num('wClick');w.notes=$('wNotes').value;store();db.a.filter(a=>a.wid==w.id).forEach(a=>a.learn=fitAmmo(w,a));store();refresh(w.id)}
-function delW(){const w=curW();if(!w||!confirm('Supprimer '+w.name+' et ses munitions ?'))return;db.a=db.a.filter(a=>a.wid!=w.id);db.w=db.w.filter(x=>x!==w);store();refresh(db.w[0]&&db.w[0].id)}
-function newA(){const w=curW();if(!w)return alert("Crée d'abord une arme");const a={id:''+Date.now(),wid:w.id,name:'Nouvelle munition',wt:69,mod:'G7',bc:.17,v0:900,tr:0,hist:[],groups:[],batches:[]};db.a.push(a);store();refresh(w.id,a.id)}
-function saveA(){const a=curA(),w=curW();if(!a)return alert("Crée d'abord une munition");a.name=$('aName').value;a.wt=num('aWt');a.mod=$('aMod').value;a.bc=num('aBC');a.v0=num('aV0');a.tr=num('aTr')||0;a.learn=fitAmmo(w,a);store();refresh(a.wid,a.id)}
-function delA(){const a=curA();if(!a||!confirm('Supprimer '+a.name+' et son historique ?'))return;db.a=db.a.filter(x=>x!==a);store();refresh()}
+function showT(){const t=curT();if(!t)return;$('tName').value=t.name;$('tW').value=t.w;$('tH').value=t.h;$('tZ').value=(t.zones||[]).map(z=>[z.n,z.x,z.y,z.d].join(', ')).join('\n')}
+function showL(){const l=curL();if(!l){$('lInfo').innerHTML='';return}$('lName').value=l.name;$('lNotes').value=l.notes||'';const L=l.learn;
+ let h='<b>Vent appris à '+esc(l.name)+'</b> '+tagConf(L?L.conf:'—')+'<br>';
+ if(!L||!L.cOk)h+='Pas encore de coefficient : il faut 3 séances venteuses ici ('+(L?L.nWind:0)+'/3). En attendant, le vent météo est pris tel quel.';
+ else{h+='Coefficient global : <b>'+L.c.toFixed(2)+'</b> (vent réel ≈ '+Math.round(L.c*100)+' % du vent météo)<br><span class="small">Par direction d\'où vient le vent :</span><table><tr>'+SECT.map(s=>'<th>'+s+'</th>').join('')+'</tr><tr>'+L.sec.map(s=>'<td>'+(s.ok?'<b>'+s.c.toFixed(2)+'</b>':'<span class="small">'+L.c.toFixed(2)+'</span>')+'</td>').join('')+'</tr></table><span class="small">En gras : secteur appris (3 séances venteuses). Sinon, le coefficient global est utilisé.</span>'}
+ $('lInfo').innerHTML=h}
+function newW(){const w={id:''+Date.now(),name:'Nouvelle arme',sh:6.5,zero:100,unit:'MOA',click:.25,notes:''};db.w.push(w);store();refresh(w.id);$('wName').focus()}
+function saveW(){const w=curW();if(!w)return alert("Crée d'abord une arme");w.name=$('wName').value;w.sh=num('wSH');w.zero=Math.round(num('wZero'));w.unit=$('wUnit').value;w.click=num('wClick');w.notes=$('wNotes').value;fitAll(db);store();refresh(w.id);flash('Arme enregistrée')}
+function delW(){const w=curW();if(!w||!confirm('Supprimer '+w.name+' et ses munitions ?'))return;db.a=db.a.filter(a=>a.wid!=w.id);db.w=db.w.filter(x=>x!==w);fitAll(db);store();refresh(db.w[0]&&db.w[0].id)}
+function newA(){const w=curW();if(!w)return alert("Crée d'abord une arme");const a={id:''+Date.now(),wid:w.id,name:'Nouvelle munition',wt:69,mod:'G7',bc:.17,v0:900,tr:0,hist:[],groups:[]};db.a.push(a);store();refresh(w.id,a.id);$('aName').focus()}
+function saveA(){const a=curA();if(!a)return alert("Crée d'abord une munition");a.name=$('aName').value;a.wt=num('aWt');a.mod=$('aMod').value;a.bc=num('aBC');a.v0=num('aV0');a.tr=num('aTr')||0;fitAll(db);store();refresh(a.wid,a.id);flash('Munition enregistrée')}
+function delA(){const a=curA();if(!a||!confirm('Supprimer '+a.name+' et son historique ?'))return;db.a=db.a.filter(x=>x!==a);fitAll(db);store();refresh()}
+function lireZones(txt){return txt.split('\n').map(l=>l.split(/[,;]/).map(s=>s.trim())).filter(p=>p.length>=4&&!isNaN(parseFloat(p[1]))).map(p=>({n:p[0],x:parseFloat(p[1]),y:parseFloat(p[2]),d:parseFloat(p[3])}))}
+function newT(){const t={id:''+Date.now(),name:'Nouvelle cible',w:50,h:50,zones:[{n:'Centre',x:25,y:25,d:10}]};db.t.push(t);store();$('selT').innerHTML=opts(db.t,t.id);showT();$('tName').focus()}
+function saveT(){const t=curT();if(!t)return;const W=num('tW'),H=num('tH');if(!(W>0&&H>0))return alert('Largeur et hauteur en cm');t.name=$('tName').value;t.w=W;t.h=H;t.zones=lireZones($('tZ').value);store();$('selT').innerHTML=opts(db.t,t.id);showT();flash('Cible enregistrée ('+t.zones.length+' zone(s))')}
+function delT(){const t=curT();if(!t||db.t.length<2||!confirm('Supprimer la cible '+t.name+' ?'))return;db.t=db.t.filter(x=>x!==t);store();refresh()}
+function newL(){const l={id:''+Date.now(),name:'Nouveau lieu',notes:''};db.l.push(l);store();$('selL').innerHTML=opts(db.l,l.id);refresh();$('selL').value=l.id;showL();$('lName').focus()}
+function saveL(){const l=curL();if(!l)return;l.name=$('lName').value;l.notes=$('lNotes').value;store();refresh();flash('Lieu enregistré')}
+function delL(){const l=curL();if(!l||db.l.length<2)return alert('Il faut garder au moins un lieu');if(!confirm('Supprimer '+l.name+' ? Les groupements faits ici restent dans l\'historique.'))return;db.l=db.l.filter(x=>x!==l);store();refresh()}
+function resetVentL(){const l=curL();if(!l||!confirm('Oublier le vent appris à '+l.name+' ? (les groupements restent utilisés pour les munitions)'))return;db.a.forEach(a=>a.groups.forEach(g=>{if(g.loc==l.id)g.ignW=true}));fitAll(db);store();showL();majVent()}
+function flash(t){$('learnSum').innerHTML=esc(t)}
 
 // ===== Calcul =====
 function calc(){const w=curW(),a=curA();if(!w||!a)return alert('Choisis une arme et une munition');saveCond();const c=getCond(),v=vModel(a,c.T),L=a.learn,u=w.unit;
- let h='<p class="small">Vitesse utilisée : <b>'+v.toFixed(0)+' m/s</b> ('+(L&&L.vOk?'apprise':'catalogue')+') · densité de l\'air '+rhoAir(c.T,c.P,c.RH).toFixed(3)+' kg/m³ · vent '+(c.src=='man'?'saisi':'météo')+(L&&L.bOk?' · décalage appris '+fx(L.b,2)+' MOA':'')+'</p>';
+ let h='<p class="small">Vitesse : <b>'+v.toFixed(0)+' m/s</b> ('+(L&&L.vOk?'apprise':'catalogue')+') · air '+rhoAir(c.T,c.P,c.RH).toFixed(3)+' kg/m³ · vent '+(c.src=='man'?'saisi':'météo × '+coefFor(c.loc,c.wxDir).toFixed(2))+(L&&L.bOk?' · décalage '+fx(L.b,2)+' MOA':'')+'</p>';
  h+='<table><tr><th>m</th><th>Chute cm</th><th>Hausse '+u+'</th><th>Clics</th><th>Dérive cm</th><th>Clics vent</th></tr>';
  for(const d of $('cD').value.split(',').map(s=>parseInt(s)).filter(x=>x>0)){const p=predict(w,a,c,d),uc=unitCm(w,d),cv=-p.cm/uc,ch=-p.drift/uc,kv=Math.round(cv/w.click),kh=Math.round(ch/w.click);
   h+='<tr><td>'+d+'</td><td>'+p.cm.toFixed(1)+'</td><td>'+(Math.abs(cv)<.005?0:cv).toFixed(2)+'</td><td>'+Math.abs(kv)+' '+(kv>=0?'H':'B')+'</td><td>'+fx(p.drift,1)+'</td><td>'+Math.abs(kh)+' '+(kh>=0?'D':'G')+'</td></tr>'}
- $('out').innerHTML=h+'</table><p class="small">H/B = clics vers le haut/bas, D/G = vers la droite/gauche. Dérive + = l\'impact part à droite.</p>'}
+ $('out').innerHTML=h+'</table><p class="small">H/B = clics vers le haut/bas, D/G = vers la droite/gauche.</p>'}
 
 // ===== Apprentissage =====
-function tagConf(c){return'<span class="tag '+({bonne:'t-ok',moyenne:'t-mid',faible:'t-low'}[c]||'t-off')+'">'+(c=='—'?'inactif':'confiance '+c)+'</span>'}
+function tagConf(c){return'<span class="tag '+({bonne:'t-ok',moyenne:'t-mid',faible:'t-low'}[c]||'t-off')+'">'+(!c||c=='—'?'inactif':'confiance '+c)+'</span>'}
 function showLearn(){const a=curA(),w=curW(),el=$('learnInfo');if(!a||!w){el.innerHTML='';$('grpList').innerHTML='';return}const L=a.learn;
- if(!L||(!L.vOk&&!L.bOk&&!L.cOk)){el.innerHTML='<div class="res">Rien d\'appris pour '+esc(a.name)+'. Envoie des groupements depuis l\'onglet Cible.'+(L&&L.msgs.length?'<br><span class="small">'+L.msgs.map(esc).join('<br>')+'</span>':'')+'</div>'}
- else{let h='<div class="res">';
-  h+='<b>Vitesse</b> '+tagConf(L.confV)+'<br>'+(L.vOk?'V0 réelle : <b>'+L.V.toFixed(0)+' m/s</b> à 15 °C (catalogue '+a.v0+') · '+L.nV+' groupement(s)':'Non apprise : il faut un groupement au-delà de '+w.zero+' m.');
+ let h='<div class="res">';
+ if(!L||(!L.vOk&&!L.bOk))h+='Rien d\'appris pour '+esc(a.name)+'. Envoie des groupements depuis l\'onglet Cible.';
+ else{h+='<b>Vitesse</b> '+tagConf(L.confV)+'<br>'+(L.vOk?'V0 réelle : <b>'+L.V.toFixed(0)+' m/s</b> à 15 °C (catalogue '+a.v0+') · '+L.nV+' groupement(s)':'Non apprise : il faut un groupement au-delà de '+w.zero+' m.');
   h+='<br>Sensibilité à la température : '+(L.kOk?'<b>'+L.k.toFixed(2)+' m/s par °C</b>':'inactive');
-  h+='<br><br><b>Vent</b> '+tagConf(L.confH)+'<br>Coefficient : '+(L.cOk?'<b>'+L.c.toFixed(2)+'</b> (vent réel = '+Math.round(L.c*100)+' % du vent météo)':'inactif ('+L.nWind+'/3 séances venteuses)');
-  h+='<br>Décalage horizontal fixe : '+(L.bOk?'<b>'+fx(L.b,2)+' MOA</b> ('+(L.b>=0?'à droite':'à gauche')+') · '+L.nH+' groupement(s)':'inactif');
-  if(L.msgs.length)h+='<br><br><span class="small">'+L.msgs.map(esc).join('<br>')+'</span>';el.innerHTML=h+'</div>'}
+  h+='<br><br><b>Décalage horizontal (réglage de la lunette)</b> '+tagConf(L.confH)+'<br>'+(L.bOk?'<b>'+fx(L.b,2)+' MOA</b> ('+(L.b>=0?'à droite':'à gauche')+') · '+L.nH+' groupement(s)':'inactif');}
+ if(L&&L.msgs.length)h+='<br><br><span class="small">'+L.msgs.map(esc).join('<br>')+'</span>';
+ h+='<br><br><span class="small">Le vent s\'apprend par lieu de tir : voir la carte Lieux de tir.<br>Chaque valeur est recalculée à partir de tout l\'historique : un groupement isolé ne la fait bouger que faiblement, et les groupements incohérents sont écartés. Compte 3 à 5 groupements cohérents pour qu\'une valeur devienne fiable.</span></div>';el.innerHTML=h;
  const G=[...a.groups].reverse().slice(0,12);if(!G.length){$('grpList').innerHTML='';return}
- $('grpList').innerHTML='<table><tr><th>Date</th><th>m</th><th>Tirs</th><th>Vert. cm</th><th>Hor. cm</th><th>°C</th><th></th></tr>'+G.map(g=>'<tr><td>'+g.date.slice(8,10)+'/'+g.date.slice(5,7)+'</td><td>'+g.d+'</td><td>'+g.n+'</td><td>'+fx(g.dy,1)+'</td><td>'+fx(g.dx,1)+'</td><td>'+(+g.T).toFixed(0)+'</td><td>'+(g.ign?'<span class="tag t-off">annulé</span>':g.flag?'<span class="tag t-low">'+g.flag+'</span>':'')+'</td></tr>').join('')+'</table>'}
-function resume(a,old,L){const p=[];const V=x=>x&&x.vOk?x.V.toFixed(0)+' m/s':'—';
- p.push('V0 '+V(old)+' → <b>'+V(L)+'</b>');if(L.kOk)p.push('temp. '+L.k.toFixed(2)+' m/s/°C');p.push('vent '+(L.cOk?'×'+L.c.toFixed(2):'coef. inactif'));if(L.bOk)p.push('décalage '+fx(L.b,2)+' MOA');return esc(a.name)+' : '+p.join(' · ')}
-function processQueue(){const q=lsGet('balGroups',[]),todo=q.filter(g=>!g.done);if(!todo.length)return'';const b='b'+Date.now(),touched=new Map(),lines=[];
+ $('grpList').innerHTML='<table><tr><th>Date</th><th>Lieu</th><th>m</th><th>Tirs</th><th>V cm</th><th>H cm</th><th>°C</th><th></th></tr>'+G.map(g=>'<tr><td>'+g.date.slice(8,10)+'/'+g.date.slice(5,7)+'</td><td>'+esc((locById(g.loc)||{name:'?'}).name.slice(0,8))+'</td><td>'+g.d+'</td><td>'+g.n+'</td><td>'+fx(g.dy,1)+'</td><td>'+fx(g.dx,1)+'</td><td>'+(+g.T).toFixed(0)+'</td><td>'+(g.ign?'<span class="tag t-off">annulé</span>':g.flag?'<span class="tag t-low">'+g.flag+'</span>':'')+'</td></tr>').join('')+'</table>'}
+function resume(a,old){const L=a.learn,V=x=>x&&x.vOk?x.V.toFixed(0)+' m/s':'—';const p=['V0 '+V(old)+' → <b>'+V(L)+'</b>'];if(L.kOk)p.push('temp. '+L.k.toFixed(2)+' m/s/°C');if(L.bOk)p.push('décalage '+fx(L.b,2)+' MOA');return esc(a.name)+' : '+p.join(' · ')}
+function snapshot(){const m=new Map();db.a.forEach(a=>m.set(a.id,a.learn?{...a.learn}:null));return m}
+function processQueue(){const q=lsGet('balGroups',[]),todo=q.filter(g=>!g.done);if(!todo.length)return'';const b='b'+Date.now(),touched=new Set(),lines=[],old=snapshot(),oldL=db.l.map(l=>[l.id,l.learn?l.learn.c:1,l.learn&&l.learn.cOk]);
  for(const g of todo){g.done=true;const a=db.a.find(x=>x.id==g.aid),w=db.w.find(x=>x.id==g.wid);
   if(!a||!w){lines.push('Un groupement ignoré : arme ou munition supprimée.');continue}
   if(g.n<3){lines.push('Ignoré : moins de 3 tirs.');continue}
   if(g.d<w.zero){lines.push('Ignoré : '+g.d+' m est en deçà de la distance de réglage ('+w.zero+' m).');continue}
-  const r={...g,batch:b};delete r.done;a.groups.push(r);touched.set(a.id,{a,w})}
- for(const{a,w}of touched.values()){const old=a.learn;a.learn=fitAmmo(w,a);a.batches.push(b);lines.push(resume(a,old,a.learn))}
+  const r={...g,batch:b};delete r.done;a.groups.push(r);touched.add(a)}
+ fitAll(db);touched.forEach(a=>lines.push(resume(a,old.get(a.id))));
+ db.l.forEach(l=>{const o=oldL.find(x=>x[0]==l.id);if(l.learn.cOk&&(!o||!o[2]||Math.abs(o[1]-l.learn.c)>.005))lines.push('Vent à '+esc(l.name)+' : coefficient '+(o&&o[2]?o[1].toFixed(2)+' → ':'')+'<b>'+l.learn.c.toFixed(2)+'</b>')});
  store();lsSet('balGroups',q.filter(g=>!g.done||Date.now()-Date.parse(g.date)<30*864e5).slice(-100));
- return'<b>'+todo.length+' groupement(s) reçu(s) de l\'onglet Cible</b><br>'+lines.join('<br>')}
-function annulerDernier(){const a=curA(),w=curW();if(!a||!a.batches.length)return alert('Rien à annuler pour cette munition');const b=a.batches.pop();a.groups.forEach(g=>{if(g.batch==b)g.ign=true});
- const old=a.learn;a.learn=fitAmmo(w,a);store();$('learnSum').innerHTML='Dernier apprentissage annulé.<br>'+resume(a,old,a.learn);showLearn()}
-function repartirZero(){const a=curA(),w=curW();if(!a||!confirm('Repartir à zéro pour '+a.name+' ? (changement de lunette, de lot…) L\'historique est gardé mais n\'est plus utilisé.'))return;
- a.groups.forEach(g=>g.ign=true);a.batches=[];a.learn=fitAmmo(w,a);store();$('learnSum').innerHTML='Apprentissage remis à zéro pour '+esc(a.name)+'.';showLearn()}
+ return'<b>'+todo.length+' groupement(s) reçu(s)</b><br>'+lines.join('<br>')}
+function annulerDernier(){let last=null;db.a.forEach(a=>a.groups.forEach(g=>{if(!g.ign&&g.batch&&(!last||+g.batch.slice(1)>+last.slice(1)))last=g.batch}));
+ if(!last)return alert('Rien à annuler');if(!confirm('Annuler le dernier envoi ?'))return;db.a.forEach(a=>a.groups.forEach(g=>{if(g.batch==last)g.ign=true}));fitAll(db);store();flash('Dernier envoi annulé.');refresh()}
+function repartirZero(){const a=curA();if(!a||!confirm('Repartir à zéro pour '+a.name+' ? (changement de lunette, de lot…) L\'historique est gardé mais n\'est plus utilisé.'))return;
+ a.groups.forEach(g=>g.ign=true);fitAll(db);store();flash('Apprentissage remis à zéro pour '+a.name+'.');refresh()}
 function enfiler(o){const q=lsGet('balGroups',[]);q.push(o);lsSet('balGroups',q)}
-function groupeRecord(w,a,d,n,dx,dy,size,clV,clH){const c=getCond(),th=c.az!=null?relAng(c.wxDir,c.az):null,k=th!=null?compsOf(c.wxV,th):null;
- return{id:''+Date.now(),date:new Date().toISOString(),wid:w.id,aid:a.id,d,n,dx,dy,size,clV,clH,T:c.T,P:c.P,RH:c.RH,wxV:c.wxV,wxDir:c.wxDir,wxTime:(lsGet('balWx',{})||{}).time||null,az:c.az,manV:c.manV,manH:c.manH,src:c.src,crossUsed:crossEff(a,c),crossMeteo:k?k.cross:null,headMeteo:k?k.head:null}}
+function groupeRecord(w,a,locId,d,n,dx,dy,size,clV,clH,extra){const c=getCond(locId),th=c.az!=null?relAng(c.wxDir,c.az):null,k=th!=null?compsOf(c.wxV,th):null;
+ return Object.assign({id:''+Date.now(),date:new Date().toISOString(),wid:w.id,aid:a.id,loc:locId,d,n,dx,dy,size,clV,clH,T:c.T,P:c.P,RH:c.RH,wxV:c.wxV,wxDir:c.wxDir,wxTime:(lsGet('balWx',{})||{}).time||null,az:c.az,manV:c.manV,manH:c.manH,src:c.src,crossUsed:crossEff(c),crossMeteo:k?k.cross:null,headMeteo:k?k.head:null},extra||{})}
 function prefillManuel(){const w=curW(),a=curA(),d=num('fD');if(!w||!a||!(d>0))return;const p=predict(w,a,getCond(),d);$('fCV').value=Math.round(-p.cm/unitCm(w,d)/w.click);$('fCH').value=Math.round(-p.drift/unitCm(w,d)/w.click)}
 function saisieManuelle(){const w=curW(),a=curA();if(!w||!a)return alert('Choisis une arme et une munition');const d=Math.round(num('fD')),n=Math.round(num('fN'));
  if(n<3)return alert('Il faut un groupement d\'au moins 3 tirs');if(d<w.zero)return alert('Distance en deçà de la distance de réglage ('+w.zero+' m)');
- saveCond();enfiler(groupeRecord(w,a,d,n,num('fX')||0,num('fE')||0,null,num('fCV')||0,num('fCH')||0));$('learnSum').innerHTML=processQueue();showLearn()}
+ saveCond();const r=groupeRecord(w,a,$('cL').value,d,n,num('fX')||0,num('fE')||0,null,num('fCV')||0,num('fCH')||0,{manual:true});
+ ouvrirModal(w,a,r,()=>{enfiler(r);$('learnSum').innerHTML=processQueue();refresh()})}
 
-// ===== Groupement dans Distant Eye =====
-let tapMode=null,aim=null,scalePts=[];
-const SC=['Touche le bord GAUCHE du repère','Touche le bord DROIT du repère','Touche le bord HAUT du repère','Touche le bord BAS du repère'];
-function gSave(){lsSet('deG',{w:$('gW').value,a:$('gA').value,d:$('gD').value,n:$('gN').value,s:$('gSize').value})}
-function gFill(){const o=lsGet('deG',{});$('gW').innerHTML=db.w.map(w=>'<option value="'+w.id+'">'+esc(w.name)+'</option>').join('');if(o.w&&db.w.some(w=>w.id==o.w))$('gW').value=o.w;
- if(o.d)$('gD').value=o.d;if(o.n)$('gN').value=o.n;if(o.s)$('gSize').value=o.s;gFillA(o.a)}
-function gFillA(sel){const wid=$('gW').value;$('gA').innerHTML=db.a.filter(a=>a.wid==wid).map(a=>'<option value="'+a.id+'">'+esc(a.name)+'</option>').join('');if(sel&&db.a.some(a=>a.id==sel&&a.wid==wid))$('gA').value=sel;majGroupe()}
+// ===== Verification avant envoi =====
+function ouvrirModal(w,a,r,ok){const pr=predict(w,a,getCond(r.loc),r.d),uc=unitCm(w,r.d),kv=Math.round(-pr.cm/uc/w.click),kh=Math.round(-pr.drift/uc/w.click),wx=lsGet('balWx',null),W=[];
+ const age=wx&&wx.got?(Date.now()-wx.got)/36e5:null;
+ if(!wx)W.push('Aucune météo récupérée : ce sont les valeurs saisies à la main qui seront enregistrées.');else if(age>3)W.push('La météo date de '+age.toFixed(0)+' h : appuie sur « Météo ici » si les conditions ont changé.');
+ if(r.az==null)W.push('Azimut de tir absent : ce groupement ne servira pas à apprendre le vent.');
+ if(r.clV!=kv||r.clH!=kh)W.push('Les clics affichés ('+r.clV+' / '+r.clH+') diffèrent des clics conseillés ('+kv+' / '+kh+'). C\'est normal si c\'est vraiment ce qui est réglé sur ta lunette.');
+ if(r.size!=null&&r.size/moaCm(r.d)>3)W.push('Groupement très ouvert ('+(r.size/moaCm(r.d)).toFixed(1)+' MOA) : vérifie qu\'il n\'y a pas de faux impact.');
+ if(r.n<5)W.push('Seulement '+r.n+' tirs : ce groupement pèsera peu dans l\'apprentissage.');
+ if(r.d==w.zero)W.push('À la distance de réglage, seul l\'écart horizontal sert à l\'apprentissage.');
+ const row=(k,v)=>'<tr><td>'+k+'</td><td>'+v+'</td></tr>';
+ $('mBody').innerHTML='<table>'+row('Arme / munition',esc(w.name)+' / '+esc(a.name))+row('Lieu',esc((locById(r.loc)||{}).name))+(r.cible?row('Cible / zone',esc(r.cible)+(r.zone?' / '+esc(r.zone):'')):'')+row('Distance',r.d+' m')+row('Tirs',r.n)
+  +row('Écart vertical',fx(r.dy,1)+' cm ('+fx(r.dy/moaCm(r.d),2)+' MOA)')+row('Écart horizontal',fx(r.dx,1)+' cm ('+fx(r.dx/moaCm(r.d),2)+' MOA)')+(r.size!=null?row('Taille',r.size.toFixed(1)+' cm'):'')
+  +row('Clics affichés V / H',r.clV+' / '+r.clH)+row('Température / pression',r.T+' °C / '+r.P+' hPa / '+r.RH+' %')+row('Vent météo',r.wxV+' m/s, vient de '+r.wxDir+'°'+(wx?' ('+fmtT(wx.time)+')':''))+row('Azimut de tir',r.az==null?'—':r.az+'°')+row('Vent utilisé',r.src=='man'?'saisi : '+r.manV+' m/s à '+r.manH+' h':'météo')+'</table>'
+  +(W.length?'<div class="res" style="border-left-color:#f9a03f"><span class="warn">'+W.join('<br>')+'</span></div>':'<div class="res">Tout semble cohérent.</div>');
+ $('modal').hidden=false;$('mOk').onclick=()=>{fermerModal();ok()}}
+function fermerModal(){$('modal').hidden=true}
+
+// ===== Groupement dans l'onglet Cible =====
+function gSave(){lsSet('deG',{w:$('gW').value,a:$('gA').value,l:$('gL').value,d:$('gD').value,n:$('gN').value,t:$('gT').value,z:$('gZ').value})}
+function gFill(){const o=lsGet('deG',{});$('gW').innerHTML=opts(db.w,o.w);$('gL').innerHTML=opts(db.l,o.l||$('cL').value);$('gT').innerHTML=opts(db.t,o.t);
+ if(o.d)$('gD').value=o.d;if(o.n)$('gN').value=o.n;gFillA(o.a);majZonesSel(o.z)}
+function gFillA(sel){const wid=$('gW').value;$('gA').innerHTML=opts(db.a.filter(a=>a.wid==wid),sel);majGroupe()}
+function majZonesSel(sel){const T=cible();$('gZ').innerHTML='<option value="auto">Automatique (zone du dernier tir)</option>'+(T&&T.zones?T.zones.map((z,i)=>'<option value="'+i+'">'+esc(z.n)+'</option>').join(''):'');if(sel!=null&&[...$('gZ').options].some(o=>o.value==sel))$('gZ').value=sel}
+function choixCible(){majZonesSel('auto');gSave();rendu()}
 function gWA(){return{w:db.w.find(x=>x.id==$('gW').value),a:db.a.find(x=>x.id==$('gA').value)}}
-function msgTap(t){$('gTap').textContent=t}
-function modeTap(m){if(!lastIm)return msgTap('Fais d\'abord une photo (référence ou tirs)');tapMode=m;if(m=='scale'){scalePts=[];msgTap(SC[0])}else msgTap('Touche le point visé sur l\'image')}
-function echelle(){const S=num('gSize');if(scalePts.length<4||!(S>0))return null;const sx=Math.abs(scalePts[1].x-scalePts[0].x)/S,sy=Math.abs(scalePts[3].y-scalePts[2].y)/S;return sx>0&&sy>0?{sx,sy}:null}
-function resetCadre(){aim=null;scalePts=[];tapMode=null}
-function groupe(){const N=+$('gN').value,P=impacts.slice(-N),sc=echelle();if(P.length<3||!aim||!sc)return null;
- const cx=P.reduce((s,p)=>s+p.x,0)/P.length,cy=P.reduce((s,p)=>s+p.y,0)/P.length;let size=0;
- for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++)size=Math.max(size,Math.hypot((P[i].x-P[j].x)/sc.sx,(P[i].y-P[j].y)/sc.sy));
- return{n:P.length,cx,cy,dx:(cx-aim.x)/sc.sx,dy:(aim.y-cy)/sc.sy,size}}
 function majGroupe(){const el=$('gRes');if(!el)return;const G=groupe(),{w}=gWA(),d=num('gD');
- if(!G){const m=[];if(impacts.length<3)m.push('au moins 3 impacts');if(!aim)m.push('le point visé');if(!echelle())m.push('l\'échelle');el.innerHTML='Pour calculer le groupement, il manque : '+m.join(', ')+'.';return}
- let h='Groupement de <b>'+G.n+' tirs</b> · taille <b>'+G.size.toFixed(1)+' cm</b>'+(d>0?' ('+(G.size/moaCm(d)).toFixed(2)+' MOA)':'');
+ if(!G){const m=[];if(!lastIm)m.push('une photo');if(!calOk())m.push('le calage de la cible (onglet Calage)');if(lastIm&&calOk())m.push('au moins 3 impacts dans la zone visée');el.innerHTML='Pour calculer le groupement, il manque : '+m.join(', ')+'.';return}
+ let h='Groupement de <b>'+G.n+' tirs</b>'+(G.zone?' sur <b>'+esc(G.zone)+'</b>':'')+' · taille <b>'+G.size.toFixed(1)+' cm</b>'+(d>0?' ('+(G.size/moaCm(d)).toFixed(2)+' MOA)':'');
  h+='<br>Écart : <b>'+Math.abs(G.dy).toFixed(1)+' cm '+(G.dy>=0?'haut':'bas')+'</b>, <b>'+Math.abs(G.dx).toFixed(1)+' cm '+(G.dx>=0?'droite':'gauche')+'</b>';
  if(d>0){h+='<br>Soit '+Math.abs(G.dy/moaCm(d)).toFixed(2)+' MOA vertical, '+Math.abs(G.dx/moaCm(d)).toFixed(2)+' MOA horizontal';
   if(w){const kv=Math.round(-G.dy/unitCm(w,d)/w.click),kh=Math.round(-G.dx/unitCm(w,d)/w.click);h+='<br>Correction : <b>'+Math.abs(kv)+' clic(s) '+(kv>=0?'HAUT':'BAS')+'</b>, <b>'+Math.abs(kh)+' clic(s) '+(kh>=0?'DROITE':'GAUCHE')+'</b>'}}
  el.innerHTML=h}
-function drawGroupe(ctx){const cr=(x,y,r,col,lw)=>{ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();ctx.moveTo(x-r,y);ctx.lineTo(x+r,y);ctx.moveTo(x,y-r);ctx.lineTo(x,y+r);ctx.stroke()};
- scalePts.forEach((p,i)=>{ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(p.x,p.y,3,0,7);ctx.fill()});
- if(aim){cr(aim.x,aim.y,14,'#000',4);cr(aim.x,aim.y,14,'#38bdf8',2);ctx.strokeStyle='#38bdf8';ctx.beginPath();ctx.arc(aim.x,aim.y,6,0,7);ctx.stroke()}
- const G=groupe();if(G){cr(G.cx,G.cy,12,'#000',5);cr(G.cx,G.cy,12,'#facc15',2.5);const t=(G.dy>=0?'↑':'↓')+Math.abs(G.dy).toFixed(1)+' '+(G.dx>=0?'→':'←')+Math.abs(G.dx).toFixed(1)+' cm';ctx.font='bold 15px sans-serif';ctx.lineWidth=4;ctx.strokeStyle='#000';ctx.strokeText(t,G.cx+16,G.cy+20);ctx.fillStyle='#facc15';ctx.fillText(t,G.cx+16,G.cy+20);if(aim){ctx.setLineDash([4,4]);ctx.strokeStyle='#facc15';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(aim.x,aim.y);ctx.lineTo(G.cx,G.cy);ctx.stroke();ctx.setLineDash([])}}
- majGroupe()}
-function clicsConseilles(){const{w,a}=gWA(),d=num('gD');if(!w||!a)return alert('Choisis une arme et une munition (onglet Calcul pour les créer)');const p=predict(w,a,getCond(),d);
- $('gCV').value=Math.round(-p.cm/unitCm(w,d)/w.click);$('gCH').value=Math.round(-p.drift/unitCm(w,d)/w.click);$('gMsg').textContent='Clics conseillés à '+d+' m repris. Mets les valeurs réellement affichées sur ta lunette.'}
-function envoyerGroupe(){const{w,a}=gWA(),d=Math.round(num('gD')),G=groupe();
- if(!w||!a)return alert('Choisis une arme et une munition (onglet Calcul pour les créer)');if(!G)return alert('Groupement incomplet : il faut au moins 3 impacts, l\'échelle et le point visé');
+function clicsConseilles(){const{w,a}=gWA(),d=num('gD');if(!w||!a)return alert('Choisis une arme et une munition (onglet Calcul pour les créer)');const p=predict(w,a,getCond($('gL').value),d);
+ $('gCV').value=Math.round(-p.cm/unitCm(w,d)/w.click);$('gCH').value=Math.round(-p.drift/unitCm(w,d)/w.click);$('gMsg').textContent='Clics conseillés à '+d+' m repris. Mets les valeurs réellement réglées sur ta lunette.'}
+function verifierEnvoi(){const{w,a}=gWA(),d=Math.round(num('gD')),G=groupe();
+ if(!w||!a)return alert('Choisis une arme et une munition (onglet Calcul pour les créer)');if(!G)return alert('Groupement incomplet : cale la cible et vérifie qu\'il y a au moins 3 impacts dans la zone visée');
  if(d<w.zero)return alert('Distance en deçà de la distance de réglage ('+w.zero+' m) : pas d\'apprentissage');
- const r=groupeRecord(w,a,d,G.n,G.dx,G.dy,G.size,num('gCV')||0,num('gCH')||0);enfiler(r);
- $('gMsg').innerHTML='Groupement envoyé ('+G.n+' tirs, '+d+' m, '+r.T+' °C). Il sera appris à l\'ouverture de l\'onglet Calcul.'+(d==w.zero?'<br>À la distance de réglage, seul l\'écart horizontal sert à l\'apprentissage.':'')+(lsGet('balWx',null)?'':'<br><span class="warn">Aucune météo récupérée : les conditions saisies à la main sont utilisées.</span>')}
-$('vue').addEventListener('click',e=>{if(!tapMode)return;const cv=e.currentTarget,r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*cv.width/r.width,y=(e.clientY-r.top)*cv.height/r.height;
- if(tapMode=='aim'){aim={x,y};tapMode=null;msgTap('Point visé placé.')}
- else{scalePts.push({x,y});if(scalePts.length<4)msgTap(SC[scalePts.length]);else{tapMode=null;const s=echelle();msgTap(s?'Échelle : '+s.sx.toFixed(1)+' px/cm en largeur, '+s.sy.toFixed(1)+' px/cm en hauteur.':'Échelle invalide : recommence.')}}
- redessiner()});
+ const T=cible(),r=groupeRecord(w,a,$('gL').value,d,G.n,G.dx,G.dy,G.size,num('gCV')||0,num('gCH')||0,{cible:T?T.name:null,zone:G.zone});
+ ouvrirModal(w,a,r,()=>{enfiler(r);$('gMsg').innerHTML='Groupement envoyé ('+G.n+' tirs, '+d+' m). Il sera appris à l\'ouverture de l\'onglet Calcul.'})}
 CF.forEach(k=>$(k).addEventListener('change',()=>{saveCond();majVent()}));
-loadCond();refresh();gFill();majVent();
+fitAll(db);store();loadCond();refresh();gFill();majDer();majVent();
+
 </script></body></html>
