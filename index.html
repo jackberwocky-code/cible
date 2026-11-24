@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b0f17">
-<title>Distant Eye v9</title>
+<title>Distant Eye v10</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='26' fill='%230b0f17'/%3E%3CclipPath id='c'%3E%3Cpath d='M8 60Q60 8 112 60Q60 112 8 60Z'/%3E%3C/clipPath%3E%3Cpath d='M8 60Q60 8 112 60Q60 112 8 60Z' fill='%23e8edf5'/%3E%3Cg clip-path='url(%23c)'%3E%3Ccircle cx='60' cy='60' r='30' fill='%23111827'/%3E%3Ccircle cx='60' cy='60' r='24' fill='%23e8edf5'/%3E%3Ccircle cx='60' cy='60' r='18' fill='%23111827'/%3E%3Ccircle cx='60' cy='60' r='12' fill='%23e8edf5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23f43f5e'/%3E%3C/g%3E%3Cpath d='M8 60Q60 8 112 60Q60 112 8 60Z' fill='none' stroke='%23f43f5e' stroke-width='5'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -62,6 +62,27 @@ button .sub{color:rgba(255,255,255,.8)}
 .disp label{display:block;color:var(--mut);font-size:13px;margin-bottom:6px}
 .disp select{width:100%}
 footer{text-align:center;color:#4b5568;font-size:12px;margin-top:20px}
+.tabs{display:flex;gap:8px;margin-bottom:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--mut);padding:12px;font-size:17px}
+.tabs button.on{background:linear-gradient(135deg,#f43f5e,#e11d48);color:#fff;box-shadow:0 4px 14px rgba(244,63,94,.35)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.grid2>div{min-width:0}
+.grid2 label,.fl{display:block;color:var(--mut);font-size:13px;margin:0 0 5px}
+.grid2 input,.grid2 select,.grid2 button,.full{width:100%}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+.btns button{flex:1;min-width:130px}
+.res{background:var(--card2);border-radius:12px;padding:12px;margin:10px 0;font-size:15px;line-height:1.5}
+.res:empty{display:none}
+.res b{color:var(--yel)}
+.small{font-size:13px;color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+td,th{border-bottom:1px solid var(--line);padding:7px 4px;text-align:center}
+.tag{display:inline-block;border-radius:8px;padding:2px 8px;font-size:12px;font-weight:700}
+.t-ok{background:#14532d;color:#bbf7d0}.t-mid{background:#713f12;color:#fde68a}.t-low{background:#7f1d1d;color:#fecaca}.t-off{background:#1f2937;color:#9ca3af}
+details summary{cursor:pointer;color:var(--mut);margin:8px 0}
+#vue{touch-action:manipulation}
+.warn{color:#fde68a}
 </style></head><body><div class="wrap">
 <header>
 <svg viewBox="0 0 120 120" aria-label="Logo Distant Eye">
@@ -79,10 +100,12 @@ footer{text-align:center;color:#4b5568;font-size:12px;margin-top:20px}
 </g>
 <path d="M8 60Q60 8 112 60Q60 112 8 60Z" fill="none" stroke="#f43f5e" stroke-width="4" stroke-linejoin="round"/>
 </svg>
-<div><h1>Distant <span>Eye</span> v9</h1><small>Analyse des impacts à distance</small></div>
+<div><h1>Distant <span>Eye</span> v10</h1><small>Analyse des impacts à distance</small></div>
 <button class="home" onclick="location.reload()">Accueil</button>
 </header>
+<nav class="tabs" id="tabs"><button id="tbC" class="on" onclick="tab('c')">&#127919; Cible</button><button id="tbK" onclick="tab('k')">&#129518; Calcul</button></nav>
 <p id="err"></p>
+<div id="tabCible">
 
 <div id="menu" class="menu">
 <button class="pri" onclick="modeCamera()"><b>&#128247;</b><span>Mode caméra<small>Sur le S10, posé près de la cible</small></span></button>
@@ -115,6 +138,27 @@ footer{text-align:center;color:#4b5568;font-size:12px;margin-top:20px}
 <div class="grad"><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span></div>
 </div>
 
+<div class="card"><h3>Groupement</h3>
+<div class="grid2">
+<div><label>Arme</label><select id="gW" onchange="gFillA();gSave()"></select></div>
+<div><label>Munition</label><select id="gA" onchange="gSave();redessiner()"></select></div>
+<div><label>Distance (m)</label><input id="gD" type="number" value="200" oninput="gSave();redessiner()"></div>
+<div><label>Tirs pris en compte</label><select id="gN" onchange="gSave();redessiner()"><option>3</option><option selected>5</option><option>10</option><option>20</option></select></div>
+<div><label>Taille réelle du repère (cm)</label><input id="gSize" type="number" step="0.1" value="10" oninput="gSave();redessiner()"></div>
+<div><label>&nbsp;</label><button onclick="modeTap('scale')">Échelle (4 touches)</button></div>
+</div>
+<button class="big" onclick="modeTap('aim')">&#8982; Placer le point visé</button>
+<p id="gTap" class="hint"></p>
+<div id="gRes" class="res"></div>
+<div class="grid2">
+<div><label>Clics affichés vertical (+ = haut)</label><input id="gCV" type="number" value="0"></div>
+<div><label>Clics affichés horizontal (+ = droite)</label><input id="gCH" type="number" value="0"></div>
+</div>
+<button class="full" onclick="clicsConseilles()">Reprendre les clics conseillés par le calcul</button>
+<button class="ok big" style="margin-top:10px" onclick="envoyerGroupe()">Envoyer au calculateur</button>
+<p id="gMsg" class="hint"></p>
+</div>
+
 <div class="card"><h3>Cadrage</h3>
 <div class="row" style="margin-bottom:14px"><button class="live" onclick="live(true)">&#9654; Vidéo 60 s</button><button onclick="live(false)">&#9632; Stop</button></div>
 <div class="reg"><label>Zoom</label><span class="val" id="zv">1x</span></div>
@@ -137,9 +181,154 @@ footer{text-align:center;color:#4b5568;font-size:12px;margin-top:20px}
 <div><label>Taille des repères</label><input type="range" id="taille" min="2" max="12" value="5" oninput="redessiner()" style="width:100%"></div></div>
 </div>
 </div>
-<footer>Distant Eye v9</footer>
+</div>
+<div id="tabCalc" hidden>
+<div class="card"><h3>Arme et lunette</h3>
+<select id="selW" class="full" onchange="refresh()" style="margin-bottom:10px"></select>
+<div class="grid2">
+<div style="grid-column:1/3"><label>Nom</label><input id="wName"></div>
+<div><label>Hauteur lunette / canon (cm)</label><input id="wSH" type="number" step="0.1"></div>
+<div><label>Distance de réglage (m)</label><input id="wZero" type="number"></div>
+<div><label>Unité de la lunette</label><select id="wUnit"><option>MOA</option><option>MRAD</option></select></div>
+<div><label>Valeur d'un clic</label><input id="wClick" type="number" step="0.01"></div>
+<div style="grid-column:1/3"><label>Notes (calibre, canon, pas)</label><input id="wNotes"></div>
+</div>
+<div class="btns"><button class="ok" onclick="saveW()">Enregistrer</button><button onclick="newW()">Nouvelle arme</button><button onclick="delW()">Supprimer</button></div>
+</div>
+
+<div class="card"><h3>Munition</h3>
+<select id="selA" class="full" onchange="showA()" style="margin-bottom:10px"></select>
+<div class="grid2">
+<div style="grid-column:1/3"><label>Nom</label><input id="aName"></div>
+<div><label>Poids (gr)</label><input id="aWt" type="number"></div>
+<div><label>Modèle</label><select id="aMod"><option>G7</option><option>G1</option></select></div>
+<div><label>Coefficient balistique</label><input id="aBC" type="number" step="0.001"></div>
+<div><label>Vitesse initiale catalogue (m/s)</label><input id="aV0" type="number"></div>
+<div style="grid-column:1/3"><label>Correction manuelle de vitesse (%) — utilisée tant que rien n'est appris</label><input id="aTr" type="number" step="0.1"></div>
+</div>
+<div class="btns"><button class="ok" onclick="saveA()">Enregistrer</button><button onclick="newA()">Nouvelle munition</button><button onclick="delA()">Supprimer</button></div>
+</div>
+
+<div class="card"><h3>Conditions</h3>
+<button class="pri big" onclick="meteo()">&#128205; Météo ici</button>
+<p id="wxInfo" class="small"></p>
+<div class="grid2">
+<div><label>Température (°C)</label><input id="cT" type="number" step="0.1" value="15"></div>
+<div><label>Pression au stand (hPa)</label><input id="cP" type="number" step="0.1" value="1013"></div>
+<div><label>Humidité (%)</label><input id="cRH" type="number" value="50"></div>
+<div><label>Vent météo (m/s)</label><input id="wxV" type="number" step="0.1" value="0"></div>
+<div><label>Vent météo, vient de (°)</label><input id="wxDir" type="number" value="0"></div>
+<div><label>Azimut de tir (°)</label><input id="cAz" type="number" placeholder="?"></div>
+</div>
+<button class="big" onclick="viser()">&#129517; Viser la cible</button>
+<p id="azInfo" class="small"></p>
+<div id="windInfo" class="res"></div>
+<div class="grid2">
+<div style="grid-column:1/3"><label>Vent utilisé pour le calcul</label><select id="cSrc"><option value="meteo">Vent météo (corrigé par l'apprentissage)</option><option value="man">Vent saisi au stand</option></select></div>
+<div><label>Vent saisi (m/s)</label><input id="manV" type="number" step="0.1" value="0"></div>
+<div><label>Vent saisi, heure (3 = vient de droite)</label><input id="manH" type="number" value="3"></div>
+<div style="grid-column:1/3"><label>Distances (m, séparées par des virgules)</label><input id="cD" value="100,150,200,250,300"></div>
+</div>
+<button class="ok big" onclick="calc()">Calculer</button>
+<div id="out"></div>
+</div>
+
+<div class="card"><h3>Apprentissage</h3>
+<div id="learnSum" class="res"></div>
+<div id="learnInfo"></div>
+<div class="btns"><button onclick="annulerDernier()">Annuler le dernier apprentissage</button><button onclick="repartirZero()">Repartir à zéro</button></div>
+<div id="grpList"></div>
+<details ontoggle="if(this.open)prefillManuel()"><summary>Saisir un groupement à la main</summary>
+<div class="grid2">
+<div><label>Distance (m)</label><input id="fD" type="number" value="200"></div>
+<div><label>Nombre de tirs</label><input id="fN" type="number" value="5"></div>
+<div><label>Écart vertical (cm, + = haut)</label><input id="fE" type="number" step="0.1" value="0"></div>
+<div><label>Écart horizontal (cm, + = droite)</label><input id="fX" type="number" step="0.1" value="0"></div>
+<div><label>Clics affichés vertical</label><input id="fCV" type="number" value="0"></div>
+<div><label>Clics affichés horizontal</label><input id="fCH" type="number" value="0"></div>
+</div>
+<button class="full" onclick="saisieManuelle()">Ajouter et apprendre</button>
+</details>
+</div>
+</div>
+<footer>Distant Eye v10</footer>
 </div>
 <script>
+// ===== Moteur balistique + apprentissage =====
+const G7=[[0,.1198],[.5,.1197],[.7,.1215],[.8,.1242],[.85,.1266],[.9,.1368],[.95,.166],[.975,.2054],[1,.2993],[1.025,.3803],[1.05,.4015],[1.1,.4034],[1.2,.3884],[1.3,.3732],[1.5,.344],[1.8,.3086],[2,.2888],[2.5,.2471],[3,.2156],[4,.18]];
+const G1=[[0,.2629],[.5,.2032],[.7,.2165],[.8,.2546],[.9,.3415],[.95,.3803],[1,.4805],[1.05,.5883],[1.1,.6393],[1.2,.6621],[1.3,.6505],[1.5,.6129],[1.8,.5551],[2,.5197],[2.5,.4547],[3,.4048],[4,.35]];
+const TREF=15,DAY=864e5;
+function cdx(t,m){if(m>=t[t.length-1][0])return t[t.length-1][1];for(let i=1;i<t.length;i++)if(m<t[i][0]){const[a,b]=t[i-1],[c,d]=t[i];return b+(d-b)*(m-a)/(c-a)}}
+// Densite de l'air humide (kg/m3) : T en degres C, P pression au stand en hPa, RH en %
+function rhoAir(T,P,RH){const Tk=T+273.15,ps=6.1078*Math.pow(10,7.5*T/(T+237.3)),pv=Math.max(0,Math.min(100,RH||0))/100*ps,pd=P-pv;return pd*100/(287.058*Tk)+pv*100/(461.495*Tk)}
+function sosAir(T){return 331.3*Math.sqrt(1+T/273.15)}
+function trajV(w,a,c,el,dmax,v0){const rho=rhoAir(c.T,c.P,c.RH),so=sosAir(c.T),tab=a.mod=='G1'?G1:G7,k=5.586e-4/a.bc;
+ let x=0,y=-w.sh/100,vx=v0*Math.cos(el),vy=v0*Math.sin(el),t=0,dt=.0005,pts=[],n=0;
+ while(n<=dmax&&t<5){while(x>=n&&n<=dmax){pts[n]={y,t};n++}const v=Math.hypot(vx,vy),ad=rho*v*v*cdx(tab,v/so)*k;vx-=ad*vx/v*dt;vy-=(ad*vy/v+9.80665)*dt;x+=vx*dt;y+=vy*dt;t+=dt}
+ return pts}
+function zeroV(w,a,c,v0){let lo=-.01,hi=.03;for(let i=0;i<36;i++){const m=(lo+hi)/2,p=trajV(w,a,c,m,w.zero,v0)[w.zero];if(p&&p.y>0)hi=m;else lo=m}return(lo+hi)/2}
+function pathV(w,a,c,d,v0){const p=trajV(w,a,c,zeroV(w,a,c,v0),d,v0)[d];return p?{cm:p.y*100,t:p.t}:{cm:NaN,t:NaN}}
+function moaCm(d){return d*.0290888}
+function unitCm(w,d){return w.unit=='MRAD'?d*.1:moaCm(d)}
+function relAng(from,az){return((from-az)%360+360)%360}
+function clockOf(th){return Math.round(th/30)%12||12}
+function compsOf(v,th){const r=th*Math.PI/180;return{cross:v*Math.sin(r),head:v*Math.cos(r)}}
+// Vitesse du modele pour une temperature
+function vModel(a,T){const L=a.learn;if(L&&L.vOk)return L.V+(L.kOk?L.k*(T-TREF):0);return a.v0*(1+(a.tr||0)/100)}
+// Vent lateral effectif (m/s, + = vient de droite)
+function crossEff(a,c){if(c.src=='man')return compsOf(c.manV||0,(c.manH||0)*30).cross;
+ if(c.az==null||isNaN(c.az)||c.wxV==null||isNaN(c.wxV))return 0;
+ const L=a.learn,k=L&&L.cOk?L.c:1;return compsOf(c.wxV,relAng(c.wxDir,c.az)).cross*k}
+// Prediction a une distance : hauteur (cm, + = haut), derive (cm, + = droite)
+function predict(w,a,c,d){const v=vModel(a,c.T),p=pathV(w,a,c,d,v),cr=crossEff(a,c),L=a.learn;
+ let dr=-cr*(p.t-d/v)*100;if(L&&L.bOk)dr+=L.b*moaCm(d);return{cm:p.cm,drift:dr,t:p.t,v}}
+// Vitesse qui explique une hauteur observee
+function solveV(w,a,c,d,yTrue){let lo=a.v0*.6,hi=a.v0*1.4;
+ if(pathV(w,a,c,d,lo).cm>yTrue||pathV(w,a,c,d,hi).cm<yTrue)return null;
+ for(let i=0;i<26;i++){const m=(lo+hi)/2;if(pathV(w,a,c,d,m).cm>yTrue)hi=m;else lo=m}return(lo+hi)/2}
+function clamp(x,a,b){return Math.max(a,Math.min(b,x))}
+function days(P){return new Set(P.map(p=>p.g.date.slice(0,10))).size}
+// Moindres carres ponderes avec a priori : y = a + b*x
+function gls(P,pr,slope){let Saa=1/pr.sa**2,Sab=0,Sbb=slope?1/pr.sb**2:1,ra=pr.a0/pr.sa**2,rb=slope?pr.b0/pr.sb**2:0;
+ for(const p of P){Saa+=p.w;Sab+=p.w*p.x;ra+=p.w*p.y;if(slope){Sbb+=p.w*p.x*p.x;rb+=p.w*p.x*p.y}}
+ if(!slope)return{a:ra/Saa,b:0,sa:Math.sqrt(1/Saa),sb:0};
+ const det=Saa*Sbb-Sab*Sab;return{a:(ra*Sbb-rb*Sab)/det,b:(Saa*rb-Sab*ra)/det,sa:Math.sqrt(Sbb/det),sb:Math.sqrt(Saa/det)}}
+// Rejet des groupements aberrants (ecart > 3 fois l'incertitude attendue)
+function median(x){const s=[...x].sort((p,q)=>p-q),n=s.length;return n?(n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2):0}
+function robust(P,pr,slope){P.forEach(p=>p.out=false);let f=gls(P,pr,slope);
+ if(P.length>=4){const sdm=median(P.map(p=>p.sd)),f0=gls(P.map(p=>({x:p.x,y:p.y,w:1/(sdm*sdm)})),{a0:pr.a0,sa:pr.sa*100,b0:pr.b0,sb:(pr.sb||1)*100},slope);
+  const r=P.map(p=>Math.abs(p.y-f0.a-f0.b*p.x)),lim=3*Math.max(1.4826*median(r),sdm),K=P.filter((p,i)=>r[i]<=lim);
+  if(K.length>=3&&K.length<P.length){P.forEach((p,i)=>p.out=r[i]>lim);f=gls(K,pr,slope);P=K}}return{f,P}}
+const lvl=(s,a,b)=>s<a?'bonne':s<b?'moyenne':'faible';
+// Apprentissage complet a partir de l'historique (recalcule a chaque fois)
+function fitAmmo(w,a,now){now=now||Date.now();const G=(a.groups||[]).filter(g=>!g.ign&&g.n>=3&&g.d>=w.zero);G.forEach(g=>g.flag='');
+ const rec=g=>Math.pow(.5,(now-Date.parse(g.date))/(180*DAY)),sdCm=g=>1.5/Math.sqrt(Math.min(g.n,20))+.3;
+ const L={Tref:TREF,vOk:false,kOk:false,cOk:false,bOk:false,c:1,b:0,V:a.v0,k:0,nV:0,nH:0,nWind:0,sV:0,sH:0,msgs:[],updated:new Date(now).toISOString()};
+ // a) Vitesse reelle et sensibilite a la temperature : ecarts verticaux, au-dela de la distance de reglage
+ const PV=[];for(const g of G){if(g.d<=w.zero)continue;const c={T:g.T,P:g.P,RH:g.RH},yT=g.dy-g.clV*w.click*unitCm(w,g.d),v=solveV(w,a,c,g.d,yT);
+  if(v==null){g.flag='aberrant';continue}const s=Math.abs(pathV(w,a,c,g.d,v+5).cm-pathV(w,a,c,g.d,v-5).cm)/10,sd=sdCm(g)/s;
+  PV.push({x:g.T-TREF,y:v,sd,w:rec(g)/(sd*sd),g})}
+ if(PV.length){const Ts=PV.map(p=>p.g.T),span=Math.max(...Ts)-Math.min(...Ts),useK=days(PV)>=3&&span>=8,pr={a0:a.v0,sa:20,b0:0,sb:1};
+  const R=robust(PV,pr,useK);PV.forEach(p=>{if(p.out)p.g.flag='aberrant'});let V=R.f.a,k=R.f.b;
+  if(useK){if(k<-.3||k>2){k=clamp(k,-.3,2);V=gls(R.P.map(p=>({x:0,y:p.y-k*p.x,w:p.w})),pr,false).a}L.kOk=true}
+  else L.msgs.push('Sensibilité à la température inactive : il faut 3 séances couvrant au moins 8 °C ('+days(PV)+' séance(s), '+span.toFixed(1)+' °C).');
+  L.V=clamp(V,a.v0*.85,a.v0*1.15);L.k=L.kOk?k:0;L.vOk=true;L.nV=R.P.length;L.sV=R.f.sa}
+ else if(G.some(g=>g.d>w.zero))L.msgs.push('Vitesse non apprise : écarts verticaux impossibles à expliquer, vérifie les clics affichés sur la lunette.');
+ else if(G.length)L.msgs.push('Vitesse non apprise : il faut des groupements au-delà de '+w.zero+' m.');
+ // b) Coefficient de vent (vent reel / vent meteo) et decalage horizontal : ecarts horizontaux
+ const PH=[];for(const g of G){const c={T:g.T,P:g.P,RH:g.RH},v=L.vOk?L.V+L.k*(g.T-TREF):a.v0*(1+(a.tr||0)/100),p=pathV(w,a,c,g.d,v),lag=p.t-g.d/v,m=moaCm(g.d);
+  const h=(g.dx-g.clH*w.click*unitCm(w,g.d))/m,cm=(g.wxV!=null&&!isNaN(g.wxV)&&g.az!=null&&!isNaN(g.az))?compsOf(g.wxV,relAng(g.wxDir,g.az)).cross:null;
+  const sd=(sdCm(g)+.5)/m;PH.push({x:cm==null?null:-cm*lag*100/m,y:h,Du:-(g.crossUsed||0)*lag*100/m,sd,w:rec(g)/(sd*sd),g,windy:cm!=null&&Math.abs(cm)>=1.5})}
+ if(PH.length){const nW=days(PH.filter(p=>p.windy));L.nWind=nW;let R;
+  if(nW>=3){const PM=PH.filter(p=>p.x!=null);R=robust(PM,{a0:0,sa:1,b0:1,sb:.3},true);let c=R.f.b,b=R.f.a;
+   if(c<.3||c>1.5){c=clamp(c,.3,1.5);b=gls(R.P.map(p=>({x:0,y:p.y-c*p.x,w:p.w})),{a0:0,sa:1},false).a}L.c=c;L.cOk=true;L.b=b}
+  else{L.msgs.push('Coefficient de vent inactif : il faut 3 séances venteuses ('+nW+' pour l\'instant).');
+   const PB=PH.map(p=>({x:0,y:p.y-(p.g.src=='man'||p.x==null?p.Du:p.x),sd:p.sd,w:p.w,g:p.g}));R=robust(PB,{a0:0,sa:1},false);L.b=R.f.a;PB.forEach(p=>{if(p.out)p.g.flag='aberrant'})}
+  L.b=clamp(L.b,-3,3);L.nH=R.P.length;L.sH=R.f.sa;L.bOk=L.nH>=2;if(!L.bOk)L.msgs.push('Décalage horizontal inactif : il faut au moins 2 groupements.')}
+ L.confV=L.vOk?lvl(L.sV,6,12):'—';L.confH=L.bOk||L.cOk?lvl(L.sH,.15,.3):'—';
+ return L}
+if(typeof module!=='undefined')module.exports={rhoAir,pathV,predict,solveV,fitAmmo,vModel,moaCm,unitCm,compsOf,relAng,clockOf,crossEff};
+
 window.onerror=function(m){document.getElementById('err').textContent='Erreur : '+m};
 const P='cible-flo-';const R=20;let conn,ref=null,impacts=[],nbAvant=0,lastIm=null;
 let track=null,caps=null,HW=1,DZ=1,PX=0,PY=0,liveInt=null,liveFin=null,wake=null;
@@ -170,7 +359,7 @@ function capture(v,maxW,q){const vw=v.videoWidth,vh=v.videoHeight,sw=Math.round(
  cv.getContext('2d').drawImage(v,sx,sy,sw,sh,0,0,cv.width,cv.height);return cv.toDataURL('image/jpeg',q||0.6);}
 function stopLive(c){if(liveInt){clearInterval(liveInt);liveInt=null}if(liveFin){clearTimeout(liveFin);liveFin=null}
  if(c)c.send({type:'info',txt:'Vidéo de cadrage arrêtée'});}
-async function modeCamera(){show('cam');
+async function modeCamera(){show('cam');document.getElementById('tabs').hidden=true;
  try{
  if(typeof Peer==='undefined')throw new Error('bibliothèque PeerJS non chargée');
  const code=String(Math.floor(1000+Math.random()*9000));
@@ -207,11 +396,11 @@ function connecter(){
 function status(t){document.getElementById('status').textContent=t}
 function demander(t){if(!conn)return status("Connecte-toi d'abord");status('Photo en cours…');conn.send(t)}
 function live(on){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'live',on:on});
- if(on){ref=null;impacts=[];lastIm=null;status('Vidéo de cadrage en cours (60 s)…')}}
+ if(on){ref=null;impacts=[];lastIm=null;resetCadre();status('Vidéo de cadrage en cours (60 s)…')}}
 function zoomer(){const z=+document.getElementById('zoom').value;majZoom();
- if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'zoom',z:z});ref=null;impacts=[];lastIm=null;
+ if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'zoom',z:z});ref=null;impacts=[];lastIm=null;resetCadre();
  status('Zoom '+z.toFixed(1)+'x envoyé : vérifie le cadrage, puis refais une référence');}
-function pan(x,y){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'pan',x:x,y:y});ref=null;impacts=[];lastIm=null;}
+function pan(x,y){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'pan',x:x,y:y});ref=null;impacts=[];lastIm=null;resetCadre();}
 function moyenneLocale(g,W,H,r){const I=new Float64Array((W+1)*(H+1));
  for(let y=0;y<H;y++){let s=0;for(let x=0;x<W;x++){s+=g[y*W+x];I[(y+1)*(W+1)+x+1]=I[y*(W+1)+x+1]+s}}
  const o=new Float32Array(W*H);
@@ -243,7 +432,7 @@ function recevoir(d){if(d.type==='info'){status(d.txt);return}
  let g=new Float32Array(W*H);for(let i=0;i<W*H;i++)g[i]=px[i*4]*.3+px[i*4+1]*.59+px[i*4+2]*.11;
  g=normaliser(g,W,H);
  if(d.type==='ref'||!ref){ref=g;impacts=[];nbAvant=0;status('Référence enregistrée');}
- else{const [dx,dy]=recaler(ref,g,W,H);impacts.forEach(p=>{p.x+=dx;p.y+=dy});
+ else{const [dx,dy]=recaler(ref,g,W,H);impacts.forEach(p=>{p.x+=dx;p.y+=dy});if(aim){aim.x+=dx;aim.y+=dy}scalePts.forEach(p=>{p.x+=dx;p.y+=dy});
   nbAvant=impacts.length;const n=detecter(ref,g,W,H,dx,dy);ref=g;status(n+' nouvel(s) impact(s) · sensibilité '+document.getElementById('seuil').value+' · recalage '+dx+','+dy+' px');}
  lastIm=im;dessiner(ctx);};im.src=d.img;}
 function redessiner(){if(!lastIm)return;const cv=document.getElementById('vue');const ctx=cv.getContext('2d');
@@ -264,5 +453,150 @@ function dessiner(ctx){const r=+document.getElementById('taille').value;const mo
   ctx.lineWidth=nouveau?2:1.5;ctx.strokeStyle=ctx.fillStyle=nouveau?'#f43f5e':'#22c55e';
   ctx.beginPath();ctx.arc(p.x,p.y,r,0,7);ctx.stroke();
   if(mode==='tous'||(mode==='der'&&nouveau)){ctx.lineWidth=3;ctx.strokeStyle='#000';ctx.strokeText(i+1,p.x+r+2,p.y-r);ctx.fillText(i+1,p.x+r+2,p.y-r)}});
- document.getElementById('info').textContent='Total : '+impacts.length+' impact(s) · en rouge : les '+Math.min(N,impacts.length)+' derniers';}
+ drawGroupe(ctx);document.getElementById('info').textContent='Total : '+impacts.length+' impact(s) · en rouge : les '+Math.min(N,impacts.length)+' derniers';}
+
+// ===== Donnees partagees =====
+const $=id=>document.getElementById(id),num=id=>parseFloat($(id).value);
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function lsGet(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+let db=lsGet('balDB',{w:[],a:[]});db.w=db.w||[];db.a=db.a||[];db.a.forEach(a=>{a.groups=a.groups||[];a.batches=a.batches||[]});
+function store(){lsSet('balDB',db)}
+const fx=(x,n)=>(x>=0?'+':'')+x.toFixed(n);
+
+// ===== Onglets =====
+function tab(t){$('tabCible').hidden=t!='c';$('tabCalc').hidden=t!='k';$('tbC').classList.toggle('on',t=='c');$('tbK').classList.toggle('on',t=='k');
+ if(t=='k'){const s=processQueue();if(s)$('learnSum').innerHTML=s;refresh()}else gFill();window.scrollTo(0,0)}
+
+// ===== Conditions (partagees entre les onglets) =====
+const CF=['cT','cP','cRH','wxV','wxDir','cAz','cSrc','manV','manH','cD'];
+function saveCond(){const o={};CF.forEach(k=>o[k]=$(k).value);lsSet('balCond',o)}
+function loadCond(){const o=lsGet('balCond',null);if(o)CF.forEach(k=>{if(o[k]!=null)$(k).value=o[k]});const wx=lsGet('balWx',null);if(wx)$('wxInfo').textContent='Dernière météo : '+fmtT(wx.time)}
+function getCond(){const az=parseFloat($('cAz').value);return{T:num('cT'),P:num('cP'),RH:num('cRH'),wxV:num('wxV'),wxDir:num('wxDir'),az:isNaN(az)?null:az,manV:num('manV')||0,manH:num('manH')||0,src:$('cSrc').value}}
+function fmtT(t){if(!t)return'?';const m=String(t).match(/(\d+)-(\d+)-(\d+)T(\d+:\d+)/);return m?m[3]+'/'+m[2]+' à '+m[4]:t}
+function majVent(){const c=getCond();let h='';
+ if(c.az!=null&&!isNaN(c.wxV)){const th=relAng(c.wxDir,c.az),k=compsOf(c.wxV,th);
+  h+='Vent météo : <b>'+Math.abs(k.cross).toFixed(1)+' m/s</b> latéral ('+(k.cross>=0?'vient de droite':'vient de gauche')+'), <b>'+Math.abs(k.head).toFixed(1)+' m/s</b> '+(k.head>=0?'de face':'dans le dos')+' · position <b>'+clockOf(th)+' h</b>';
+  const a=curA();if(a&&a.learn&&a.learn.cOk)h+='<br>Corrigé par l\'apprentissage : '+Math.abs(k.cross*a.learn.c).toFixed(1)+' m/s latéral (coefficient '+a.learn.c.toFixed(2)+')'}
+ else h+='Vent météo : donne l\'azimut de tir pour calculer les composantes.';
+ const km=compsOf(c.manV,c.manH*30);h+='<br>Vent saisi : '+Math.abs(km.cross).toFixed(1)+' m/s latéral, '+Math.abs(km.head).toFixed(1)+' m/s '+(km.head>=0?'de face':'dans le dos');
+ h+='<br><span class="small">Utilisé pour le calcul : '+(c.src=='man'?'vent saisi':'vent météo')+'</span>';$('windInfo').innerHTML=h}
+function meteo(){$('wxInfo').textContent='Localisation en cours…';
+ if(!navigator.geolocation)return wxOff('pas de GPS');
+ navigator.geolocation.getCurrentPosition(async pos=>{try{const la=pos.coords.latitude.toFixed(4),lo=pos.coords.longitude.toFixed(4);$('wxInfo').textContent='Interrogation de la météo…';
+  const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+la+'&longitude='+lo+'&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_direction_10m&wind_speed_unit=ms&timezone=auto');
+  if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json(),c=j.current;if(!c||c.temperature_2m==null)throw new Error('réponse vide');
+  const wx={T:c.temperature_2m,P:c.surface_pressure,RH:c.relative_humidity_2m,v:c.wind_speed_10m,dir:c.wind_direction_10m,time:c.time,lat:la,lon:lo,got:Date.now()};lsSet('balWx',wx);applyWx(wx,false)}
+  catch(e){wxOff(e.message)}},e=>wxOff('position refusée ou introuvable'),{enableHighAccuracy:false,timeout:15000,maximumAge:600000})}
+function applyWx(wx,off){$('cT').value=wx.T;$('cP').value=wx.P;$('cRH').value=wx.RH;$('wxV').value=wx.v;$('wxDir').value=wx.dir;
+ $('wxInfo').innerHTML=(off?'<span class="warn">Hors ligne : dernière météo enregistrée, mesurée le ':'Météo mesurée le ')+fmtT(wx.time)+(off?'</span>':'')+' · vent à 10 m de haut, à vérifier au stand';saveCond();majVent()}
+function wxOff(why){const wx=lsGet('balWx',null);if(wx)applyWx(wx,true);else $('wxInfo').innerHTML='<span class="warn">Météo indisponible ('+esc(why)+') et aucune météo enregistrée : saisis les valeurs à la main.</span>'}
+async function viser(){const info=$('azInfo');info.textContent='Tiens le téléphone à plat, le haut pointé vers la cible, sans bouger…';
+ try{if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted')throw new Error('autorisation refusée')}}
+ catch(e){info.textContent='Boussole : '+e.message+'. Saisis l\'azimut à la main.';return}
+ const S=[],ev='ondeviceorientationabsolute' in window?'deviceorientationabsolute':'deviceorientation';
+ const h=e=>{let d=null;if(e.webkitCompassHeading!=null)d=e.webkitCompassHeading;else if(e.alpha!=null&&(e.absolute||ev=='deviceorientationabsolute'))d=(360-e.alpha)%360;if(d!=null)S.push(d)};
+ window.addEventListener(ev,h);setTimeout(()=>{window.removeEventListener(ev,h);
+  if(S.length<3){info.textContent='Boussole indisponible sur ce téléphone : saisis l\'azimut à la main.';return}
+  let sx=0,sy=0;S.forEach(d=>{sx+=Math.cos(d*Math.PI/180);sy+=Math.sin(d*Math.PI/180)});const m=(Math.atan2(sy,sx)*180/Math.PI+360)%360;
+  $('cAz').value=Math.round(m);info.textContent='Azimut enregistré : '+Math.round(m)+'° ('+S.length+' mesures). Éloigne-toi des objets métalliques pour plus de précision.';saveCond();majVent()},2500)}
+
+// ===== Armes et munitions =====
+function curW(){return db.w.find(x=>x.id==$('selW').value)}
+function curA(){return db.a.find(x=>x.id==$('selA').value)}
+function refresh(sel,selA){sel=sel||$('selW').value;$('selW').innerHTML=db.w.map(w=>'<option value="'+w.id+'">'+esc(w.name)+'</option>').join('');if(sel)$('selW').value=sel;const w=curW();
+ if(w){$('wName').value=w.name;$('wSH').value=w.sh;$('wZero').value=w.zero;$('wUnit').value=w.unit;$('wClick').value=w.click;$('wNotes').value=w.notes||''}
+ selA=selA||$('selA').value;$('selA').innerHTML=db.a.filter(a=>w&&a.wid==w.id).map(a=>'<option value="'+a.id+'">'+esc(a.name)+'</option>').join('');if(selA)$('selA').value=selA;if(!curA()&&$('selA').options.length)$('selA').selectedIndex=0;showA()}
+function showA(){const a=curA();if(a){$('aName').value=a.name;$('aWt').value=a.wt;$('aMod').value=a.mod;$('aBC').value=a.bc;$('aV0').value=a.v0;$('aTr').value=(a.tr||0).toFixed(2)}showLearn();majVent()}
+function newW(){const w={id:''+Date.now(),name:'Nouvelle arme',sh:6.5,zero:100,unit:'MOA',click:.25,notes:''};db.w.push(w);store();refresh(w.id)}
+function saveW(){const w=curW();if(!w)return alert("Crée d'abord une arme");w.name=$('wName').value;w.sh=num('wSH');w.zero=Math.round(num('wZero'));w.unit=$('wUnit').value;w.click=num('wClick');w.notes=$('wNotes').value;store();db.a.filter(a=>a.wid==w.id).forEach(a=>a.learn=fitAmmo(w,a));store();refresh(w.id)}
+function delW(){const w=curW();if(!w||!confirm('Supprimer '+w.name+' et ses munitions ?'))return;db.a=db.a.filter(a=>a.wid!=w.id);db.w=db.w.filter(x=>x!==w);store();refresh(db.w[0]&&db.w[0].id)}
+function newA(){const w=curW();if(!w)return alert("Crée d'abord une arme");const a={id:''+Date.now(),wid:w.id,name:'Nouvelle munition',wt:69,mod:'G7',bc:.17,v0:900,tr:0,hist:[],groups:[],batches:[]};db.a.push(a);store();refresh(w.id,a.id)}
+function saveA(){const a=curA(),w=curW();if(!a)return alert("Crée d'abord une munition");a.name=$('aName').value;a.wt=num('aWt');a.mod=$('aMod').value;a.bc=num('aBC');a.v0=num('aV0');a.tr=num('aTr')||0;a.learn=fitAmmo(w,a);store();refresh(a.wid,a.id)}
+function delA(){const a=curA();if(!a||!confirm('Supprimer '+a.name+' et son historique ?'))return;db.a=db.a.filter(x=>x!==a);store();refresh()}
+
+// ===== Calcul =====
+function calc(){const w=curW(),a=curA();if(!w||!a)return alert('Choisis une arme et une munition');saveCond();const c=getCond(),v=vModel(a,c.T),L=a.learn,u=w.unit;
+ let h='<p class="small">Vitesse utilisée : <b>'+v.toFixed(0)+' m/s</b> ('+(L&&L.vOk?'apprise':'catalogue')+') · densité de l\'air '+rhoAir(c.T,c.P,c.RH).toFixed(3)+' kg/m³ · vent '+(c.src=='man'?'saisi':'météo')+(L&&L.bOk?' · décalage appris '+fx(L.b,2)+' MOA':'')+'</p>';
+ h+='<table><tr><th>m</th><th>Chute cm</th><th>Hausse '+u+'</th><th>Clics</th><th>Dérive cm</th><th>Clics vent</th></tr>';
+ for(const d of $('cD').value.split(',').map(s=>parseInt(s)).filter(x=>x>0)){const p=predict(w,a,c,d),uc=unitCm(w,d),cv=-p.cm/uc,ch=-p.drift/uc,kv=Math.round(cv/w.click),kh=Math.round(ch/w.click);
+  h+='<tr><td>'+d+'</td><td>'+p.cm.toFixed(1)+'</td><td>'+(Math.abs(cv)<.005?0:cv).toFixed(2)+'</td><td>'+Math.abs(kv)+' '+(kv>=0?'H':'B')+'</td><td>'+fx(p.drift,1)+'</td><td>'+Math.abs(kh)+' '+(kh>=0?'D':'G')+'</td></tr>'}
+ $('out').innerHTML=h+'</table><p class="small">H/B = clics vers le haut/bas, D/G = vers la droite/gauche. Dérive + = l\'impact part à droite.</p>'}
+
+// ===== Apprentissage =====
+function tagConf(c){return'<span class="tag '+({bonne:'t-ok',moyenne:'t-mid',faible:'t-low'}[c]||'t-off')+'">'+(c=='—'?'inactif':'confiance '+c)+'</span>'}
+function showLearn(){const a=curA(),w=curW(),el=$('learnInfo');if(!a||!w){el.innerHTML='';$('grpList').innerHTML='';return}const L=a.learn;
+ if(!L||(!L.vOk&&!L.bOk&&!L.cOk)){el.innerHTML='<div class="res">Rien d\'appris pour '+esc(a.name)+'. Envoie des groupements depuis l\'onglet Cible.'+(L&&L.msgs.length?'<br><span class="small">'+L.msgs.map(esc).join('<br>')+'</span>':'')+'</div>'}
+ else{let h='<div class="res">';
+  h+='<b>Vitesse</b> '+tagConf(L.confV)+'<br>'+(L.vOk?'V0 réelle : <b>'+L.V.toFixed(0)+' m/s</b> à 15 °C (catalogue '+a.v0+') · '+L.nV+' groupement(s)':'Non apprise : il faut un groupement au-delà de '+w.zero+' m.');
+  h+='<br>Sensibilité à la température : '+(L.kOk?'<b>'+L.k.toFixed(2)+' m/s par °C</b>':'inactive');
+  h+='<br><br><b>Vent</b> '+tagConf(L.confH)+'<br>Coefficient : '+(L.cOk?'<b>'+L.c.toFixed(2)+'</b> (vent réel = '+Math.round(L.c*100)+' % du vent météo)':'inactif ('+L.nWind+'/3 séances venteuses)');
+  h+='<br>Décalage horizontal fixe : '+(L.bOk?'<b>'+fx(L.b,2)+' MOA</b> ('+(L.b>=0?'à droite':'à gauche')+') · '+L.nH+' groupement(s)':'inactif');
+  if(L.msgs.length)h+='<br><br><span class="small">'+L.msgs.map(esc).join('<br>')+'</span>';el.innerHTML=h+'</div>'}
+ const G=[...a.groups].reverse().slice(0,12);if(!G.length){$('grpList').innerHTML='';return}
+ $('grpList').innerHTML='<table><tr><th>Date</th><th>m</th><th>Tirs</th><th>Vert. cm</th><th>Hor. cm</th><th>°C</th><th></th></tr>'+G.map(g=>'<tr><td>'+g.date.slice(8,10)+'/'+g.date.slice(5,7)+'</td><td>'+g.d+'</td><td>'+g.n+'</td><td>'+fx(g.dy,1)+'</td><td>'+fx(g.dx,1)+'</td><td>'+(+g.T).toFixed(0)+'</td><td>'+(g.ign?'<span class="tag t-off">annulé</span>':g.flag?'<span class="tag t-low">'+g.flag+'</span>':'')+'</td></tr>').join('')+'</table>'}
+function resume(a,old,L){const p=[];const V=x=>x&&x.vOk?x.V.toFixed(0)+' m/s':'—';
+ p.push('V0 '+V(old)+' → <b>'+V(L)+'</b>');if(L.kOk)p.push('temp. '+L.k.toFixed(2)+' m/s/°C');p.push('vent '+(L.cOk?'×'+L.c.toFixed(2):'coef. inactif'));if(L.bOk)p.push('décalage '+fx(L.b,2)+' MOA');return esc(a.name)+' : '+p.join(' · ')}
+function processQueue(){const q=lsGet('balGroups',[]),todo=q.filter(g=>!g.done);if(!todo.length)return'';const b='b'+Date.now(),touched=new Map(),lines=[];
+ for(const g of todo){g.done=true;const a=db.a.find(x=>x.id==g.aid),w=db.w.find(x=>x.id==g.wid);
+  if(!a||!w){lines.push('Un groupement ignoré : arme ou munition supprimée.');continue}
+  if(g.n<3){lines.push('Ignoré : moins de 3 tirs.');continue}
+  if(g.d<w.zero){lines.push('Ignoré : '+g.d+' m est en deçà de la distance de réglage ('+w.zero+' m).');continue}
+  const r={...g,batch:b};delete r.done;a.groups.push(r);touched.set(a.id,{a,w})}
+ for(const{a,w}of touched.values()){const old=a.learn;a.learn=fitAmmo(w,a);a.batches.push(b);lines.push(resume(a,old,a.learn))}
+ store();lsSet('balGroups',q.filter(g=>!g.done||Date.now()-Date.parse(g.date)<30*864e5).slice(-100));
+ return'<b>'+todo.length+' groupement(s) reçu(s) de l\'onglet Cible</b><br>'+lines.join('<br>')}
+function annulerDernier(){const a=curA(),w=curW();if(!a||!a.batches.length)return alert('Rien à annuler pour cette munition');const b=a.batches.pop();a.groups.forEach(g=>{if(g.batch==b)g.ign=true});
+ const old=a.learn;a.learn=fitAmmo(w,a);store();$('learnSum').innerHTML='Dernier apprentissage annulé.<br>'+resume(a,old,a.learn);showLearn()}
+function repartirZero(){const a=curA(),w=curW();if(!a||!confirm('Repartir à zéro pour '+a.name+' ? (changement de lunette, de lot…) L\'historique est gardé mais n\'est plus utilisé.'))return;
+ a.groups.forEach(g=>g.ign=true);a.batches=[];a.learn=fitAmmo(w,a);store();$('learnSum').innerHTML='Apprentissage remis à zéro pour '+esc(a.name)+'.';showLearn()}
+function enfiler(o){const q=lsGet('balGroups',[]);q.push(o);lsSet('balGroups',q)}
+function groupeRecord(w,a,d,n,dx,dy,size,clV,clH){const c=getCond(),th=c.az!=null?relAng(c.wxDir,c.az):null,k=th!=null?compsOf(c.wxV,th):null;
+ return{id:''+Date.now(),date:new Date().toISOString(),wid:w.id,aid:a.id,d,n,dx,dy,size,clV,clH,T:c.T,P:c.P,RH:c.RH,wxV:c.wxV,wxDir:c.wxDir,wxTime:(lsGet('balWx',{})||{}).time||null,az:c.az,manV:c.manV,manH:c.manH,src:c.src,crossUsed:crossEff(a,c),crossMeteo:k?k.cross:null,headMeteo:k?k.head:null}}
+function prefillManuel(){const w=curW(),a=curA(),d=num('fD');if(!w||!a||!(d>0))return;const p=predict(w,a,getCond(),d);$('fCV').value=Math.round(-p.cm/unitCm(w,d)/w.click);$('fCH').value=Math.round(-p.drift/unitCm(w,d)/w.click)}
+function saisieManuelle(){const w=curW(),a=curA();if(!w||!a)return alert('Choisis une arme et une munition');const d=Math.round(num('fD')),n=Math.round(num('fN'));
+ if(n<3)return alert('Il faut un groupement d\'au moins 3 tirs');if(d<w.zero)return alert('Distance en deçà de la distance de réglage ('+w.zero+' m)');
+ saveCond();enfiler(groupeRecord(w,a,d,n,num('fX')||0,num('fE')||0,null,num('fCV')||0,num('fCH')||0));$('learnSum').innerHTML=processQueue();showLearn()}
+
+// ===== Groupement dans Distant Eye =====
+let tapMode=null,aim=null,scalePts=[];
+const SC=['Touche le bord GAUCHE du repère','Touche le bord DROIT du repère','Touche le bord HAUT du repère','Touche le bord BAS du repère'];
+function gSave(){lsSet('deG',{w:$('gW').value,a:$('gA').value,d:$('gD').value,n:$('gN').value,s:$('gSize').value})}
+function gFill(){const o=lsGet('deG',{});$('gW').innerHTML=db.w.map(w=>'<option value="'+w.id+'">'+esc(w.name)+'</option>').join('');if(o.w&&db.w.some(w=>w.id==o.w))$('gW').value=o.w;
+ if(o.d)$('gD').value=o.d;if(o.n)$('gN').value=o.n;if(o.s)$('gSize').value=o.s;gFillA(o.a)}
+function gFillA(sel){const wid=$('gW').value;$('gA').innerHTML=db.a.filter(a=>a.wid==wid).map(a=>'<option value="'+a.id+'">'+esc(a.name)+'</option>').join('');if(sel&&db.a.some(a=>a.id==sel&&a.wid==wid))$('gA').value=sel;majGroupe()}
+function gWA(){return{w:db.w.find(x=>x.id==$('gW').value),a:db.a.find(x=>x.id==$('gA').value)}}
+function msgTap(t){$('gTap').textContent=t}
+function modeTap(m){if(!lastIm)return msgTap('Fais d\'abord une photo (référence ou tirs)');tapMode=m;if(m=='scale'){scalePts=[];msgTap(SC[0])}else msgTap('Touche le point visé sur l\'image')}
+function echelle(){const S=num('gSize');if(scalePts.length<4||!(S>0))return null;const sx=Math.abs(scalePts[1].x-scalePts[0].x)/S,sy=Math.abs(scalePts[3].y-scalePts[2].y)/S;return sx>0&&sy>0?{sx,sy}:null}
+function resetCadre(){aim=null;scalePts=[];tapMode=null}
+function groupe(){const N=+$('gN').value,P=impacts.slice(-N),sc=echelle();if(P.length<3||!aim||!sc)return null;
+ const cx=P.reduce((s,p)=>s+p.x,0)/P.length,cy=P.reduce((s,p)=>s+p.y,0)/P.length;let size=0;
+ for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++)size=Math.max(size,Math.hypot((P[i].x-P[j].x)/sc.sx,(P[i].y-P[j].y)/sc.sy));
+ return{n:P.length,cx,cy,dx:(cx-aim.x)/sc.sx,dy:(aim.y-cy)/sc.sy,size}}
+function majGroupe(){const el=$('gRes');if(!el)return;const G=groupe(),{w}=gWA(),d=num('gD');
+ if(!G){const m=[];if(impacts.length<3)m.push('au moins 3 impacts');if(!aim)m.push('le point visé');if(!echelle())m.push('l\'échelle');el.innerHTML='Pour calculer le groupement, il manque : '+m.join(', ')+'.';return}
+ let h='Groupement de <b>'+G.n+' tirs</b> · taille <b>'+G.size.toFixed(1)+' cm</b>'+(d>0?' ('+(G.size/moaCm(d)).toFixed(2)+' MOA)':'');
+ h+='<br>Écart : <b>'+Math.abs(G.dy).toFixed(1)+' cm '+(G.dy>=0?'haut':'bas')+'</b>, <b>'+Math.abs(G.dx).toFixed(1)+' cm '+(G.dx>=0?'droite':'gauche')+'</b>';
+ if(d>0){h+='<br>Soit '+Math.abs(G.dy/moaCm(d)).toFixed(2)+' MOA vertical, '+Math.abs(G.dx/moaCm(d)).toFixed(2)+' MOA horizontal';
+  if(w){const kv=Math.round(-G.dy/unitCm(w,d)/w.click),kh=Math.round(-G.dx/unitCm(w,d)/w.click);h+='<br>Correction : <b>'+Math.abs(kv)+' clic(s) '+(kv>=0?'HAUT':'BAS')+'</b>, <b>'+Math.abs(kh)+' clic(s) '+(kh>=0?'DROITE':'GAUCHE')+'</b>'}}
+ el.innerHTML=h}
+function drawGroupe(ctx){const cr=(x,y,r,col,lw)=>{ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();ctx.moveTo(x-r,y);ctx.lineTo(x+r,y);ctx.moveTo(x,y-r);ctx.lineTo(x,y+r);ctx.stroke()};
+ scalePts.forEach((p,i)=>{ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(p.x,p.y,3,0,7);ctx.fill()});
+ if(aim){cr(aim.x,aim.y,14,'#000',4);cr(aim.x,aim.y,14,'#38bdf8',2);ctx.strokeStyle='#38bdf8';ctx.beginPath();ctx.arc(aim.x,aim.y,6,0,7);ctx.stroke()}
+ const G=groupe();if(G){cr(G.cx,G.cy,12,'#000',5);cr(G.cx,G.cy,12,'#facc15',2.5);const t=(G.dy>=0?'↑':'↓')+Math.abs(G.dy).toFixed(1)+' '+(G.dx>=0?'→':'←')+Math.abs(G.dx).toFixed(1)+' cm';ctx.font='bold 15px sans-serif';ctx.lineWidth=4;ctx.strokeStyle='#000';ctx.strokeText(t,G.cx+16,G.cy+20);ctx.fillStyle='#facc15';ctx.fillText(t,G.cx+16,G.cy+20);if(aim){ctx.setLineDash([4,4]);ctx.strokeStyle='#facc15';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(aim.x,aim.y);ctx.lineTo(G.cx,G.cy);ctx.stroke();ctx.setLineDash([])}}
+ majGroupe()}
+function clicsConseilles(){const{w,a}=gWA(),d=num('gD');if(!w||!a)return alert('Choisis une arme et une munition (onglet Calcul pour les créer)');const p=predict(w,a,getCond(),d);
+ $('gCV').value=Math.round(-p.cm/unitCm(w,d)/w.click);$('gCH').value=Math.round(-p.drift/unitCm(w,d)/w.click);$('gMsg').textContent='Clics conseillés à '+d+' m repris. Mets les valeurs réellement affichées sur ta lunette.'}
+function envoyerGroupe(){const{w,a}=gWA(),d=Math.round(num('gD')),G=groupe();
+ if(!w||!a)return alert('Choisis une arme et une munition (onglet Calcul pour les créer)');if(!G)return alert('Groupement incomplet : il faut au moins 3 impacts, l\'échelle et le point visé');
+ if(d<w.zero)return alert('Distance en deçà de la distance de réglage ('+w.zero+' m) : pas d\'apprentissage');
+ const r=groupeRecord(w,a,d,G.n,G.dx,G.dy,G.size,num('gCV')||0,num('gCH')||0);enfiler(r);
+ $('gMsg').innerHTML='Groupement envoyé ('+G.n+' tirs, '+d+' m, '+r.T+' °C). Il sera appris à l\'ouverture de l\'onglet Calcul.'+(d==w.zero?'<br>À la distance de réglage, seul l\'écart horizontal sert à l\'apprentissage.':'')+(lsGet('balWx',null)?'':'<br><span class="warn">Aucune météo récupérée : les conditions saisies à la main sont utilisées.</span>')}
+$('vue').addEventListener('click',e=>{if(!tapMode)return;const cv=e.currentTarget,r=cv.getBoundingClientRect(),x=(e.clientX-r.left)*cv.width/r.width,y=(e.clientY-r.top)*cv.height/r.height;
+ if(tapMode=='aim'){aim={x,y};tapMode=null;msgTap('Point visé placé.')}
+ else{scalePts.push({x,y});if(scalePts.length<4)msgTap(SC[scalePts.length]);else{tapMode=null;const s=echelle();msgTap(s?'Échelle : '+s.sx.toFixed(1)+' px/cm en largeur, '+s.sy.toFixed(1)+' px/cm en hauteur.':'Échelle invalide : recommence.')}}
+ redessiner()});
+CF.forEach(k=>$(k).addEventListener('change',()=>{saveCond();majVent()}));
+loadCond();refresh();gFill();majVent();
 </script></body></html>
