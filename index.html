@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye Calculateur balistique v32</title>
+<title>Distant Eye Calculateur balistique v33</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 4L108 32V88L60 116L12 88V32Z' fill='%230d0820' stroke='%2305d9e8' stroke-width='5'/%3E%3Cpath d='M14 60Q60 18 106 60Q60 102 14 60Z' fill='none' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -162,6 +162,7 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 .vbar input[type=range]{flex:1;min-width:0}.vbar select{width:auto;flex:none;padding:6px 8px;font-size:12px}
 .row.act .big{flex:2}.row.act>button:not(.big){flex:1;font-size:14px}
 details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 0}
+.bloc.ctx{margin:0 0 10px}.bloc.ctx .row2+.row2{margin-top:8px}
 </style></head><body>
 <div id="fond"><div class="halo h1"></div><div class="halo h2"></div><div class="halo h3"></div><div class="grille"></div>
 <svg viewBox="0 0 1000 300" fill="none" stroke-linejoin="round" stroke-linecap="round">
@@ -202,7 +203,7 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 </g>
 <path d="M60 22V36M60 84V98M8 60H26M94 60H112" stroke="#f9f871" stroke-width="2.5"/>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v32</small></div>
+<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v33</small></div>
 <button class="home" onclick="demarrage()">Mode</button>
 </header>
 <nav class="tabs" id="tabs"><button id="tbC" class="on" onclick="tab('c')">&#127919; Cible</button><button id="tbK" onclick="tab('k')">&#129518; Calcul</button></nav>
@@ -230,6 +231,10 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <div class="zbtn"><button onclick="zoomVue(1.5)" aria-label="Zoomer">+</button><button onclick="zoomVue(1/1.5)" aria-label="Dézoomer">−</button><button onclick="zoomVue(0)" aria-label="Taille normale">1:1</button></div></div>
 <div class="vbar"><span>Repères</span><input type="range" id="taille" min="2" max="12" value="5" oninput="rendu()"><select id="nums" onchange="rendu()"><option value="der">Tirs du groupement et derniers</option><option value="tous">Tous</option><option value="aucun">Aucun</option></select></div>
 <p id="info"></p><p id="status"></p></div>
+<div class="bloc ctx"><div class="bt">Arme, munition, lieu, distance</div>
+<div class="row2"><div id="gCtx" class="small" style="flex:1"></div><button onclick="tab('k')" style="flex:none">Changer</button></div>
+<div class="row2"><label style="margin:0;flex:none">Distance (m)</label><input id="gD" type="number" inputmode="numeric" value="200" oninput="gSave();rendu();calc(true)"></div>
+</div>
 <div class="seg" id="seg"><button data-p="pTirs" class="on">Tirs</button><button data-p="pCad">Cadrage</button><button data-p="pCal">Calage</button></div>
 
 <div id="pTirs">
@@ -250,10 +255,6 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <div class="bloc ro"><div class="bt">Réglages du calculateur <span class="small">(non modifiables)</span></div><div id="gReco"></div></div>
 <label>Remarque sur la série</label><input id="gNote" type="text" placeholder="ex. nouvel appui, rafales, canon froid…">
 <p id="gMsg" class="hint"></p>
-<div class="bloc"><div class="bt">Arme, munition, lieu, distance</div>
-<div class="row2"><div id="gCtx" class="small" style="flex:1"></div><button onclick="tab('k')" style="flex:none">Changer</button></div>
-<label>Distance (m)</label><input id="gD" type="number" inputmode="numeric" value="200" oninput="gSave();rendu();calc(true)">
-</div>
 <details class="edit"><summary>Détection des impacts (sensibilité)</summary>
 <div class="reg"><label>Sensibilité <span class="sub">(petit = plus sensible)</span></label><span class="val" id="sv">30</span></div>
 <div class="slider"><button class="pm" onclick="regSeuil(-1)">−</button><input type="range" id="seuil" min="10" max="80" step="1" value="30" oninput="majSeuil()"><button class="pm" onclick="regSeuil(1)">+</button></div>
@@ -303,7 +304,7 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <div id="sLog" class="small"></div>
 </div></div>
 <div class="bloc ro"><div class="bt">Réglages du calculateur <span class="small">(non modifiables)</span></div><div id="sConseil"></div></div>
-<div class="grid2"><div><label>Distance (m)</label><input id="sD" type="number" inputmode="numeric" value="100" oninput="majSans()"></div><div><label>Nombre de tirs de la série</label><input id="sN" type="number" inputmode="numeric" value="5"></div></div>
+<label>Distance (m)</label><input id="sD" type="number" inputmode="numeric" value="100" oninput="majSans()">
 <p class="small">Cette distance règle toute l'appli, y compris la correction de l'onglet Calcul.</p>
 <label>Remarque sur la série</label><input id="sNote" type="text" placeholder="ex. nouvel appui, rafales…">
 <details><summary>Écart restant à la fermeture (facultatif)</summary>
@@ -449,7 +450,7 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <button class="big pri" onclick="viser()">&#129517; Viser la cible</button>
 <div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="finDemar()">Passer</button></div></div>
 </div></div>
-<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v32</footer>
+<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v33</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -1136,7 +1137,7 @@ function clore(){if(!seanceActive())return;const H=lsGet('deHist',[]),L=tousGrou
  sess=null;lsSet('deSession',null);fermerAlerte();majSeance();majBarre()}
 // ===== Demarrage : mode d'utilisation, puis meteo et orientation (chaque etape peut etre passee) =====
 let dmT=null,dm0={};
-function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v32'+(L[MODE]?' · '+L[MODE]:'');majBarre();
+function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v33'+(L[MODE]?' · '+L[MODE]:'');majBarre();
  $('tbC').hidden=MODE=='sans';$('tabs').hidden=MODE=='sans'||MODE=='cam'}
 function demarrage(){clearInterval(dmT);$('demar').hidden=false;etape(1);document.querySelectorAll('#dm1 button[data-m]').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE))}
 function choixMode(m){MODE=m;lsSet('deMode',m);appliquerMode();if(m=='cam'){$('demar').hidden=true;tab('c');modeCamera();return}etape(2)}
@@ -1162,10 +1163,10 @@ function modifier(dv,dh){if(!seanceActive()){nouvelleSeance(true)}const t=Date.n
  if(m&&t-m.t<20000){m.dv+=dv;m.dh+=dh;m.t=t;if(!m.dv&&!m.dh)L.pop()}else L.push({t,dv,dh});lsSet('deSession',sess);majSans();majBarre()}
 function versReglage(v,h,nom){if(!seanceActive())nouvelleSeance(true);const dv=v-sess.reg.v,dh=h-sess.reg.h;if(!dv&&!dh)return;sess.mods.push({t:Date.now(),dv,dh,nom});sess.reg={v,h};lsSet('deSession',sess);majSans();majBarre()}
 function modifierSaisie(){const dv=Math.round(num('sMV')||0),dh=Math.round(num('sMH')||0);if(!dv&&!dh)return;if(!seanceActive())nouvelleSeance(true);sess.mods.push({t:Date.now(),dv,dh});sess.reg.v+=dv;sess.reg.h+=dh;lsSet('deSession',sess);$('sMV').value='';$('sMH').value='';majSans();majBarre()}
-function fermerSans(){if(!seanceActive())return;const w=curW(),a=curA(),d=distRef(),n=Math.round(num('sN'));const fin=m=>{const no=sess.no;clore();$('sMsg').hidden=false;$('sMsg').innerHTML=m.replace('#',no);$('sNote').value='';$('sE').value=0;$('sX').value=0;majSans()};
- if(!w||!a||n<3||d<w.zero){const why=!w||!a?'pas d\'arme ou de munition':n<3?'moins de 3 tirs':'distance en deçà du zéro ('+w.zero+' m)';if(confirm('Cette série ne peut pas être envoyée au calculateur ('+why+'). La fermer quand même ?'))fin('Série n°# fermée sans envoi ('+why+').');return}
+function fermerSans(){if(!seanceActive())return;const w=curW(),a=curA(),d=distRef(),n=5;const fin=m=>{const no=sess.no;clore();$('sMsg').hidden=false;$('sMsg').innerHTML=m.replace('#',no);$('sNote').value='';$('sE').value=0;$('sX').value=0;majSans()};
+ if(!w||!a||n<3||d<w.zero){const why=!w||!a?'pas d\'arme ou de munition':'distance en deçà du zéro ('+w.zero+' m)';if(confirm('Cette série ne peut pas être envoyée au calculateur ('+why+'). La fermer quand même ?'))fin('Série n°# fermée sans envoi ('+why+').');return}
  saveCond();const r=groupeRecord(w,a,$('cL').value,d,n,num('sX')||0,num('sE')||0,null,sess.reg.v,sess.reg.h,{manual:true,sansCam:true,serie:sess.no,mods:sess.mods.length,note:$('sNote').value.trim()||undefined});
- ouvrirModal(w,a,r,send=>{const t=enregistrer(r,send);fin(send?'<b>Série n°# envoyée au calculateur</b> ('+n+' tirs à '+d+' m, réglage '+clk(r.clV,'H','B')+' / '+clk(r.clH,'D','G')+'). '+t:'<b>Série n°# gardée sans envoi</b>.')})}
+ ouvrirModal(w,a,r,send=>{const t=enregistrer(r,send);fin(send?'<b>Série n°# envoyée au calculateur</b> ('+d+' m, réglage '+clk(r.clV,'H','B')+' / '+clk(r.clH,'D','G')+'). '+t:'<b>Série n°# gardée sans envoi</b>.')})}
 function saisieSans(){fermerSans()}
 {const _rf=refresh;refresh=function(a,b){_rf(a,b);majSans();calc(true);if(typeof majGroupe=='function'&&$('gRes'))rendu()}}
 CF.forEach(k=>$(k).addEventListener('change',()=>{majSans();calc(true)}));
