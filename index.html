@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye v19</title>
+<title>Distant Eye v22</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 4L108 32V88L60 116L12 88V32Z' fill='%230d0820' stroke='%2305d9e8' stroke-width='5'/%3E%3Cpath d='M14 60Q60 18 106 60Q60 102 14 60Z' fill='none' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -117,6 +117,13 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:18px;letter-
 #grpTab table{margin:0 0 12px}
 #grpTab tr.sel td{background:rgba(255,42,109,.18);color:#fff}
 #grpTab tr[data-n]{cursor:pointer}
+
+body:not([data-mode=sans]) .sansOnly{display:none}
+body[data-mode=sans] .avecOnly{display:none}
+.demar{align-items:center;z-index:60}
+.demar .menu button.der{box-shadow:0 0 0 2px var(--yel),0 0 18px rgba(249,248,113,.35)}
+.demar .menu button.der small::after{content:" · dernier choix";color:var(--yel)}
+.demar .big{width:100%;margin:6px 0}
 </style></head><body>
 <div id="fond"><div class="halo h1"></div><div class="halo h2"></div><div class="halo h3"></div><div class="grille"></div>
 <svg viewBox="0 0 1000 300" fill="none" stroke-linejoin="round" stroke-linecap="round">
@@ -157,8 +164,8 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:18px;letter-
 </g>
 <path d="M60 22V36M60 84V98M8 60H26M94 60H112" stroke="#f9f871" stroke-width="2.5"/>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><small>v19 · impact analysis</small></div>
-<button class="home" onclick="location.reload()">Accueil</button>
+<div><h1>Distant <span>Eye</span></h1><small id="sub">v22 · impact analysis</small></div>
+<button class="home" onclick="demarrage()">Mode</button>
 </header>
 <nav class="tabs" id="tabs"><button id="tbC" class="on" onclick="tab('c')">&#127919; Cible</button><button id="tbK" onclick="tab('k')">&#129518; Calcul</button></nav>
 <p id="err"></p>
@@ -199,9 +206,11 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:18px;letter-
 <div class="s2"><label>Cible utilisée</label><select id="gT" onchange="choixCible()"></select></div>
 <div class="s2"><label>Zone visée</label><select id="gZ" onchange="gSave();rendu()"></select></div>
 </div>
-<button class="ok big" onclick="modeTap('cal')">&#8689; Caler la cible (2 coins)</button>
+<button class="ok big" onclick="calageAuto()">&#10022; Détection automatique</button>
+<p class="hint">L'appli cherche la feuille claire sur la photo, choisit le profil de cible qui a les mêmes proportions, puis trouve les visuels noirs et leur centre. Faite automatiquement à chaque nouvelle référence si la cible n'est pas calée.</p>
+<button class="full" onclick="modeTap('cal')">&#8689; Caler à la main (4 coins)</button>
 <button class="full" onclick="modeTap('aim')">&#8982; Point visé à la main (sans calage)</button>
-<p class="hint">Caler = toucher le coin haut-gauche puis le coin bas-droit de la cible sur l'image. L'appli redresse alors la vue au format de la cible et sait combien mesure un centimètre.</p>
+<p class="hint">À la main : touche les 4 coins de la feuille, dans n'importe quel ordre. Comme le téléphone caméra voit la cible de biais, l'appli corrige la perspective à partir de ces 4 coins : la vue est redressée et les centimètres sont justes partout sur la feuille.</p>
 <p id="gTap" class="hint"></p>
 <button class="full" onclick="annulerCalage()">Effacer le calage</button>
 </div>
@@ -245,6 +254,21 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:18px;letter-
 </div>
 
 <div id="tabCalc" hidden>
+<div class="card sansOnly"><h3>Tir sans téléphone caméra</h3>
+<p id="sCtx" class="small"></p>
+<div class="grid2"><div><label>Distance (m)</label><input id="sD" type="number" value="100" oninput="majSans()"></div><div><label>Nombre de tirs</label><input id="sN" type="number" value="5"></div></div>
+<div id="sConseil" class="res"></div>
+<p class="hint">Règle la correction conseillée et tire. Si le groupement n'est pas au centre, corrige ta lunette jusqu'à ce qu'il le soit. Indique ensuite les clics réellement réglés au final : l'appli apprend l'écart avec son calcul de base (vitesse réelle, effet du vent ici, décalage de la munition).</p>
+<div class="grid2">
+<div><label>Clics réglés en hauteur (+ = haut)</label><input id="sCV" type="number" oninput="this.dataset.t=1"></div>
+<div><label>Clics réglés en dérive (+ = droite)</label><input id="sCH" type="number" oninput="this.dataset.t=1"></div>
+<div><label>Écart restant vertical (cm, + = haut)</label><input id="sE" type="number" step="0.1" value="0"></div>
+<div><label>Écart restant horizontal (cm, + = droite)</label><input id="sX" type="number" step="0.1" value="0"></div>
+</div>
+<p class="hint">Écart restant : laisse 0 si le groupement final est centré. Sinon, indique où il est encore par rapport au point visé.</p>
+<button class="ok big" onclick="saisieSans()">&#10003; Vérifier et apprendre</button>
+<div id="sMsg" class="res" hidden></div>
+</div>
 <div class="card"><h3>1 · Arme et lunette</h3>
 <label class="fl">Profil</label><select id="selW" class="full" onchange="refresh()"></select>
 <div class="edit"><span class="fl">Modifier ce profil</span>
@@ -351,7 +375,7 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:18px;letter-
 <div id="learnInfo"></div>
 <div class="btns"><button onclick="annulerDernier()">Annuler le dernier envoi</button><button onclick="repartirZero()">Repartir à zéro (munition)</button></div>
 <div id="grpList"></div>
-<details ontoggle="if(this.open)prefillManuel()"><summary>Saisir un groupement à la main</summary>
+<details class="avecOnly" ontoggle="if(this.open)prefillManuel()"><summary>Saisir un groupement à la main</summary>
 <div class="grid2">
 <div><label>Distance (m)</label><input id="fD" type="number" value="200"></div>
 <div><label>Nombre de tirs</label><input id="fN" type="number" value="5"></div>
@@ -366,7 +390,26 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:18px;letter-
 </div>
 <div id="modal" class="modal" hidden><div class="box"><h3>Vérification avant envoi</h3><div id="mBody"></div>
 <div class="btns" style="margin-top:12px"><button onclick="fermerModal()">Corriger</button><button class="pri" id="mOk">Confirmer l'envoi</button></div></div></div>
-<footer>DISTANT EYE v19</footer>
+<div id="demar" class="modal demar" hidden><div class="box">
+<div id="dm1"><h3>Comment utilises-tu l'appli ?</h3>
+<div class="menu">
+<button class="ok" data-m="tir" onclick="choixMode('tir')"><b>&#127919;</b><span>Tireur, avec téléphone caméra<small>Les impacts sont détectés sur la photo, analysés et appris</small></span></button>
+<button class="live" data-m="sans" onclick="choixMode('sans')"><b>&#129518;</b><span>Tireur, sans téléphone caméra<small>Calculateur seul : tu indiques les clics réellement réglés et il apprend</small></span></button>
+<button class="pri" data-m="cam" onclick="choixMode('cam')"><b>&#128247;</b><span>Ce téléphone est la caméra<small>Posé près de la cible, il envoie les photos</small></span></button>
+</div></div>
+<div id="dm2" hidden><h3>Étape 1/2 · Météo</h3>
+<p class="hint">Mets à jour la météo du stand pour que les corrections et l'apprentissage utilisent les bonnes conditions.</p>
+<div id="dWx" class="res"></div>
+<button class="big pri" onclick="meteo()">&#9729; Mettre à jour la météo</button>
+<div class="btns"><button onclick="etape(1)">&#8592; Retour</button><button id="dN2" onclick="etape(3)">Passer</button></div></div>
+<div id="dm3" hidden><h3>Étape 2/2 · Orientation du tir</h3>
+<label class="fl">Lieu de tir</label><select id="dL" class="full" onchange="choixLieuD()"></select>
+<p class="hint">Tiens le téléphone à plat, le haut pointé vers la cible, puis touche « Viser ». L'appli en déduit d'où vient le vent par rapport à ta ligne de tir.</p>
+<div id="dAz" class="res"></div>
+<button class="big pri" onclick="viser()">&#129517; Viser la cible</button>
+<div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="finDemar()">Passer</button></div></div>
+</div></div>
+<footer>DISTANT EYE v22</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -584,26 +627,60 @@ function recevoir(d){if(d.type==='info'){status(d.txt);return}
  const W=600,H=Math.round(im.height*W/im.width),o=document.createElement('canvas');o.width=W;o.height=H;const c=o.getContext('2d');c.drawImage(im,0,0,W,H);
  const px=c.getImageData(0,0,W,H).data;let g=new Float32Array(W*H);for(let i=0;i<W*H;i++)g[i]=px[i*4]*.3+px[i*4+1]*.59+px[i*4+2]*.11;
  g=normaliser(g,W,H);
- if(d.type==='ref'||!ref){ref=g;impacts=[];status('Référence enregistrée'+(cal?'':' · pense à caler la cible (onglet Calage)'));}
- else{const [dx,dy]=recaler(ref,g,W,H),sh=p=>{if(p){p.x+=dx;p.y+=dy}};impacts.forEach(sh);sh(aim);if(cal){sh(cal.tl);sh(cal.br)}
+ if(d.type==='ref'||!ref){ref=g;impacts=[];let auto=false;if(!cal){lastIm=im;auto=calageAuto(true)}status('Référence enregistrée'+(cal?(auto?' · cible détectée et calée automatiquement (vérifie dans Calage)':''):' · cible non trouvée : cale-la dans l\'onglet Calage'));}
+ else{const [dx,dy]=recaler(ref,g,W,H),sh=p=>{if(p){p.x+=dx;p.y+=dy}};impacts.forEach(sh);sh(aim);if(cal)cal.q.forEach(sh)
   const n=detecter(ref,g,W,H,dx,dy);ref=g;status(n+' nouvel(s) impact(s) · sensibilité '+$('seuil').value+' · recalage '+dx+','+dy+' px');}
  lastIm=im;rendu()};im.src=d.img;}
 // ---- vue redressee au format de la cible ----
 function cible(){return typeof db!=='undefined'?db.t.find(x=>x.id==$('gT').value):null}
-function imgVersCm(p){const T=cible();return{x:(p.x-cal.tl.x)/(cal.br.x-cal.tl.x)*T.w,y:(p.y-cal.tl.y)/(cal.br.y-cal.tl.y)*T.h}}
-function cmVersImg(p){const T=cible();return{x:cal.tl.x+p.x/T.w*(cal.br.x-cal.tl.x),y:cal.tl.y+p.y/T.h*(cal.br.y-cal.tl.y)}}
-function calOk(){const T=cible();return!!(cal&&T&&T.w>0&&T.h>0&&Math.abs(cal.br.x-cal.tl.x)>10&&Math.abs(cal.br.y-cal.tl.y)>10)}
+// ---- perspective : homographie entre la feuille (en cm) et la photo (en px) ----
+// La feuille est plane : 4 coins suffisent pour corriger une photo prise de biais (telephone plus bas que la cible).
+function homog(src,dst){const A=[],b=[];for(let i=0;i<4;i++){const x=src[i].x,y=src[i].y,u=dst[i].x,v=dst[i].y;A.push([x,y,1,0,0,0,-u*x,-u*y]);b.push(u);A.push([0,0,0,x,y,1,-v*x,-v*y]);b.push(v)}
+ for(let c=0;c<8;c++){let p=c;for(let r=c+1;r<8;r++)if(Math.abs(A[r][c])>Math.abs(A[p][c]))p=r;[A[c],A[p]]=[A[p],A[c]];[b[c],b[p]]=[b[p],b[c]];
+  for(let r=0;r<8;r++)if(r!=c){const f=A[r][c]/A[c][c];for(let k=c;k<8;k++)A[r][k]-=f*A[c][k];b[r]-=f*b[c]}}
+ return[...b.map((v,i)=>v/A[i][i]),1]}
+const appH=(h,p)=>{const w=h[6]*p.x+h[7]*p.y+h[8];return{x:(h[0]*p.x+h[1]*p.y+h[2])/w,y:(h[3]*p.x+h[4]*p.y+h[5])/w}};
+let HC=null;
+function calH(){const T=cible(),key=JSON.stringify(cal.q)+'|'+T.w+'x'+T.h;if(HC&&HC.key===key)return HC;
+ const S=[{x:0,y:0},{x:T.w,y:0},{x:T.w,y:T.h},{x:0,y:T.h}];HC={key,h:homog(S,cal.q),hi:homog(cal.q,S)};return HC}
+function imgVersCm(p){return appH(calH().hi,p)}
+function cmVersImg(p){return appH(calH().h,p)}
+function aireQ(q){let a=0;for(let i=0;i<4;i++){const p=q[i],n=q[(i+1)%4];a+=p.x*n.y-n.x*p.y}return a/2}
+function convexe(q){for(let i=0;i<4;i++){const a=q[i],b=q[(i+1)%4],c=q[(i+2)%4];if((b.x-a.x)*(c.y-b.y)-(b.y-a.y)*(c.x-b.x)<=0)return false}return true}
+// range 4 points dans l'ordre haut-gauche, haut-droit, bas-droit, bas-gauche
+function ordonner(P){const cx=P.reduce((s,p)=>s+p.x,0)/4,cy=P.reduce((s,p)=>s+p.y,0)/4,Q=P.map(p=>({x:p.x,y:p.y})).sort((a,b)=>Math.atan2(a.y-cy,a.x-cx)-Math.atan2(b.y-cy,b.x-cx));
+ let i0=0;Q.forEach((p,i)=>{if(p.x+p.y<Q[i0].x+Q[i0].y)i0=i});return Q.slice(i0).concat(Q.slice(0,i0))}
+function calOk(){const T=cible();return!!(cal&&cal.q&&T&&T.w>0&&T.h>0&&convexe(cal.q)&&aireQ(cal.q)>400)}
+const MV=.06;
 function vueCalc(){const H0=lastIm?Math.round(lastIm.height*600/lastIm.width):400;
- if(calOk()){const T=cible(),wp=cal.br.x-cal.tl.x,hp=cal.br.y-cal.tl.y,m=.06,VW=600,VH=Math.round(600*T.h/T.w*(1+2*m)/(1+2*m));
-  return{sx:cal.tl.x-m*wp,sy:cal.tl.y-m*hp,sw:wp*(1+2*m),sh:hp*(1+2*m),VW,VH}}
- return{sx:0,sy:0,sw:600,sh:H0,VW:600,VH:H0}}
-const versVue=p=>({x:(p.x-VIEW.sx)*VIEW.VW/VIEW.sw,y:(p.y-VIEW.sy)*VIEW.VH/VIEW.sh});
-const versImg=p=>({x:VIEW.sx+p.x*VIEW.sw/VIEW.VW,y:VIEW.sy+p.y*VIEW.sh/VIEW.VH});
+ if(calOk()){const T=cible(),VW=600,k=VW/(T.w*(1+2*MV));return{cm:true,k,VW,VH:Math.round(T.h*(1+2*MV)*k),ox:-MV*T.w,oy:-MV*T.h}}
+ return{cm:false,k:1,VW:600,VH:H0}}
+const versVue=p=>{if(VIEW.cm){const c=imgVersCm(p);return{x:(c.x-VIEW.ox)*VIEW.k,y:(c.y-VIEW.oy)*VIEW.k}}return{x:p.x,y:p.y}};
+const versImg=v=>VIEW.cm?cmVersImg({x:v.x/VIEW.k+VIEW.ox,y:v.y/VIEW.k+VIEW.oy}):{x:v.x,y:v.y};
+// pixels de la photo (pleine resolution, max 1600 px) gardes en cache
+let SRC=null;function srcData(){if(SRC&&SRC.im===lastIm)return SRC;const W=Math.min(lastIm.width,1600),H=Math.round(lastIm.height*W/lastIm.width),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.drawImage(lastIm,0,0,W,H);
+ SRC={im:lastIm,W,H,d:x.getImageData(0,0,W,H).data,f:W/600};return SRC}
+// image redressee : le pixel (u,v) correspond au point (x0+u/s, y0+v/s) en cm sur la feuille
+function redresser(Wo,Ho,x0,y0,s){const S=srcData(),h=calH().h,out=new ImageData(Wo,Ho),o=out.data,d=S.d,W=S.W,H=S.H,f=S.f;
+ for(let v=0;v<Ho;v++){const cy=y0+(v+.5)/s;for(let u=0;u<Wo;u++){const cx=x0+(u+.5)/s,w=h[6]*cx+h[7]*cy+h[8],X=(h[0]*cx+h[1]*cy+h[2])/w*f-.5,Y=(h[3]*cx+h[4]*cy+h[5])/w*f-.5,j=(v*Wo+u)*4;o[j+3]=255;
+  if(!(X>=0&&Y>=0&&X<W-1&&Y<H-1))continue;const xi=X|0,yi=Y|0,ax=X-xi,ay=Y-yi,i0=(yi*W+xi)*4,i1=i0+W*4;
+  for(let c=0;c<3;c++)o[j+c]=(d[i0+c]*(1-ax)+d[i0+4+c]*ax)*(1-ay)+(d[i1+c]*(1-ax)+d[i1+4+c]*ax)*ay}}return out}
+let RV=null;function vueRedressee(){const key=calH().key+'|'+VIEW.VW+'x'+VIEW.VH;if(RV&&RV.im===lastIm&&RV.key===key)return RV.c;
+ const c=document.createElement('canvas');c.width=VIEW.VW;c.height=VIEW.VH;c.getContext('2d').putImageData(redresser(VIEW.VW,VIEW.VH,VIEW.ox,VIEW.oy,VIEW.k),0,0);RV={im:lastIm,key,c};return c}
+// vraies proportions de la feuille malgre la perspective (methode de Zhang : principal point au centre de la photo)
+function rapportReel(q){const W=600,H=lastIm?lastIm.height*600/lastIm.width:450,c=p=>[p.x-W/2,p.y-H/2,1],X=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],D=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+ const m1=c(q[0]),m2=c(q[1]),m3=c(q[3]),m4=c(q[2]),k2=D(X(m1,m4),m3)/D(X(m2,m4),m3),k3=D(X(m1,m4),m2)/D(X(m3,m4),m2),n2=m2.map((v,i)=>k2*v-m1[i]),n3=m3.map((v,i)=>k3*v-m1[i]);
+ let f2=-(n2[0]*n3[0]+n2[1]*n3[1])/(n2[2]*n3[2]);
+ // si un bord reste parallele sur la photo, la focale ne peut pas etre mesuree : on prend celle d'un telephone (champ ~65 deg)
+ if(!(f2>(.4*W)**2&&f2<(6*W)**2)||Math.abs(n2[2]*n3[2])<1e-9)f2=(.8*W)**2;
+ const r=Math.sqrt((n2[0]**2/f2+n2[1]**2/f2+n2[2]**2)/(n3[0]**2/f2+n3[1]**2/f2+n3[2]**2));return isFinite(r)&&r>0?r:null}
+// inclinaison apparente : rapport largeur haut / largeur bas de la feuille sur la photo
+function biais(q){const L=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);return{haut:L(q[0],q[1]),bas:L(q[3],q[2]),w:(L(q[0],q[1])+L(q[3],q[2]))/2,h:(L(q[0],q[3])+L(q[1],q[2]))/2}}
 function zones(){if(!calOk())return[];if(zonesDet&&zonesDet.length)return zonesDet;const T=cible();return T.zones&&T.zones.length?T.zones:[]}
 // Detection automatique des visuels noirs dans la cible calee
 function detecterVisuels(){zonesDet=null;if(!calOk()||!lastIm)return 0;const T=cible(),S=Math.min(6,700/Math.max(T.w,T.h)),Wt=Math.round(T.w*S),Ht=Math.round(T.h*S),f=lastIm.width/600;
- const cv=document.createElement('canvas');cv.width=Wt;cv.height=Ht;const ctx=cv.getContext('2d');ctx.drawImage(lastIm,cal.tl.x*f,cal.tl.y*f,(cal.br.x-cal.tl.x)*f,(cal.br.y-cal.tl.y)*f,0,0,Wt,Ht);
- const px=ctx.getImageData(0,0,Wt,Ht).data,N=Wt*Ht,L=new Uint8Array(N),h=new Float64Array(256);
+ 
+ const px=redresser(Wt,Ht,0,0,S).data,N=Wt*Ht,L=new Uint8Array(N),h=new Float64Array(256);
  for(let i=0;i<N;i++){L[i]=Math.round(px[i*4]*.3+px[i*4+1]*.59+px[i*4+2]*.11);h[L[i]]++}
  let sum=0,sB=0,wB=0,best=0,th=100;for(let i=0;i<256;i++)sum+=i*h[i];for(let t=0;t<256;t++){wB+=h[t];if(!wB)continue;const wF=N-wB;if(!wF)break;sB+=t*h[t];const mB=sB/wB,mF=(sum-sB)/wF,v=wB*wF*(mB-mF)**2;if(v>best){best=v;th=t}}
  const m=new Uint8Array(N);for(let i=0;i<N;i++)m[i]=L[i]<=th?1:0;const B=[],pile=[];
@@ -615,16 +692,67 @@ function detecterVisuels(){zonesDet=null;if(!calOk()||!lastIm)return 0;const T=c
  const Z=T.zones||[];let R;
  if(Z.length){let n=0;R=Z.map(z=>{let bz=null,bs=1e9;for(const b of B){const dist=Math.hypot(b.x-z.x,b.y-z.y),r=b.d/z.d;if(dist<z.d*.75&&r>.4&&r<1.8){const s=Math.abs(Math.log(r))+dist/z.d;if(s<bs){bs=s;bz=b}}}if(bz){n++;return{n:z.n,x:bz.x,y:bz.y,d:bz.d,auto:true}}return z});if(!n)return 0;zonesDet=R;return n}
  R=top.sort((a,b)=>a.y-b.y||a.x-b.x).map((b,i)=>({n:'V'+(i+1),x:b.x,y:b.y,d:b.d,auto:true}));if(!R.length)return 0;zonesDet=R;return R.length}
+// Detection automatique de la feuille cible (zone claire autour du centre de l'image)
+function grisImg(W){const H=Math.round(lastIm.height*W/lastIm.width),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.drawImage(lastIm,0,0,W,H);
+ const p=x.getImageData(0,0,W,H).data,L=new Float32Array(W*H);for(let i=0;i<W*H;i++)L[i]=p[i*4]*.3+p[i*4+1]*.59+p[i*4+2]*.11;return{L,W,H}}
+function otsu(L){const h=new Float64Array(256),N=L.length;for(let i=0;i<N;i++)h[Math.min(255,L[i]|0)]++;let sum=0,sB=0,wB=0,best=0,th=128;
+ for(let i=0;i<256;i++)sum+=i*h[i];for(let t=0;t<256;t++){wB+=h[t];if(!wB)continue;const wF=N-wB;if(!wF)break;sB+=t*h[t];const v=wB*wF*(sB/wB-(sum-sB)/wF)**2;if(v>best){best=v;th=t}}return th}
+function detecterCible(){if(!lastIm)return null;const{L,W,H}=grisImg(300),N=W*H,t0=otsu(L),hi=L.filter(v=>v>t0),t1=hi.length>100?otsu(hi):t0,C=[];
+ // plusieurs seuils : si le fond est clair, seul un seuil plus haut separe la feuille (plus blanche) du fond
+ for(const th of [t0,(t0+t1)/2,t1])candidats(L,W,H,th,C);
+ if(!C.length)return null;const b=C.sort((a,c)=>c.s-a.s)[0],k=600/W;
+ return affiner(b,k,W,H)}
+function candidats(L,W,H,th,C){const N=W*H,m=new Uint8Array(N);for(let i=0;i<N;i++)m[i]=L[i]>th?1:0;
+ // une ouverture legere separe la feuille d'un fond clair qui la toucherait par un fil
+ const er=new Uint8Array(N);for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){const i=y*W+x;er[i]=m[i]&m[i-1]&m[i+1]&m[i-W]&m[i+W]}
+ const pile=[];for(let i=0;i<N;i++)if(er[i]){let x0=1e9,y0=1e9,x1=-1,y1=-1,ar=0,bord=0,tl=null,tr=null,br=null,bl=null;pile.push(i);er[i]=0;
+  while(pile.length){const p=pile.pop(),x=p%W,y=(p/W)|0;ar++;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;
+   if(!tl||x+y<tl.x+tl.y)tl={x,y};if(!br||x+y>br.x+br.y)br={x,y};if(!tr||x-y>tr.x-tr.y)tr={x,y};if(!bl||x-y<bl.x-bl.y)bl={x,y};
+   for(const q of [p-1,p+1,p-W,p+W])if(q>=0&&q<N&&er[q]&&Math.abs((q%W)-x)<=1){er[q]=0;pile.push(q)}}
+  bord=(x0<=2)+(y0<=2)+(x1>=W-3)+(y1>=H-3);const bw=x1-x0+1,bh=y1-y0+1;
+  if(ar>.01*N&&ar/(bw*bh)>.35){const dc=Math.hypot((x0+x1)/2-W/2,(y0+y1)/2-H/2)/Math.hypot(W,H),inC=x0<W/2&&x1>W/2&&y0<H/2&&y1>H/2;
+   C.push({x0,y0,x1,y1,tl,tr,br,bl,bord,s:ar/N*(inC?2:1)*(1-dc)*(bord>=3?.01:bord==2?.3:1)})}}
+}
+function affiner(b,k,W,H){
+ // coins grossiers = points extremes de la feuille, puis chaque bord est recale sur le plus fort passage clair -> sombre et ajuste par une droite
+ let q=[b.tl,b.tr,b.br,b.bl].map(p=>({x:(p.x+.5)*k,y:(p.y+.5)*k}));
+ const G=grisImg(600),g=G.L,GW=G.W,GH=G.H,P=(x,y)=>{x=Math.max(0,Math.min(GW-1.001,x-.5));y=Math.max(0,Math.min(GH-1.001,y-.5));const xi=x|0,yi=y|0,ax=x-xi,ay=y-yi,i=yi*GW+xi;return(g[i]*(1-ax)+g[i+1]*ax)*(1-ay)+(g[i+GW]*(1-ax)+g[i+GW+1]*ax)*ay};
+ const D=[];for(let e=0;e<4;e++){const A=q[e],B=q[(e+1)%4],dx=B.x-A.x,dy=B.y-A.y,l=Math.hypot(dx,dy),nx=dy/l,ny=-dx/l,pts=[];
+  for(let t=.1;t<=.9;t+=.8/30){const px=A.x+dx*t,py=A.y+dy*t;let best=8,bs=null;
+   for(let s=-2.5*k;s<=2.5*k;s+=.5){const v=P(px+nx*(s-1.5),py+ny*(s-1.5))-P(px+nx*(s+1.5),py+ny*(s+1.5));if(v>best){best=v;bs=s}}
+   if(bs!=null)pts.push({x:px+nx*bs,y:py+ny*bs})}
+  if(pts.length<6)return null;let L=droite(pts);const r=pts.filter(p=>Math.abs((p.x-L.x)*L.ny-(p.y-L.y)*L.nx)<1.5);if(r.length>=6)L=droite(r);D.push(L)}
+ const inter=(a,b)=>{const den=a.nx*b.ny-a.ny*b.nx;if(Math.abs(den)<1e-6)return null;const t=((b.x-a.x)*b.ny-(b.y-a.y)*b.nx)/den;return{x:a.x+a.nx*t,y:a.y+a.ny*t}};
+ const R=[0,1,2,3].map(i=>inter(D[(i+3)%4],D[i]));if(R.some(p=>!p))return null;
+ if(convexe(R)&&R.every((p,i)=>Math.hypot(p.x-q[i].x,p.y-q[i].y)<4*k))q=R;
+ if(!convexe(q)||aireQ(q)<400)return null;return{q,bord:b.bord}}
+// droite des moindres carres (point moyen + direction principale)
+function droite(P){const n=P.length,x=P.reduce((s,p)=>s+p.x,0)/n,y=P.reduce((s,p)=>s+p.y,0)/n;let a=0,b=0,c=0;P.forEach(p=>{const u=p.x-x,v=p.y-y;a+=u*u;b+=u*v;c+=v*v});
+ const th=.5*Math.atan2(2*b,a-c);return{x,y,nx:Math.cos(th),ny:Math.sin(th)}}
+// choisit le profil de cible dont les proportions collent le mieux a la feuille detectee
+function profilPour(r){let best=null,be=1e9;(db.t||[]).forEach(T=>{if(!(T.w>0&&T.h>0))return;const e=Math.abs(Math.log(r/(T.w/T.h)));if(e<be){be=e;best=T}});return{T:best,e:be}}
+function calageAuto(silencieux){if(!lastIm){if(!silencieux)msgTap('Fais d\'abord une photo (Tirs → Référence)');return false}
+ tapMode=null;$('vue').classList.remove('tap');const R=detecterCible();
+ if(!R){if(!silencieux)msgTap('Feuille cible non trouvée : cale-la à la main (4 coins).');return false}
+ const Bq=biais(R.q),r=rapportReel(R.q)||Bq.w/Bq.h;let T=cible(),txt='';const eC=T?Math.abs(Math.log(r/(T.w/T.h))):9;
+ if(eC>.18){const p=profilPour(r);if(p.T&&p.e<.15&&p.T!==T){$('gT').value=p.T.id;T=p.T;txt=' Profil choisi d\'après ses proportions : '+T.name+'.'}
+  else txt=' Attention : ses proportions ne collent pas au profil '+(T?T.name:'')+' (photo de biais ou mauvais profil ?).'}
+ cal={q:R.q};aim=null;calPts=[];zonesDet=null;
+ if(!calOk()){cal=null;if(!silencieux)msgTap('Détection incertaine : cale la cible à la main.');rendu();return false}
+ const n=detecterVisuels(),Z=zones();if(typeof majZonesSel=='function')majZonesSel('auto');if(typeof gSave=='function')gSave();
+ const pc=Math.round((1-Bq.haut/Bq.bas)*100);msgTap('Cible détectée automatiquement ('+T.name+').'+(Math.abs(pc)>=2?' Perspective compensée : le haut de la feuille paraît '+Math.abs(pc)+' % plus '+(pc>0?'étroit':'large')+' que le bas.':'')+txt+' '+(n?n+' visuel(s) trouvé(s)'+(Z.length==1?' (Ø '+Z[0].d.toFixed(1)+' cm), centre marqué d\'une croix bleue':'')+'.':'Aucun visuel trouvé : les zones du profil sont utilisées.')+(R.bord?' La feuille touche le bord de la photo : vérifie le cadre pointillé.':'')+' Si le cadre est faux, utilise le calage à la main.');
+ rendu();return true}
 function zoneDe(p){const Z=zones();if(!Z.length)return -1;const c=imgVersCm(p);let b=0,bd=Infinity;Z.forEach((z,i)=>{const d=Math.hypot(c.x-z.x,c.y-z.y);if(d<bd){bd=d;b=i}});return b}
 function zoneChoisie(){const Z=zones();if(!Z.length)return -1;const v=$('gZ').value;if(v!=='auto')return Math.min(+v,Z.length-1);return impacts.length?zoneDe(impacts[impacts.length-1]):0}
 function rendu(){const cv=$('vue');if(!lastIm){if(typeof majGroupe=='function')majGroupe();return}
  const ow=cv.width,oh=cv.height;VIEW=vueCalc();cv.width=VIEW.VW;cv.height=VIEW.VH;if(ow!=VIEW.VW||oh!=VIEW.VH)setTimeout(appliquerZV,0);const ctx=cv.getContext('2d'),f=lastIm.width/600;
- ctx.fillStyle='#000';ctx.fillRect(0,0,VIEW.VW,VIEW.VH);ctx.drawImage(lastIm,VIEW.sx*f,VIEW.sy*f,VIEW.sw*f,VIEW.sh*f,0,0,VIEW.VW,VIEW.VH);
- const k=VIEW.VW/VIEW.sw,cr=(x,y,r,col,lw)=>{ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();ctx.moveTo(x-r,y);ctx.lineTo(x+r,y);ctx.moveTo(x,y-r);ctx.lineTo(x,y+r);ctx.stroke()};
+ ctx.fillStyle='#000';ctx.fillRect(0,0,VIEW.VW,VIEW.VH);if(VIEW.cm)ctx.drawImage(vueRedressee(),0,0);else ctx.drawImage(lastIm,0,0,VIEW.VW,VIEW.VH);
+ const cr=(x,y,r,col,lw)=>{ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();ctx.moveTo(x-r,y);ctx.lineTo(x+r,y);ctx.moveTo(x,y-r);ctx.lineTo(x,y+r);ctx.stroke()};
  // contour de la cible et zones
- if(calOk()){const a=versVue(cal.tl),b=versVue(cal.br);ctx.strokeStyle='rgba(5,217,232,.7)';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);ctx.strokeRect(a.x,a.y,b.x-a.x,b.y-a.y);ctx.setLineDash([]);
-  const zc=zoneChoisie();zones().forEach((z,i)=>{const c=versVue(cmVersImg(z)),r=z.d/2*(b.x-a.x)/cible().w;ctx.strokeStyle=i==zc?'#ff2a6d':'rgba(5,217,232,.55)';ctx.lineWidth=i==zc?2.5:1;ctx.setLineDash(z.auto?[]:[5,4]);ctx.beginPath();ctx.arc(c.x,c.y,r,0,7);ctx.stroke();ctx.setLineDash([]);
+ if(calOk()){const Q=cal.q.map(versVue);ctx.strokeStyle='rgba(5,217,232,.7)';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);ctx.beginPath();Q.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.stroke();ctx.setLineDash([]);
+  const zc=zoneChoisie();zones().forEach((z,i)=>{const c=versVue(cmVersImg(z)),r=z.d/2*VIEW.k;ctx.strokeStyle=i==zc?'#ff2a6d':'rgba(5,217,232,.55)';ctx.lineWidth=i==zc?2.5:1;ctx.setLineDash(z.auto?[]:[5,4]);ctx.beginPath();ctx.arc(c.x,c.y,r,0,7);ctx.stroke();ctx.setLineDash([]);
    ctx.font='bold 11px ui-monospace,monospace';ctx.fillStyle=i==zc?'#ff2a6d':'rgba(5,217,232,.8)';ctx.fillText(z.n,c.x-r,c.y-r-3)})}
+ if(calPts.length>1){ctx.strokeStyle='#05d9e8';ctx.lineWidth=1.5;ctx.beginPath();calPts.forEach((p,i)=>{const v=versVue(p);i?ctx.lineTo(v.x,v.y):ctx.moveTo(v.x,v.y)});ctx.stroke()}
  calPts.forEach(p=>{const v=versVue(p);ctx.fillStyle='#05d9e8';ctx.beginPath();ctx.arc(v.x,v.y,5,0,7);ctx.fill()});
  // impacts
  const r=+$('taille').value,mode=$('nums').value,N=+$('nder').value;ctx.font='bold '+Math.max(10,r*2)+'px sans-serif';
@@ -647,13 +775,13 @@ function groupe(Nopt){if(!calOk())return null;const N=Nopt||+$('gN').value,z=zon
  return{n:P.length,dx:cx-a.x,dy:a.y-cy,size,cImg:cmVersImg({x:cx,y:cy}),zone:z>=0?zones()[z].n:null}}
 function msgTap(t){$('gTap').textContent=t}
 function modeTap(m){if(!lastIm)return msgTap('Fais d\'abord une photo (Tirs → Référence)');tapMode=m;$('vue').classList.add('tap');
- if(m=='cal'){cal=null;calPts=[];aim=null;zonesDet=null;rendu();msgTap('Touche le coin HAUT-GAUCHE de la cible sur l\'image')}else msgTap('Touche le point visé sur l\'image');window.scrollTo({top:0,behavior:'smooth'})}
+ if(m=='cal'){cal=null;calPts=[];aim=null;zonesDet=null;rendu();msgTap('Touche les 4 coins de la feuille sur l\'image, dans n\'importe quel ordre (0/4). Zoome pour être précis.')}else msgTap('Touche le point visé sur l\'image');window.scrollTo({top:0,behavior:'smooth'})}
 function annulerCalage(){cal=null;calPts=[];aim=null;tapMode=null;zonesDet=null;$('vue').classList.remove('tap');msgTap('Calage effacé.');rendu()}
 function toucherVue(e){if(!lastIm||!VIEW)return;const cv=$('vue'),r=cv.getBoundingClientRect(),p=versImg({x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height});
  if(tapMode=='aim'){aim=p;tapMode=null;cv.classList.remove('tap');msgTap('Point visé placé à la main.')}
- else if(tapMode=='cal'){calPts.push(p);if(calPts.length==1)msgTap('Touche maintenant le coin BAS-DROIT de la cible');
-  else{cal={tl:{x:Math.min(calPts[0].x,calPts[1].x),y:Math.min(calPts[0].y,calPts[1].y)},br:{x:Math.max(calPts[0].x,calPts[1].x),y:Math.max(calPts[0].y,calPts[1].y)}};calPts=[];tapMode=null;cv.classList.remove('tap');
-   if(calOk()){const n=detecterVisuels(),Z=zones();if(typeof majZonesSel=='function')majZonesSel('auto');msgTap('Cible calée au format '+cible().name+'. '+(n?n+' visuel(s) détecté(s)'+(Z.length==1?' (Ø '+Z[0].d.toFixed(1)+' cm)':'')+'.':'Aucun visuel détecté : les zones du profil sont utilisées.'))}else msgTap('Calage invalide : recommence.')}}
+ else if(tapMode=='cal'){calPts.push(p);if(calPts.length<4)msgTap('Coin '+calPts.length+'/4 placé. Touche le suivant.');
+  else{const q=ordonner(calPts);calPts=[];tapMode=null;cv.classList.remove('tap');cal={q};
+   if(calOk()){const n=detecterVisuels(),Z=zones();if(typeof majZonesSel=='function')majZonesSel('auto');msgTap('Cible calée au format '+cible().name+', perspective compensée. '+(n?n+' visuel(s) détecté(s)'+(Z.length==1?' (Ø '+Z[0].d.toFixed(1)+' cm)':'')+'.':'Aucun visuel détecté : les zones du profil sont utilisées.'))}else{cal=null;msgTap('Calage invalide : recommence.')}}}
  else if(zones().length){const c=imgVersCm(p),Z=zones();let b=0,bd=Infinity;Z.forEach((z,i)=>{const d=Math.hypot(c.x-z.x,c.y-z.y);if(d<bd){bd=d;b=i}});if(bd<Z[b].d){$('gZ').value=b;aim=null;if(typeof gSave=='function')gSave()}}
  rendu()}
 // ---- zoom et deplacement de la vue (pincer, glisser, boutons) ----
@@ -718,15 +846,16 @@ function meteo(){$('wxInfo').textContent='Localisation en cours…';
 function applyWx(wx,off,auto){$('cT').value=wx.T;$('cP').value=wx.P;$('cRH').value=wx.RH;$('wxV').value=wx.v;$('wxDir').value=wx.dir;
  $('wxInfo').innerHTML=(off?'<span class="warn">Hors ligne : dernière météo enregistrée, mesurée le ':'Météo mesurée le ')+fmtT(wx.time)+(off?'</span>':'')+(auto?' (relue automatiquement)':'')+' · vent à 10 m de haut';saveCond();majVent();verifierSeance()}
 function wxOff(why){const wx=lsGet('balWx',null);if(wx)applyWx(wx,true);else $('wxInfo').innerHTML='<span class="warn">Météo indisponible ('+esc(why)+') et aucune météo enregistrée : saisis les valeurs à la main.</span>'}
+let azGot=0;
 async function viser(){const info=$('azInfo');info.textContent='Tiens le téléphone à plat, le haut pointé vers la cible, sans bouger…';
- try{if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted')throw new Error('autorisation refusée')}}
- catch(e){info.textContent='Boussole : '+e.message+'. Saisis l\'azimut à la main.';return}
+ // la demande d'autorisation n'existe que sur iPhone ; sur Android on ecoute directement la boussole
+ try{if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function')await DeviceOrientationEvent.requestPermission()}catch(e){}
  const S=[],ev='ondeviceorientationabsolute' in window?'deviceorientationabsolute':'deviceorientation';
  const h=e=>{let d=null;if(e.webkitCompassHeading!=null)d=e.webkitCompassHeading;else if(e.alpha!=null&&(e.absolute||ev=='deviceorientationabsolute'))d=(360-e.alpha)%360;if(d!=null)S.push(d)};
  window.addEventListener(ev,h);setTimeout(()=>{window.removeEventListener(ev,h);
   if(S.length<3){info.textContent='Boussole indisponible sur ce téléphone : saisis l\'azimut à la main.';return}
   let sx=0,sy=0;S.forEach(d=>{sx+=Math.cos(d*Math.PI/180);sy+=Math.sin(d*Math.PI/180)});const m=(Math.atan2(sy,sx)*180/Math.PI+360)%360;
-  $('cAz').value=Math.round(m);info.textContent='Azimut enregistré : '+Math.round(m)+'° ('+S.length+' mesures). Éloigne-toi des objets métalliques.';saveCond();majVent()},2500)}
+  azGot=Date.now();$('cAz').value=Math.round(m);info.textContent='Azimut enregistré : '+Math.round(m)+'° ('+S.length+' mesures). Éloigne-toi des objets métalliques.';saveCond();majVent()},2500)}
 
 // ===== Profils : armes, munitions, cibles, lieux =====
 function curW(){return db.w.find(x=>x.id==$('selW').value)}
@@ -903,5 +1032,33 @@ function verifierEnvoi(){const{w,a}=gWA(),d=Math.round(num('gD')),G=groupe();
  ouvrirModal(w,a,r,()=>{enfiler(r);$('gMsg').innerHTML='Groupement envoyé ('+G.n+' tirs, '+d+' m). Il sera appris à l\'ouverture de l\'onglet Calcul.'})}
 CF.forEach(k=>$(k).addEventListener('change',()=>{saveCond();majVent();verifierSeance()}));
 fitAll(db);store();loadCond();refresh();gFill();majDer();majVent();majSeance();
+
+// ===== Demarrage : mode d'utilisation, puis meteo et orientation (chaque etape peut etre passee) =====
+let MODE=lsGet('deMode',null),dmT=null,dm0={};
+function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec téléphone caméra',sans:'sans téléphone caméra',cam:'téléphone caméra'};$('sub').textContent='v22 · '+(L[MODE]||'impact analysis');
+ $('tbC').hidden=MODE=='sans';$('tabs').hidden=MODE=='sans'||MODE=='cam'}
+function demarrage(){clearInterval(dmT);$('demar').hidden=false;etape(1);document.querySelectorAll('#dm1 button[data-m]').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE))}
+function choixMode(m){MODE=m;lsSet('deMode',m);appliquerMode();if(m=='cam'){$('demar').hidden=true;tab('c');modeCamera();return}etape(2)}
+function wxResume(){const c=getCond(),wx=lsGet('balWx',null);return($('wxInfo').innerHTML||(wx?'Dernière météo : '+fmtT(wx.time):'Aucune météo enregistrée'))+'<br>'+c.T+' °C · '+c.P+' hPa · '+c.RH+' % · vent '+c.wxV+' m/s venant de '+c.wxDir+'°'}
+function suivant(id,ok,txt){const b=$(id);b.textContent=ok?txt:'Passer';b.className=ok?'ok':''}
+function etape(n){[1,2,3].forEach(i=>$('dm'+i).hidden=i!=n);clearInterval(dmT);
+ if(n==2){dm0.wx=(lsGet('balWx',{})||{}).got||0;const f=()=>{$('dWx').innerHTML=wxResume();suivant('dN2',((lsGet('balWx',{})||{}).got||0)>dm0.wx,'Suivant →')};f();dmT=setInterval(f,400)}
+ if(n==3){$('dL').innerHTML=opts(db.l,$('cL').value);dm0.az=azGot;const f=()=>{const az=$('cAz').value;$('dAz').innerHTML=($('azInfo').textContent||'')+(az!==''?'<br>Azimut de tir : <b>'+az+'°</b>':'<br>Azimut de tir inconnu')+($('windInfo').innerHTML?'<br>'+$('windInfo').innerHTML:'');suivant('dN3',azGot>dm0.az,'Terminer ✓')};f();dmT=setInterval(f,400)}}
+function choixLieuD(){$('cL').value=$('dL').value;$('cL').dispatchEvent(new Event('change'));if($('gL'))$('gL').value=$('dL').value;gSave()}
+function finDemar(){clearInterval(dmT);$('demar').hidden=true;if(MODE=='sans')tab('k');else{tab('c');show('tir')}majSans()}
+// ===== Tir sans telephone camera : apprendre a partir des clics reellement regles =====
+function majSans(){if(MODE!='sans'||!$('sD'))return;const w=curW(),a=curA(),d=Math.round(num('sD')),l=locById($('cL').value);
+ $('sCtx').innerHTML=w&&a?'Arme <b>'+esc(w.name)+'</b> · munition <b>'+esc(a.name)+'</b> · '+(l?esc(l.name):'lieu ?')+' <span class="small">(à changer plus bas)</span>':'<span class="warn">Crée d\'abord une arme et une munition plus bas.</span>';
+ if(!w||!a||!(d>0)){$('sConseil').innerHTML='';return}
+ const p=predict(w,a,getCond(),d),uc=unitCm(w,d),kv=Math.round(-p.cm/uc/w.click),kh=Math.round(-p.drift/uc/w.click);
+ $('sConseil').innerHTML='Correction conseillée à '+d+' m : <b>'+clk(kv,'HAUT','BAS')+'</b>, <b>'+clk(kh,'DROITE','GAUCHE')+'</b> (clics de '+w.click+' '+w.unit+')'+(d<w.zero?'<br><span class="warn">En deçà du zéro ('+w.zero+' m) : pas d\'apprentissage.</span>':'');
+ if($('sCV').dataset.t!='1')$('sCV').value=kv;if($('sCH').dataset.t!='1')$('sCH').value=kh}
+function saisieSans(){const w=curW(),a=curA();if(!w||!a)return alert('Choisis une arme et une munition');const d=Math.round(num('sD')),n=Math.round(num('sN'));
+ if(!(d>0))return alert('Indique la distance');if(n<3)return alert('Il faut un groupement d\'au moins 3 tirs pour apprendre');if(d<w.zero)return alert('Distance en deçà de la distance de réglage ('+w.zero+' m) : pas d\'apprentissage');
+ saveCond();const r=groupeRecord(w,a,$('cL').value,d,n,num('sX')||0,num('sE')||0,null,num('sCV')||0,num('sCH')||0,{manual:true,sansCam:true});
+ ouvrirModal(w,a,r,()=>{enfiler(r);const t=processQueue();refresh();$('sMsg').hidden=false;$('sMsg').innerHTML='Appris ('+n+' tirs à '+d+' m). '+t;$('sCV').dataset.t='';$('sCH').dataset.t='';$('sE').value=0;$('sX').value=0;majSans()})}
+{const _rf=refresh;refresh=function(a,b){_rf(a,b);majSans()}}
+CF.forEach(k=>$(k).addEventListener('change',majSans));
+appliquerMode();demarrage();
 
 </script></body></html>
