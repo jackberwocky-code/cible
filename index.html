@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye Calculateur balistique v34</title>
+<title>Distant Eye Calculateur balistique v35</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 4L108 32V88L60 116L12 88V32Z' fill='%230d0820' stroke='%2305d9e8' stroke-width='5'/%3E%3Cpath d='M14 60Q60 18 106 60Q60 102 14 60Z' fill='none' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -166,6 +166,43 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 .zeroBox{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:10px 12px;border-radius:12px;border:1px solid #f9a03f;background:rgba(249,160,63,.08);font-size:14px;line-height:1.35}
 .zeroBox.ok{border-color:var(--line);background:rgba(255,255,255,.03)}.zeroBox .t{flex:1}.zeroBox button{flex:none;font-size:14px;padding:10px 12px}
 .bloc.ctx .zeroBox{margin:10px 0 0}
+
+/* ---- v35 : interface plus compacte ---- */
+body{font-size:15px;padding:10px 10px 30px}
+header{margin-bottom:8px;gap:10px}header svg{width:44px;height:44px}header h1{font-size:19px}
+.home{padding:6px 9px}
+.tabs{margin-bottom:8px;padding:4px}.tabs button{padding:8px;font-size:15px}
+.card{padding:11px;margin-bottom:9px;border-radius:14px}.card h3{margin:0 0 8px;font-size:11px}
+button{padding:9px 12px}
+.big{font-size:16px;padding:12px;margin-bottom:8px}
+input,select{padding:8px 10px}
+.grid2{gap:8px;margin-bottom:8px}.grid2 label,.fl{font-size:11.5px;margin:0 0 3px}
+label{font-size:13px}
+.res{padding:8px 10px;margin:8px 0;font-size:13.5px;line-height:1.45}
+.hint{margin:4px 0;font-size:12.5px}
+.bloc{margin-top:8px;padding:8px 10px}.bloc .bt{font-size:11px;margin-bottom:4px}
+.edit{padding:8px;margin-top:6px}details summary{margin:6px 0}
+.sessbar{padding:8px 10px;margin:4px 0 8px}.sessbar button{padding:8px 10px}
+.zeroBox{padding:7px 10px}.zeroBox button{padding:8px 10px}
+.deux{gap:6px}.deux>div{padding:6px 9px}
+.viewer{padding:8px 8px 6px;margin:-11px -11px 9px}#vue{max-height:42vh}
+.seg{margin:0 0 8px}.seg button{padding:7px 6px}
+.pm{width:40px;height:40px;font-size:21px}
+.menu button{padding:13px;margin-bottom:9px;font-size:16px}
+.row{gap:8px}.modrow{margin:4px 0}
+td,th{padding:4px 3px}
+.sessList h4{margin:10px 0 4px}
+/* ---- molette de distance ---- */
+.molette{position:relative;height:44px;border:1px solid rgba(5,217,232,.3);border-radius:10px;background:rgba(6,4,13,.7);overflow:hidden;
+ -webkit-mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent)}
+.mtrack{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.mtrack::-webkit-scrollbar{display:none}
+.mtrack::before,.mtrack::after{content:'';flex:none;width:calc(50% - 27px)}
+.mtrack span{flex:none;width:54px;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;color:var(--mut);cursor:pointer;transition:color .1s,font-size .1s}
+.mtrack span.on{color:var(--yel);font-size:20px;font-weight:800;text-shadow:0 0 8px rgba(249,248,113,.5)}
+.mcur{position:absolute;left:50%;top:4px;bottom:4px;width:58px;transform:translateX(-50%);border:2px solid var(--mag);border-radius:8px;pointer-events:none;box-shadow:0 0 10px rgba(255,42,109,.4)}
+.munit{position:absolute;left:calc(50% + 32px);top:50%;transform:translateY(-50%);font-size:11px;color:var(--yel);pointer-events:none}
+details.exact summary{font-size:12.5px;margin:4px 0}details.exact input{width:110px;margin-bottom:4px}
 </style></head><body>
 <div id="fond"><div class="halo h1"></div><div class="halo h2"></div><div class="halo h3"></div><div class="grille"></div>
 <svg viewBox="0 0 1000 300" fill="none" stroke-linejoin="round" stroke-linecap="round">
@@ -206,7 +243,7 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 </g>
 <path d="M60 22V36M60 84V98M8 60H26M94 60H112" stroke="#f9f871" stroke-width="2.5"/>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v34</small></div>
+<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v35</small></div>
 <button class="home" onclick="demarrage()">Mode</button>
 </header>
 <nav class="tabs" id="tabs"><button id="tbC" class="on" onclick="tab('c')">&#127919; Cible</button><button id="tbK" onclick="tab('k')">&#129518; Calcul</button></nav>
@@ -236,7 +273,8 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <p id="info"></p><p id="status"></p></div>
 <div class="bloc ctx"><div class="bt">Arme, munition, lieu, distance</div>
 <div class="row2"><div id="gCtx" class="small" style="flex:1"></div><button onclick="tab('k')" style="flex:none">Changer</button></div>
-<div class="row2"><label style="margin:0;flex:none">Distance (m)</label><input id="gD" type="number" inputmode="numeric" value="200" oninput="gSave();rendu();calc(true)"></div>
+<label class="fl2">Distance de tir (m)</label><div class="molette" data-for="gD"></div>
+<details class="exact"><summary>Distance exacte</summary><input id="gD" type="number" inputmode="numeric" value="200" oninput="gSave();rendu();calc(true)"> m</details>
 <div class="zeroBox"></div>
 </div>
 <div class="seg" id="seg"><button data-p="pTirs" class="on">Tirs</button><button data-p="pCad">Cadrage</button><button data-p="pCal">Calage</button></div>
@@ -309,7 +347,8 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <div id="sLog" class="small"></div>
 </div></div>
 <div class="bloc ro"><div class="bt">Réglages du calculateur <span class="small">(non modifiables)</span></div><div id="sConseil"></div></div>
-<label>Distance (m)</label><input id="sD" type="number" inputmode="numeric" value="100" oninput="majSans()">
+<label class="fl2">Distance de tir (m)</label><div class="molette" data-for="sD"></div>
+<details class="exact"><summary>Distance exacte</summary><input id="sD" type="number" inputmode="numeric" value="100" oninput="majSans()"> m</details>
 <p class="small">Cette distance règle toute l'appli, y compris la correction de l'onglet Calcul.</p>
 <label>Remarque sur la série</label><input id="sNote" type="text" placeholder="ex. nouvel appui, rafales…">
 <details><summary>Écart restant à la fermeture (facultatif)</summary>
@@ -319,7 +358,7 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <div class="sessList"></div>
 </div>
 <div class="card"><h3>Météo, vent et réglages</h3>
-<div class="zeroBox"></div>
+<div class="zeroBox avecOnly"></div>
 <div id="out"></div>
 <div class="grid2"><div class="s2"><label>Lieu de tir</label><select id="cL" onchange="saveCond();majVent()"></select></div></div>
 <div class="row"><button class="pri" onclick="meteo()">&#128205; Météo ici</button><button onclick="viser()">&#129517; Viser la cible</button></div>
@@ -455,7 +494,7 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <button class="big pri" onclick="viser()">&#129517; Viser la cible</button>
 <div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="finDemar()">Passer</button></div></div>
 </div></div>
-<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v34</footer>
+<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v35</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -955,7 +994,7 @@ function showL(){const l=curL();if(!l){$('lInfo').innerHTML='';return}$('lName')
 function newW(){const w={id:''+Date.now(),name:'Nouvelle arme',sh:6.5,zero:100,unit:'MOA',click:.25,notes:''};db.w.push(w);store();refresh(w.id);$('wName').focus()}
 function saveW(){const w=curW();if(!w)return alert("Crée d'abord une arme");w.name=$('wName').value;w.sh=num('wSH');w.zero=Math.round(num('wZero'));w.unit=$('wUnit').value;w.click=num('wClick');w.notes=$('wNotes').value;ZC.clear();fitAll(db);store();refresh(w.id);flash('Arme enregistrée')}
 function majZeroBox(){const w=curW(),z=w&&zeroCond(w),t=!w?'<span class="small">Crée d\'abord une arme.</span>':z.set?'<b>Zéro validé</b> · '+esc(w.name)+' à '+w.zero+' m<br><span class="small">le '+(z.date?z.date.split('-').reverse().join('/'):'?')+' · '+z.T+' °C · vent latéral '+(+z.cross).toFixed(1)+' m/s</span>':'<b class="warn">Zéro non validé</b> · '+esc(w.name)+' à '+w.zero+' m<br><span class="small">conditions standard supposées</span>';
- document.querySelectorAll('.zeroBox').forEach(e=>{e.className='zeroBox'+(z&&z.set?' ok':'');e.innerHTML='<div class="t">'+t+'</div>'+(w?'<button class="live" onclick="zeroIci()">&#128204; Mon zéro est fait ici</button>':'')})}
+ document.querySelectorAll('.zeroBox').forEach(e=>{e.classList.toggle('ok',!!(z&&z.set));e.innerHTML='<div class="t">'+t+'</div>'+(w?'<button class="live" onclick="zeroIci()">&#128204; Mon zéro est fait ici</button>':'')})}
 function showZero(){majZeroBox();const w=curW();if(!w){$('zInfo').innerHTML='Crée d\'abord une arme.';return}const z=zeroCond(w);
  $('zT').value=z.T;$('zP').value=z.P;$('zRH').value=z.RH;$('zW').value=+(+z.cross).toFixed(2);$('zDate').value=z.date||'';
  $('zInfo').innerHTML=z.set?'Zéro de <b>'+esc(w.name)+'</b> à '+w.zero+' m, fait le '+(z.date?z.date.split('-').reverse().join('/'):'?')+' : '+z.T+' °C, '+z.P+' hPa, '+z.RH+' %, vent latéral '+(+z.cross).toFixed(1)+' m/s. À '+w.zero+' m dans ces conditions, la correction vaut 0.'
@@ -1069,7 +1108,7 @@ function fermerModal(){$('modal').hidden=true}
 
 // ===== Groupement dans l'onglet Cible =====
 function gSave(){lsSet('deG',{d:$('gD').value,n:$('gN').value,m:$('gMode').value,t:$('gT').value,z:$('gZ').value})}
-function gFill(){const o=lsGet('deG',{});$('gT').innerHTML=opts(db.t,o.t);
+function gFill(){setTimeout(placerMolettes,0);const o=lsGet('deG',{});$('gT').innerHTML=opts(db.t,o.t);
  if(o.d)$('gD').value=o.d;if(o.n)$('gN').value=o.n;if(o.m)$('gMode').value=o.m;gFillA(o.a);majZonesSel(o.z)}
 function gFillA(){majGroupe()}
 function majZonesSel(sel){const T=cible(),Z=calOk()?zones():(T&&T.zones)||[];$('gZ').innerHTML='<option value="auto">Automatique (zone du dernier tir)</option>'+(Z.length?Z.map((z,i)=>'<option value="'+i+'">'+esc(z.n)+'</option>').join(''):'');if(sel!=null&&[...$('gZ').options].some(o=>o.value==sel))$('gZ').value=sel}
@@ -1145,7 +1184,7 @@ function clore(){if(!seanceActive())return;const H=lsGet('deHist',[]),L=tousGrou
  sess=null;lsSet('deSession',null);fermerAlerte();majSeance();majBarre()}
 // ===== Demarrage : mode d'utilisation, puis meteo et orientation (chaque etape peut etre passee) =====
 let dmT=null,dm0={};
-function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v34'+(L[MODE]?' · '+L[MODE]:'');majBarre();
+function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v35'+(L[MODE]?' · '+L[MODE]:'');majBarre();
  $('tbC').hidden=MODE=='sans';$('tabs').hidden=MODE=='sans'||MODE=='cam'}
 function demarrage(){clearInterval(dmT);$('demar').hidden=false;etape(1);document.querySelectorAll('#dm1 button[data-m]').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE))}
 function choixMode(m){MODE=m;lsSet('deMode',m);appliquerMode();if(m=='cam'){$('demar').hidden=true;tab('c');modeCamera();return}etape(2)}
@@ -1182,5 +1221,22 @@ if(sess&&!sess.id)sess=null;if(sess&&!sess.no)sess.no=prochainNo();if(sess&&!ses
 if(MODE=='tir'&&seanceActive()){serieOn=true;serie0=0;serieNo=sess.no;serieT=sess.start}
 appliquerMode();demarrage();
 function ouvrirFiche(b){const d=b.closest('.card').querySelector('details.edit');if(d){d.open=true;d.scrollIntoView({block:'center',behavior:'smooth'})}}
+
+// ===== Molette de distance : pas de 10 m, de 10 a 500 m ; la saisie exacte reste possible (section repliee) =====
+function placerMolettes(){document.querySelectorAll('.molette').forEach(m=>m._placer&&m._placer(false))}
+function initMolette(el){const inp=$(el.dataset.for),V=[];for(let v=10;v<=500;v+=10)V.push(v);
+ el.innerHTML='<div class="mtrack">'+V.map(v=>'<span data-v="'+v+'">'+v+'</span>').join('')+'</div><div class="mcur"></div>';
+ const tr=el.firstChild,S=[...tr.children],sum=el.nextElementSibling&&el.nextElementSibling.querySelector('summary');let t=null,prog=0;
+ const marquer=c=>S.forEach(s=>s.classList.toggle('on',+s.dataset.v==c));
+ const libelle=()=>{if(!sum)return;const v=+inp.value;sum.textContent='Distance exacte'+(v>0&&(v%10||v>500)?' : '+v+' m':'')};
+ const placer=smooth=>{const v=Math.max(10,Math.min(500,Math.round((+inp.value||100)/10)*10)),s=tr.querySelector('[data-v="'+v+'"]');libelle();if(!s||!tr.clientWidth)return;
+  prog=Date.now()+(smooth?450:80);tr.scrollTo({left:s.offsetLeft+s.offsetWidth/2-tr.clientWidth/2,behavior:smooth?'smooth':'auto'});marquer(v)};
+ tr.addEventListener('scroll',()=>{if(Date.now()<prog)return;clearTimeout(t);const mid=tr.scrollLeft+tr.clientWidth/2;let best=S[0],bd=1e9;
+  S.forEach(s=>{const d=Math.abs(s.offsetLeft+s.offsetWidth/2-mid);if(d<bd){bd=d;best=s}});marquer(+best.dataset.v);
+  t=setTimeout(()=>{const v=+best.dataset.v;if(+inp.value!=v){deMolette=true;inp.value=v;inp.dispatchEvent(new Event('input'));deMolette=false}},160)},{passive:true});
+ S.forEach(s=>s.addEventListener('click',()=>{clearTimeout(t);inp.value=s.dataset.v;inp.dispatchEvent(new Event('input'))}));
+ let deMolette=false;inp.addEventListener('input',()=>{if(deMolette)libelle();else placer(true)});
+ if(window.ResizeObserver)new ResizeObserver(()=>placer(false)).observe(tr);el._placer=placer;placer(false)}
+document.querySelectorAll('.molette').forEach(initMolette);
 
 </script></body></html>
