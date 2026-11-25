@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye Calculateur balistique v33</title>
+<title>Distant Eye Calculateur balistique v34</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 4L108 32V88L60 116L12 88V32Z' fill='%230d0820' stroke='%2305d9e8' stroke-width='5'/%3E%3Cpath d='M14 60Q60 18 106 60Q60 102 14 60Z' fill='none' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -163,6 +163,9 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 .row.act .big{flex:2}.row.act>button:not(.big){flex:1;font-size:14px}
 details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 0}
 .bloc.ctx{margin:0 0 10px}.bloc.ctx .row2+.row2{margin-top:8px}
+.zeroBox{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:10px 12px;border-radius:12px;border:1px solid #f9a03f;background:rgba(249,160,63,.08);font-size:14px;line-height:1.35}
+.zeroBox.ok{border-color:var(--line);background:rgba(255,255,255,.03)}.zeroBox .t{flex:1}.zeroBox button{flex:none;font-size:14px;padding:10px 12px}
+.bloc.ctx .zeroBox{margin:10px 0 0}
 </style></head><body>
 <div id="fond"><div class="halo h1"></div><div class="halo h2"></div><div class="halo h3"></div><div class="grille"></div>
 <svg viewBox="0 0 1000 300" fill="none" stroke-linejoin="round" stroke-linecap="round">
@@ -203,7 +206,7 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 </g>
 <path d="M60 22V36M60 84V98M8 60H26M94 60H112" stroke="#f9f871" stroke-width="2.5"/>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v33</small></div>
+<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v34</small></div>
 <button class="home" onclick="demarrage()">Mode</button>
 </header>
 <nav class="tabs" id="tabs"><button id="tbC" class="on" onclick="tab('c')">&#127919; Cible</button><button id="tbK" onclick="tab('k')">&#129518; Calcul</button></nav>
@@ -234,6 +237,7 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <div class="bloc ctx"><div class="bt">Arme, munition, lieu, distance</div>
 <div class="row2"><div id="gCtx" class="small" style="flex:1"></div><button onclick="tab('k')" style="flex:none">Changer</button></div>
 <div class="row2"><label style="margin:0;flex:none">Distance (m)</label><input id="gD" type="number" inputmode="numeric" value="200" oninput="gSave();rendu();calc(true)"></div>
+<div class="zeroBox"></div>
 </div>
 <div class="seg" id="seg"><button data-p="pTirs" class="on">Tirs</button><button data-p="pCad">Cadrage</button><button data-p="pCal">Calage</button></div>
 
@@ -293,6 +297,7 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <div id="tabCalc" hidden>
 <div class="card sansOnly"><h3>Tir sans téléphone caméra</h3>
 <p id="sCtx" class="small"></p>
+<div class="zeroBox"></div>
 <div class="bloc dyn"><div class="bt">Réglage appliqué sur la lunette</div><div id="sReg"></div>
 <div id="sMods" hidden>
 <label class="fl2">Modification appliquée (1 clic par appui)</label>
@@ -314,6 +319,7 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <div class="sessList"></div>
 </div>
 <div class="card"><h3>Météo, vent et réglages</h3>
+<div class="zeroBox"></div>
 <div id="out"></div>
 <div class="grid2"><div class="s2"><label>Lieu de tir</label><select id="cL" onchange="saveCond();majVent()"></select></div></div>
 <div class="row"><button class="pri" onclick="meteo()">&#128205; Météo ici</button><button onclick="viser()">&#129517; Viser la cible</button></div>
@@ -335,9 +341,8 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <div><label>Azimut de tir (°)</label><input id="cAz" type="number" placeholder="?"></div>
 </div>
 </details>
-<details class="edit"><summary>Zéro de l'arme</summary>
+<details class="edit"><summary>Zéro de l'arme : détail et saisie à la main</summary>
 <div id="zInfo" class="res"></div>
-<button class="live big" onclick="zeroIci()">&#128204; Mon zéro est fait ici (conditions actuelles)</button>
 <details><summary>Modifier les conditions du zéro à la main</summary>
 <div class="grid2">
 <div><label>Température (°C)</label><input id="zT" type="number" step="0.1"></div>
@@ -450,7 +455,7 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <button class="big pri" onclick="viser()">&#129517; Viser la cible</button>
 <div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="finDemar()">Passer</button></div></div>
 </div></div>
-<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v33</footer>
+<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v34</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -949,11 +954,14 @@ function showL(){const l=curL();if(!l){$('lInfo').innerHTML='';return}$('lName')
  $('lInfo').innerHTML=h}
 function newW(){const w={id:''+Date.now(),name:'Nouvelle arme',sh:6.5,zero:100,unit:'MOA',click:.25,notes:''};db.w.push(w);store();refresh(w.id);$('wName').focus()}
 function saveW(){const w=curW();if(!w)return alert("Crée d'abord une arme");w.name=$('wName').value;w.sh=num('wSH');w.zero=Math.round(num('wZero'));w.unit=$('wUnit').value;w.click=num('wClick');w.notes=$('wNotes').value;ZC.clear();fitAll(db);store();refresh(w.id);flash('Arme enregistrée')}
-function showZero(){const w=curW();if(!w){$('zInfo').innerHTML='Crée d\'abord une arme.';return}const z=zeroCond(w);
+function majZeroBox(){const w=curW(),z=w&&zeroCond(w),t=!w?'<span class="small">Crée d\'abord une arme.</span>':z.set?'<b>Zéro validé</b> · '+esc(w.name)+' à '+w.zero+' m<br><span class="small">le '+(z.date?z.date.split('-').reverse().join('/'):'?')+' · '+z.T+' °C · vent latéral '+(+z.cross).toFixed(1)+' m/s</span>':'<b class="warn">Zéro non validé</b> · '+esc(w.name)+' à '+w.zero+' m<br><span class="small">conditions standard supposées</span>';
+ document.querySelectorAll('.zeroBox').forEach(e=>{e.className='zeroBox'+(z&&z.set?' ok':'');e.innerHTML='<div class="t">'+t+'</div>'+(w?'<button class="live" onclick="zeroIci()">&#128204; Mon zéro est fait ici</button>':'')})}
+function showZero(){majZeroBox();const w=curW();if(!w){$('zInfo').innerHTML='Crée d\'abord une arme.';return}const z=zeroCond(w);
  $('zT').value=z.T;$('zP').value=z.P;$('zRH').value=z.RH;$('zW').value=+(+z.cross).toFixed(2);$('zDate').value=z.date||'';
  $('zInfo').innerHTML=z.set?'Zéro de <b>'+esc(w.name)+'</b> à '+w.zero+' m, fait le '+(z.date?z.date.split('-').reverse().join('/'):'?')+' : '+z.T+' °C, '+z.P+' hPa, '+z.RH+' %, vent latéral '+(+z.cross).toFixed(1)+' m/s. À '+w.zero+' m dans ces conditions, la correction vaut 0.'
   :'<span class="warn">Conditions du zéro de '+esc(w.name)+' non enregistrées</span> : l\'appli suppose 15 °C, 1013 hPa, 50 % et pas de vent. Appuie sur « Mon zéro est fait ici » une fois ton zéro confirmé.'}
 function zeroIci(){const w=curW();if(!w)return alert("Crée d'abord une arme");saveCond();const c=getCond(),cr=crossEff(c,w.zero);
+ if(!confirm('Valider le zéro de '+w.name+' à '+w.zero+' m avec les conditions actuelles ?\n'+c.T+' °C, '+c.P+' hPa, '+c.RH+' %, vent latéral '+cr.toFixed(1)+' m/s'))return;
  w.zc={T:c.T,P:c.P,RH:c.RH,cross:cr,date:new Date().toISOString().slice(0,10)};ZC.clear();fitAll(db);store();showZero();let st='';if(seanceActive()){const i=instantane();sess.s0=i;sess.last=i;sess.log.push({t:Date.now(),txt:'Zéro refait pour '+esc(w.name)});lsSet('deSession',sess);majSeance()}
  flash('Zéro enregistré pour '+w.name+' : '+c.T+' °C, '+c.P+' hPa, '+c.RH+' %, vent latéral '+cr.toFixed(1)+' m/s.'+st)}
 function saveZero(){const w=curW();if(!w)return;w.zc={T:num('zT'),P:num('zP'),RH:num('zRH'),cross:num('zW')||0,date:$('zDate').value||null};ZC.clear();fitAll(db);store();showZero();flash('Conditions du zéro enregistrées.')}
@@ -1137,7 +1145,7 @@ function clore(){if(!seanceActive())return;const H=lsGet('deHist',[]),L=tousGrou
  sess=null;lsSet('deSession',null);fermerAlerte();majSeance();majBarre()}
 // ===== Demarrage : mode d'utilisation, puis meteo et orientation (chaque etape peut etre passee) =====
 let dmT=null,dm0={};
-function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v33'+(L[MODE]?' · '+L[MODE]:'');majBarre();
+function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v34'+(L[MODE]?' · '+L[MODE]:'');majBarre();
  $('tbC').hidden=MODE=='sans';$('tabs').hidden=MODE=='sans'||MODE=='cam'}
 function demarrage(){clearInterval(dmT);$('demar').hidden=false;etape(1);document.querySelectorAll('#dm1 button[data-m]').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE))}
 function choixMode(m){MODE=m;lsSet('deMode',m);appliquerMode();if(m=='cam'){$('demar').hidden=true;tab('c');modeCamera();return}etape(2)}
