@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye Calculateur balistique v31</title>
+<title>Distant Eye Calculateur balistique v32</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 4L108 32V88L60 116L12 88V32Z' fill='%230d0820' stroke='%2305d9e8' stroke-width='5'/%3E%3Cpath d='M14 60Q60 18 106 60Q60 102 14 60Z' fill='none' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -202,7 +202,7 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 </g>
 <path d="M60 22V36M60 84V98M8 60H26M94 60H112" stroke="#f9f871" stroke-width="2.5"/>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v31</small></div>
+<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v32</small></div>
 <button class="home" onclick="demarrage()">Mode</button>
 </header>
 <nav class="tabs" id="tabs"><button id="tbC" class="on" onclick="tab('c')">&#127919; Cible</button><button id="tbK" onclick="tab('k')">&#129518; Calcul</button></nav>
@@ -249,15 +249,11 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 </div>
 <div class="bloc ro"><div class="bt">Réglages du calculateur <span class="small">(non modifiables)</span></div><div id="gReco"></div></div>
 <label>Remarque sur la série</label><input id="gNote" type="text" placeholder="ex. nouvel appui, rafales, canon froid…">
-<div id="gFerme"></div>
 <p id="gMsg" class="hint"></p>
 <div class="bloc"><div class="bt">Arme, munition, lieu, distance</div>
-<div class="grid2">
-<div><label>Arme</label><select id="gW" onchange="gFillA();gSave();rendu()"></select></div>
-<div><label>Munition</label><select id="gA" onchange="gSave();rendu()"></select></div>
-<div><label>Lieu de tir</label><select id="gL" onchange="gSave();rendu()"></select></div>
-<div><label>Distance (m)</label><input id="gD" type="number" inputmode="numeric" value="200" oninput="gSave();rendu();calc(true)"></div>
-</div></div>
+<div class="row2"><div id="gCtx" class="small" style="flex:1"></div><button onclick="tab('k')" style="flex:none">Changer</button></div>
+<label>Distance (m)</label><input id="gD" type="number" inputmode="numeric" value="200" oninput="gSave();rendu();calc(true)">
+</div>
 <details class="edit"><summary>Détection des impacts (sensibilité)</summary>
 <div class="reg"><label>Sensibilité <span class="sub">(petit = plus sensible)</span></label><span class="val" id="sv">30</span></div>
 <div class="slider"><button class="pm" onclick="regSeuil(-1)">−</button><input type="range" id="seuil" min="10" max="80" step="1" value="30" oninput="majSeuil()"><button class="pm" onclick="regSeuil(1)">+</button></div>
@@ -313,7 +309,6 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <details><summary>Écart restant à la fermeture (facultatif)</summary>
 <div class="grid2"><div><label>Vertical (cm, + = haut)</label><input id="sE" type="number" step="0.1" value="0"></div><div><label>Horizontal (cm, + = droite)</label><input id="sX" type="number" step="0.1" value="0"></div></div>
 <p class="hint">Laisse 0 si les derniers tirs étaient centrés avec le réglage appliqué.</p></details>
-<div id="sFerme"></div>
 <div id="sMsg" class="res" hidden></div>
 <div class="sessList"></div>
 </div>
@@ -324,7 +319,6 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <p id="wxInfo" class="small"></p>
 <p id="azInfo" class="small"></p>
 <div id="windInfo" class="res"></div>
-<div id="sessInfo" class="res"></div>
 <div class="grid2">
 <div class="s2"><label>Vent utilisé pour le calcul</label><select id="cSrc"><option value="meteo">Vent météo (corrigé pour ce lieu)</option><option value="man">Vent saisi au stand</option></select></div>
 <div><label>Vent saisi (m/s)</label><input id="manV" type="number" step="0.1" value="0"></div>
@@ -455,7 +449,7 @@ details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 
 <button class="big pri" onclick="viser()">&#129517; Viser la cible</button>
 <div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="finDemar()">Passer</button></div></div>
 </div></div>
-<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v31</footer>
+<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v32</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -965,7 +959,7 @@ function saveZero(){const w=curW();if(!w)return;w.zc={T:num('zT'),P:num('zP'),RH
 // ===== Seance : suivi de la meteo et alertes =====
 let sess=lsGet('deSession',null);
 function distRef(){return Math.round(MODE=='sans'?num('sD'):num('gD'))||100}
-function ctxSeance(){if(MODE=='sans')return{w:curW(),a:curA(),d:distRef()};const g=gWA(),w=g.w||curW(),a=(g.a&&g.w?g.a:null)||curA();return{w,a,d:distRef()}}
+function ctxSeance(){return{w:curW(),a:curA(),d:distRef()}}
 function instantane(){const{w,a,d}=ctxSeance();if(!w||!a)return null;const c=getCond(),p=predict(w,a,c,d),uc=unitCm(w,d);
  return{t:Date.now(),w:w.id,a:a.id,d,kv:Math.round(-p.cm/uc/w.click),kh:Math.round(-p.drift/uc/w.click),T:c.T,P:c.P,wxV:c.wxV,wxDir:c.wxDir,cross:crossEff(c,d)}}
 const hm=t=>new Date(t).toTimeString().slice(0,5),clk=(k,p,n)=>Math.abs(k)+' '+(k>=0?p:n);
@@ -1008,9 +1002,7 @@ function flash(t){$('learnSum').innerHTML=esc(t)}
 function calc(auto){const w=curW(),a=curA();if(!w||!a){if(!auto)alert('Choisis une arme et une munition');return}saveCond();const c=getCond(),v=vModel(a,c.T),L=a.learn,u=w.unit;
  const z=zeroCond(w);let h='<p class="small">Corrections relatives au zéro à '+w.zero+' m ('+(z.set?'fait à '+z.T+' °C, '+z.P+' hPa, vent latéral '+z.cross+' m/s':'<span class="warn">conditions du zéro non renseignées : atmosphère standard sans vent</span>')+')<br>Vitesse : <b>'+v.toFixed(0)+' m/s</b> ('+(L&&L.vOk?'apprise':'catalogue')+') · air '+rhoAir(c.T,c.P,c.RH).toFixed(3)+' kg/m³ · vent '+(c.src=='man'?'saisi':'météo × '+coefFor(c.loc,c.wxDir,distRef()).toFixed(2)+(c.loc&&c.loc.learn&&c.loc.learn.dOk?' (à '+distRef()+' m, varie avec la distance)':''))+(L&&L.bOk?' · décalage '+fx(L.b,2)+' MOA':'')+'</p>';
  const d=distRef();
- const R=deuxReglages(w,a,c,d);
- h='<div class="bloc ro"><div class="bt">Réglages à '+d+' m <span class="small">(distance '+(MODE=='sans'?'saisie en haut':'de la série, onglet Tirs')+')</span></div>'+htmlDeux(w,d,R)+'</div>'+h;
- $('out').innerHTML=h}
+ $('out').innerHTML='<details class="edit"><summary>Détails du calcul ('+d+' m)</summary>'+h+'</details>'}
 
 // ===== Apprentissage =====
 function tagConf(c){return'<span class="tag '+({bonne:'t-ok',moyenne:'t-mid',faible:'t-low'}[c]||'t-off')+'">'+(!c||c=='—'?'inactif':'confiance '+c)+'</span>'}
@@ -1067,24 +1059,26 @@ function ouvrirModal(w,a,r,ok){const RR=deuxReglages(w,a,getCond(r.loc),r.d),kv=
 function fermerModal(){$('modal').hidden=true}
 
 // ===== Groupement dans l'onglet Cible =====
-function gSave(){lsSet('deG',{w:$('gW').value,a:$('gA').value,l:$('gL').value,d:$('gD').value,n:$('gN').value,m:$('gMode').value,t:$('gT').value,z:$('gZ').value})}
-function gFill(){const o=lsGet('deG',{});$('gW').innerHTML=opts(db.w,o.w);$('gL').innerHTML=opts(db.l,o.l||$('cL').value);$('gT').innerHTML=opts(db.t,o.t);
+function gSave(){lsSet('deG',{d:$('gD').value,n:$('gN').value,m:$('gMode').value,t:$('gT').value,z:$('gZ').value})}
+function gFill(){const o=lsGet('deG',{});$('gT').innerHTML=opts(db.t,o.t);
  if(o.d)$('gD').value=o.d;if(o.n)$('gN').value=o.n;if(o.m)$('gMode').value=o.m;gFillA(o.a);majZonesSel(o.z)}
-function gFillA(sel){const wid=$('gW').value;$('gA').innerHTML=opts(db.a.filter(a=>a.wid==wid),sel);majGroupe()}
+function gFillA(){majGroupe()}
 function majZonesSel(sel){const T=cible(),Z=calOk()?zones():(T&&T.zones)||[];$('gZ').innerHTML='<option value="auto">Automatique (zone du dernier tir)</option>'+(Z.length?Z.map((z,i)=>'<option value="'+i+'">'+esc(z.n)+'</option>').join(''):'');if(sel!=null&&[...$('gZ').options].some(o=>o.value==sel))$('gZ').value=sel}
 function choixCible(){zonesDet=null;if(calOk())detecterVisuels();majZonesSel('auto');gSave();rendu()}
-function gWA(){return{w:db.w.find(x=>x.id==$('gW').value),a:db.a.find(x=>x.id==$('gA').value)}}
+// une seule arme, munition et lieu pour toute l'appli : ceux de l'onglet Calcul
+function gWA(){return{w:curW(),a:curA()}}
 function tableGroupes(){}
 function regN(d){const e=$('gN');e.value=Math.max(1,Math.min(99,(Math.round(+e.value)||1)+d));$('gMode').value='n';gSave();rendu()}
 const sensClk=(k,p,m)=>'<b>'+Math.abs(k)+' clic'+(Math.abs(k)>1?'s':'')+' '+(k>=0?p:m)+'</b>';
-function recoCalc(){const{w,a}=gWA(),d=num('gD');if(!w||!a||!(d>0))return null;const c=getCond($('gL').value),R=deuxReglages(w,a,c,d);return Object.assign({w,d,R},R.o)}
-function recoCalcAncien(){const{w,a}=gWA(),d=num('gD');if(!w||!a||!(d>0))return null;const p=predict(w,a,getCond($('gL').value),d),uc=unitCm(w,d);
+function recoCalc(){const{w,a}=gWA(),d=num('gD');if(!w||!a||!(d>0))return null;const c=getCond($('cL').value),R=deuxReglages(w,a,c,d);return Object.assign({w,d,R},R.o)}
+function recoCalcAncien(){const{w,a}=gWA(),d=num('gD');if(!w||!a||!(d>0))return null;const p=predict(w,a,getCond($('cL').value),d),uc=unitCm(w,d);
  return{w,d,kv:Math.round(-p.cm/uc/w.click),kh:Math.round(-p.drift/uc/w.click),mv:-p.cm/moaCm(d),mh:-p.drift/moaCm(d)}}
 function majSerie(){majBarre();const el=$('gSerie');if(el){const n=tirsGroupe(1e9).length;
  if(serieOn){el.className='serie on';el.innerHTML='<div class="t"><span class="dot"></span><b>Série n°'+serieNo+' ouverte</b> depuis '+hm(serieT)+'<br><span class="small">'+n+' tir(s) sur la zone visée</span></div><button class="pri" onclick="demanderFermeture()">&#9632; Fermer la série</button>'}
  else{el.className='serie';el.innerHTML='<div class="t"><b>'+(serieFin!=null?'Série n°'+serieNo+' fermée':'Aucune série ouverte')+'</b><br><span class="small">'+(serieFin!=null?'Les prochains tirs ouvriront la suivante automatiquement':'Elle s\'ouvre toute seule au premier tir détecté')+'</span></div><button class="ok" onclick="ouvrirSerie()">&#9654; Ouvrir une série</button>'}
- }$('gFerme').innerHTML=serieOn?'<button class="pri big" style="margin-top:12px;width:100%" onclick="demanderFermeture()">&#9632; Fermer la série et l\'envoyer au calculateur…</button><p class="hint">À la fermeture, tu choisis d\'<b>envoyer</b> les tirs pris en compte au calculateur ou de les <b>garder sans envoi</b>.</p>':''}
-function majGroupe(){$('gNbox').hidden=$('gMode').value!='n';majSerie();const R=recoCalc(),G=groupe(),{w}=gWA(),d=num('gD');
+ }}
+function majCtx(){const e=$('gCtx');if(!e)return;const w=curW(),a=curA(),l=locById($('cL').value);e.innerHTML=w&&a?'<b>'+esc(w.name)+'</b> · '+esc(a.name)+'<br>'+(l?esc(l.name):'lieu ?'):'<span class="warn">Crée une arme et une munition dans l\'onglet Calcul.</span>'}
+function majGroupe(){majCtx();$('gNbox').hidden=$('gMode').value!='n';majSerie();const R=recoCalc(),G=groupe(),{w}=gWA(),d=num('gD');
  $('gReco').innerHTML=R?htmlDeux(R.w,R.d,R.R):'<span class="small">Choisis une arme, une munition et une distance.</span>';
  if(!G){const m=[];if(!lastIm)m.push('une photo');if(!calOk())m.push('le calage de la cible (onglet Calage)');if(lastIm&&calOk())m.push(serieOn||serieFin!=null?'des tirs dans la zone visée pour cette série':'une série (elle s\'ouvre au premier tir)');
   $('gRes').innerHTML='<span class="small">Il manque : '+m.join(', ')+'.</span>';$('gNew').innerHTML='<span class="small">Apparaît dès qu\'il y a des tirs dans la série.</span>';return}
@@ -1101,7 +1095,7 @@ function clicsConseilles(base){const R=recoCalc();if(!R)return alert('Choisis un
 function demanderFermeture(suite){const{w,a}=gWA(),d=Math.round(num('gD')),G=groupe();const fin=m=>{fermerSerie();$('gMsg').innerHTML=m;$('gNote').value='';majGroupe();if(suite)suite()};
  if(!G||G.n<3||!w||!a||d<(w?w.zero:0)){const why=!w||!a?'pas d\'arme ou de munition choisie':!G?'aucun tir dans la série':G.n<3?'moins de 3 tirs':'distance en deçà du zéro ('+w.zero+' m)';
   if(confirm('Cette série ne peut pas être envoyée au calculateur ('+why+'). La fermer quand même ?'))fin('Série n°'+serieNo+' fermée sans envoi ('+why+').');return}
- const T=cible(),r=groupeRecord(w,a,$('gL').value,d,G.n,G.dx,G.dy,G.size,num('gCV')||0,num('gCH')||0,{cible:T?T.name:null,zone:G.zone,serie:serieNo,note:$('gNote').value.trim()||undefined});
+ const T=cible(),r=groupeRecord(w,a,$('cL').value,d,G.n,G.dx,G.dy,G.size,num('gCV')||0,num('gCH')||0,{cible:T?T.name:null,zone:G.zone,serie:serieNo,note:$('gNote').value.trim()||undefined});
  ouvrirModal(w,a,r,send=>{const t=enregistrer(r,send);fin((send?'<b>Série n°'+serieNo+' envoyée au calculateur</b> ('+G.n+' tirs, '+d+' m). '+t:'<b>Série n°'+serieNo+' gardée sans envoi</b> ('+G.n+' tirs, '+d+' m).'))})}
 function verifierEnvoi(){demanderFermeture()}
 CF.forEach(k=>$(k).addEventListener('change',()=>{saveCond();majVent();verifierSeance()}));
@@ -1129,7 +1123,7 @@ function htmlDeux(w,d,R,court){const l=x=>'<b>'+clk(x.kv,'HAUT','BAS')+'</b> · 
   '<div class="r2"><div class="lb">Optimisé <span class="small">avec apprentissage</span></div>'+(R.appris?l(R.o)+'<br><span class="small">'+(dv||dh?'Écart avec la base : '+(dv?(dv>0?'+':'')+dv+' en hauteur':'')+(dv&&dh?', ':'')+(dh?(dh>0?'+':'')+dh+' en dérive':''):'identique à la base')+'</span>':'<span class="small">Rien d\'appris encore pour cette munition et ce lieu : identique à la base.</span>')+'</div></div>'+
   '<p class="small" style="margin:4px 0 0">À '+d+' m · clics de '+w.click+' '+w.unit+' · conditions actuelles</p>'}
 function majBarre(){const b=$('sessBar');if(!b)return;b.hidden=!(MODE=='tir'||MODE=='sans');
- if(seanceActive()){b.className='sessbar on';const sub=MODE=='tir'?tirsGroupe(1e9).length+' tir(s) sur la zone visée':'Réglage : '+clk(sess.reg.v,'HAUT','BAS')+' · '+clk(sess.reg.h,'DROITE','GAUCHE');
+ if(seanceActive()){b.className='sessbar on';const sub=MODE=='tir'?tirsGroupe(1e9).length+' tir(s) sur la zone visée':(sess.mods.length?sess.mods.length+' modification(s) de réglage':'Aucune modification de réglage');
   b.innerHTML='<div class="t"><span class="dot"></span><b>Série n°'+sess.no+' ouverte</b> depuis '+hm(sess.start)+'<br><span class="small">'+sub+'</span></div><button class="pri" onclick="fermerSerieApp()">&#9632; Fermer la série</button>'}
  else{b.className='sessbar';b.innerHTML='<div class="t"><b>Aucune série ouverte</b><br><span class="small">'+(MODE=='tir'?'Elle s\'ouvre aussi toute seule au premier tir détecté':'Ouvre-la avant de tirer : le réglage de départ est le réglage optimisé')+'</span></div><button class="ok" onclick="ouvrirSerieApp()">&#9654; Ouvrir une série</button>'}
  const L=tousGroupes().sort((x,y)=>x.g.date<y.g.date?1:-1).slice(0,8).reverse(),h='<h4>Dernières séries</h4>'+tabGroupes(L,true)+(L.length?'<p class="small">Touche l\'interrupteur pour envoyer ou retirer une série du calculateur.</p>':'');
@@ -1142,7 +1136,7 @@ function clore(){if(!seanceActive())return;const H=lsGet('deHist',[]),L=tousGrou
  sess=null;lsSet('deSession',null);fermerAlerte();majSeance();majBarre()}
 // ===== Demarrage : mode d'utilisation, puis meteo et orientation (chaque etape peut etre passee) =====
 let dmT=null,dm0={};
-function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v31'+(L[MODE]?' · '+L[MODE]:'');majBarre();
+function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v32'+(L[MODE]?' · '+L[MODE]:'');majBarre();
  $('tbC').hidden=MODE=='sans';$('tabs').hidden=MODE=='sans'||MODE=='cam'}
 function demarrage(){clearInterval(dmT);$('demar').hidden=false;etape(1);document.querySelectorAll('#dm1 button[data-m]').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE))}
 function choixMode(m){MODE=m;lsSet('deMode',m);appliquerMode();if(m=='cam'){$('demar').hidden=true;tab('c');modeCamera();return}etape(2)}
@@ -1151,19 +1145,19 @@ function suivant(id,ok,txt){const b=$(id);b.textContent=ok?txt:'Passer';b.classN
 function etape(n){[1,2,3].forEach(i=>$('dm'+i).hidden=i!=n);clearInterval(dmT);
  if(n==2){dm0.wx=(lsGet('balWx',{})||{}).got||0;const f=()=>{$('dWx').innerHTML=wxResume();suivant('dN2',((lsGet('balWx',{})||{}).got||0)>dm0.wx,'Suivant →')};f();dmT=setInterval(f,400)}
  if(n==3){$('dL').innerHTML=opts(db.l,$('cL').value);dm0.az=azGot;const f=()=>{const az=$('cAz').value;$('dAz').innerHTML=($('azInfo').textContent||'')+(az!==''?'<br>Azimut de tir : <b>'+az+'°</b>':'<br>Azimut de tir inconnu')+($('windInfo').innerHTML?'<br>'+$('windInfo').innerHTML:'');suivant('dN3',azGot>dm0.az,'Terminer ✓')};f();dmT=setInterval(f,400)}}
-function choixLieuD(){$('cL').value=$('dL').value;$('cL').dispatchEvent(new Event('change'));if($('gL'))$('gL').value=$('dL').value;gSave()}
+function choixLieuD(){$('cL').value=$('dL').value;$('cL').dispatchEvent(new Event('change'));gSave()}
 function finDemar(){clearInterval(dmT);$('demar').hidden=true;majBarre();if(MODE=='sans')tab('k');else{tab('c');show('tir')}majSans()}
 // ===== Tir sans telephone camera : apprendre a partir des clics reellement regles =====
 function majSans(){if(MODE!='sans'||!$('sD'))return;const w=curW(),a=curA(),d=distRef(),l=locById($('cL').value);calc(true);
- $('sCtx').innerHTML=w&&a?'Arme <b>'+esc(w.name)+'</b> · munition <b>'+esc(a.name)+'</b> · '+(l?esc(l.name):'lieu ?')+' <span class="small">(à changer plus bas)</span>':'<span class="warn">Crée d\'abord une arme et une munition plus bas.</span>';
- if(!w||!a||!(d>0)){$('sConseil').innerHTML='<span class="small">Choisis une arme, une munition et une distance.</span>';$('sReg').innerHTML='';$('sMods').hidden=true;$('sFerme').innerHTML='';return}
+ $('sCtx').innerHTML=w&&a?'':'<span class="warn">Crée d\'abord une arme et une munition plus bas.</span>';
+ if(!w||!a||!(d>0)){$('sConseil').innerHTML='<span class="small">Choisis une arme, une munition et une distance.</span>';$('sReg').innerHTML='';$('sMods').hidden=true;return}
  const RR=deuxReglages(w,a,getCond(),d),kv=RR.o.kv,kh=RR.o.kh;
  $('sConseil').innerHTML=htmlDeux(w,d,RR)+(d<w.zero?'<br><span class="warn">En deçà du zéro ('+w.zero+' m) : pas d\'apprentissage.</span>':'');
- if(!seanceActive()){$('sReg').innerHTML='<span class="small">Ouvre une série (bouton en haut) : le réglage de départ sera le réglage optimisé, puis tu indiques chaque modification que tu appliques.</span>';$('sMods').hidden=true;$('sFerme').innerHTML='';return}
+ if(!seanceActive()){$('sReg').innerHTML='<span class="small">Ouvre une série (bouton en haut) : le réglage de départ sera le réglage optimisé, puis tu indiques chaque modification que tu appliques.</span>';$('sMods').hidden=true;return}
  const r=sess.reg,ev=r.v-kv,eh=r.h-kh;$('sMods').hidden=false;$('sBase').innerHTML='<div class="row2" style="margin-top:8px"><button onclick="versReglage('+RR.b.kv+','+RR.b.kh+',\'base\')">Revenir à la base ('+RR.b.kv+' / '+RR.b.kh+')</button><button onclick="versReglage('+kv+','+kh+',\'optimisé\')">Revenir à l\'optimisé ('+kv+' / '+kh+')</button></div>';
  $('sReg').innerHTML='<span class="big2">'+clk(r.v,'HAUT','BAS')+' · '+clk(r.h,'DROITE','GAUCHE')+'</span><br><span class="small">'+(ev||eh?'Écart avec l\'optimisé : '+(ev?(ev>0?'+':'')+ev+' en hauteur':'')+(ev&&eh?', ':'')+(eh?(eh>0?'+':'')+eh+' en dérive':''):'Identique au réglage optimisé')+'</span>';
  $('sLog').innerHTML=(sess.mods||[]).length?'Modifications de la série : '+sess.mods.map(m=>hm(m.t)+' '+(m.dv?(m.dv>0?'+':'')+m.dv+' H':'')+(m.dv&&m.dh?' ':'')+(m.dh?(m.dh>0?'+':'')+m.dh+' D':'')).join(' · '):'';
- $('sFerme').innerHTML='<button class="pri big" style="margin-top:12px;width:100%" onclick="fermerSans()">&#9632; Fermer la série et l\'envoyer au calculateur…</button><p class="hint">Ferme la série quand le dernier réglage appliqué centre tes tirs : le calculateur apprend l\'écart entre ce réglage et son calcul.</p>'}
+}
 function modifier(dv,dh){if(!seanceActive()){nouvelleSeance(true)}const t=Date.now(),L=sess.mods,m=L[L.length-1];sess.reg.v+=dv;sess.reg.h+=dh;
  if(m&&t-m.t<20000){m.dv+=dv;m.dh+=dh;m.t=t;if(!m.dv&&!m.dh)L.pop()}else L.push({t,dv,dh});lsSet('deSession',sess);majSans();majBarre()}
 function versReglage(v,h,nom){if(!seanceActive())nouvelleSeance(true);const dv=v-sess.reg.v,dh=h-sess.reg.h;if(!dv&&!dh)return;sess.mods.push({t:Date.now(),dv,dh,nom});sess.reg={v,h};lsSet('deSession',sess);majSans();majBarre()}
@@ -1173,7 +1167,7 @@ function fermerSans(){if(!seanceActive())return;const w=curW(),a=curA(),d=distRe
  saveCond();const r=groupeRecord(w,a,$('cL').value,d,n,num('sX')||0,num('sE')||0,null,sess.reg.v,sess.reg.h,{manual:true,sansCam:true,serie:sess.no,mods:sess.mods.length,note:$('sNote').value.trim()||undefined});
  ouvrirModal(w,a,r,send=>{const t=enregistrer(r,send);fin(send?'<b>Série n°# envoyée au calculateur</b> ('+n+' tirs à '+d+' m, réglage '+clk(r.clV,'H','B')+' / '+clk(r.clH,'D','G')+'). '+t:'<b>Série n°# gardée sans envoi</b>.')})}
 function saisieSans(){fermerSans()}
-{const _rf=refresh;refresh=function(a,b){_rf(a,b);majSans();calc(true)}}
+{const _rf=refresh;refresh=function(a,b){_rf(a,b);majSans();calc(true);if(typeof majGroupe=='function'&&$('gRes'))rendu()}}
 CF.forEach(k=>$(k).addEventListener('change',()=>{majSans();calc(true)}));
 if(sess&&!sess.id)sess=null;if(sess&&!sess.no)sess.no=prochainNo();if(sess&&!sess.reg){sess.reg={v:0,h:0};sess.mods=[]}
 if(MODE=='tir'&&seanceActive()){serieOn=true;serie0=0;serieNo=sess.no;serieT=sess.start}
