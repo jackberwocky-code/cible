@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye Calculateur balistique v26</title>
+<title>Distant Eye Calculateur balistique v27</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 4L108 32V88L60 116L12 88V32Z' fill='%230d0820' stroke='%2305d9e8' stroke-width='5'/%3E%3Cpath d='M14 60Q60 18 106 60Q60 102 14 60Z' fill='none' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -190,7 +190,7 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 </g>
 <path d="M60 22V36M60 84V98M8 60H26M94 60H112" stroke="#f9f871" stroke-width="2.5"/>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v26</small></div>
+<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v27</small></div>
 <button class="home" onclick="demarrage()">Mode</button>
 </header>
 <nav class="tabs" id="tabs"><button id="tbC" class="on" onclick="tab('c')">&#127919; Cible</button><button id="tbK" onclick="tab('k')">&#129518; Calcul</button></nav>
@@ -371,12 +371,12 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 <button class="full ok" onclick="saveZero()">Enregistrer les conditions du zéro</button>
 </details>
 </div>
-<div class="grid2" style="margin-top:10px"><div class="s2"><label>Distances du tableau (m, séparées par des virgules)</label><input id="cD" value="100,150,200,250,300"></div></div>
-<button class="ok big" onclick="calc()">Calculer les corrections</button>
+<label style="margin-top:10px">Distance (m)</label><input id="cD" type="number" inputmode="numeric" value="100" oninput="calc(true)">
+<button class="ok big" onclick="calc()">Calculer la correction</button>
 <div id="out"></div>
 </div>
 
-<div class="card"><h3>4 · Cibles</h3>
+<div class="card avecOnly"><h3>4 · Cibles</h3>
 <label class="fl">Profil</label><select id="selT" class="full" onchange="showT()"></select>
 <div class="edit"><span class="fl">Modifier ce profil</span>
 <div class="grid2">
@@ -447,7 +447,7 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 <div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="etape(4)">Passer</button></div></div>
 <div id="dm4" hidden><h3>Séance de tir</h3><div id="dSess" class="res"></div><div id="dSessB"></div></div>
 </div></div>
-<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v26</footer>
+<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v27</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -991,12 +991,13 @@ function resetVentL(){const l=curL();if(!l||!confirm('Oublier le vent appris à 
 function flash(t){$('learnSum').innerHTML=esc(t)}
 
 // ===== Calcul =====
-function calc(){const w=curW(),a=curA();if(!w||!a)return alert('Choisis une arme et une munition');saveCond();const c=getCond(),v=vModel(a,c.T),L=a.learn,u=w.unit;
+function calc(auto){const w=curW(),a=curA();if(!w||!a){if(!auto)alert('Choisis une arme et une munition');return}saveCond();const c=getCond(),v=vModel(a,c.T),L=a.learn,u=w.unit;
  const z=zeroCond(w);let h='<p class="small">Corrections relatives au zéro à '+w.zero+' m ('+(z.set?'fait à '+z.T+' °C, '+z.P+' hPa, vent latéral '+z.cross+' m/s':'<span class="warn">conditions du zéro non renseignées : atmosphère standard sans vent</span>')+')<br>Vitesse : <b>'+v.toFixed(0)+' m/s</b> ('+(L&&L.vOk?'apprise':'catalogue')+') · air '+rhoAir(c.T,c.P,c.RH).toFixed(3)+' kg/m³ · vent '+(c.src=='man'?'saisi':'météo × '+coefFor(c.loc,c.wxDir,num('gD')||DREF).toFixed(2)+(c.loc&&c.loc.learn&&c.loc.learn.dOk?' (à '+(num('gD')||DREF)+' m, varie avec la distance)':''))+(L&&L.bOk?' · décalage '+fx(L.b,2)+' MOA':'')+'</p>';
- h+='<table><tr><th>m</th><th>Chute cm</th><th>Hausse '+u+'</th><th>Clics</th><th>Dérive cm</th><th>Clics vent</th></tr>';
- for(const d of $('cD').value.split(',').map(s=>parseInt(s)).filter(x=>x>0)){const p=predict(w,a,c,d),uc=unitCm(w,d),cv=-p.cm/uc,ch=-p.drift/uc,kv=Math.round(cv/w.click),kh=Math.round(ch/w.click);
-  h+='<tr><td>'+d+'</td><td>'+nz(p.cm,1)+'</td><td>'+nz(cv,2)+'</td><td>'+Math.abs(kv)+' '+(kv>=0?'H':'B')+'</td><td>'+fx(p.drift,1)+'</td><td>'+Math.abs(kh)+' '+(kh>=0?'D':'G')+'</td></tr>'}
- $('out').innerHTML=h+'</table><p class="small">H/B = clics vers le haut/bas, D/G = vers la droite/gauche.</p>'}
+ const d=Math.round(num('cD'));if(!(d>0)){$('out').innerHTML='<p class="small">Indique une distance.</p>';return}
+ const p=predict(w,a,c,d),uc=unitCm(w,d),cv=-p.cm/uc,ch=-p.drift/uc,kv=Math.round(cv/w.click),kh=Math.round(ch/w.click);
+ h='<div class="bloc ro"><div class="bt">Correction à '+d+' m</div><div class="big2">'+Math.abs(kv)+' clic'+(Math.abs(kv)>1?'s':'')+' '+(kv>=0?'HAUT':'BAS')+' · '+Math.abs(kh)+' clic'+(Math.abs(kh)>1?'s':'')+' '+(kh>=0?'DROITE':'GAUCHE')+'</div>'+
+  '<span class="small">Hausse '+nz(cv,2)+' '+u+' (chute '+nz(p.cm,1)+' cm) · dérive '+nz(ch,2)+' '+u+' ('+fx(p.drift,1)+' cm) · clics de '+w.click+' '+u+'</span></div>'+h;
+ $('out').innerHTML=h}
 
 // ===== Apprentissage =====
 function tagConf(c){return'<span class="tag '+({bonne:'t-ok',moyenne:'t-mid',faible:'t-low'}[c]||'t-off')+'">'+(!c||c=='—'?'inactif':'confiance '+c)+'</span>'}
@@ -1090,7 +1091,7 @@ function demanderFermeture(suite){const{w,a}=gWA(),d=Math.round(num('gD')),G=gro
  ouvrirModal(w,a,r,send=>{const t=enregistrer(r,send);fin((send?'<b>Série n°'+serieNo+' envoyée au calculateur</b> ('+G.n+' tirs, '+d+' m). '+t:'<b>Série n°'+serieNo+' gardée sans envoi</b> ('+G.n+' tirs, '+d+' m).'))})}
 function verifierEnvoi(){demanderFermeture()}
 CF.forEach(k=>$(k).addEventListener('change',()=>{saveCond();majVent();verifierSeance()}));
-fitAll(db);store();loadCond();refresh();gFill();majDer();majVent();majSeance();
+fitAll(db);store();loadCond();if(!(+$('cD').value>0))$('cD').value=100;refresh();gFill();majDer();majVent();majSeance();
 
 // ===== Seance : debut, fin, groupements envoyes ou non =====
 function envoye(g){return!g.ign&&!g.off}
@@ -1125,7 +1126,7 @@ function etapeSeance(){const B=$('dSessB');if(seanceActive()){const L=groupesSea
   B.innerHTML='<button class="ok big" onclick="nouvelleSeance(true);finDemar()">&#9654; Démarrer la séance</button><div class="btns"><button onclick="etape(3)">&#8592; Retour</button><button onclick="finDemar()">Plus tard</button></div>'}}
 // ===== Demarrage : mode d'utilisation, puis meteo et orientation (chaque etape peut etre passee) =====
 let MODE=lsGet('deMode',null),dmT=null,dm0={};
-function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v26'+(L[MODE]?' · '+L[MODE]:'');majBarre();
+function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v27'+(L[MODE]?' · '+L[MODE]:'');majBarre();
  $('tbC').hidden=MODE=='sans';$('tabs').hidden=MODE=='sans'||MODE=='cam'}
 function demarrage(){clearInterval(dmT);$('demar').hidden=false;etape(1);document.querySelectorAll('#dm1 button[data-m]').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE))}
 function choixMode(m){MODE=m;lsSet('deMode',m);appliquerMode();if(m=='cam'){$('demar').hidden=true;tab('c');modeCamera();return}etape(2)}
