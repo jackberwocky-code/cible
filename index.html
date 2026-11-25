@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye Calculateur balistique v40</title>
+<title>Distant Eye Calculateur balistique v41</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='55' fill='%230d0820' stroke='%2305d9e8' stroke-width='6'/%3E%3Cpath d='M4 60H20M100 60H116M60 4V24M60 96V116' stroke='%23f9f871' stroke-width='6'/%3E%3Cpath d='M20 60Q60 28 100 60Q60 92 20 60Z' fill='%23150c2c' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -266,8 +266,8 @@ body:not([data-mode=tir]) .tirOnly{display:none}
 </g>
 <g stroke="#f9f871" fill="none"><path d="M4 60H16M104 60H116M60 4V16M60 104V116" stroke-width="4" stroke-linecap="butt"/><path d="M16 60H104M60 16V104" stroke-width="1"/></g><g fill="#f9f871"><circle cx="24" cy="60" r="2.1"/><circle cx="60" cy="24" r="2.1"/><circle cx="33" cy="60" r="2.1"/><circle cx="60" cy="33" r="2.1"/><circle cx="42" cy="60" r="2.1"/><circle cx="60" cy="42" r="2.1"/><circle cx="51" cy="60" r="2.1"/><circle cx="60" cy="51" r="2.1"/><circle cx="69" cy="60" r="2.1"/><circle cx="60" cy="69" r="2.1"/><circle cx="78" cy="60" r="2.1"/><circle cx="60" cy="78" r="2.1"/><circle cx="87" cy="60" r="2.1"/><circle cx="60" cy="87" r="2.1"/><circle cx="96" cy="60" r="2.1"/><circle cx="60" cy="96" r="2.1"/></g>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v40</small></div>
-<button class="home" onclick="demarrage()">Mode</button>
+<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v41</small></div>
+<button class="home" onclick="accueil()">Mode</button>
 </header>
 <div id="connexion" class="card tirOnly"><h3>Connexion</h3>
 <div class="row"><input id="codeIn" placeholder="0000" inputmode="numeric" maxlength="4"><button class="pri" onclick="connecter()" style="flex:none">Connecter</button></div></div>
@@ -530,7 +530,7 @@ body:not([data-mode=tir]) .tirOnly{display:none}
 <button class="pri" data-m="cam" onclick="entrerMode('cam')">&#128247; Téléphone caméra<small>Posé près de la cible</small></button>
 <button class="live" data-m="sans" onclick="entrerMode('sans')">&#129518; Sans caméra<small>Calculateur seul</small></button>
 </div>
-<div class="aver">v40</div>
+<div class="aver">v41</div>
 </div></div>
 <div id="demar" class="modal demar" hidden><div class="box">
 <div id="dm1"><h3>Distant Eye · Calculateur balistique<br><span style="color:var(--txt);letter-spacing:0;text-transform:none;font-size:15px">Comment utilises-tu l'appli ?</span></h3>
@@ -551,7 +551,7 @@ body:not([data-mode=tir]) .tirOnly{display:none}
 <button class="big pri" onclick="viser()">&#129517; Viser la cible</button>
 <div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="finDemar()">Passer</button></div></div>
 </div></div>
-<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v40</footer>
+<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v41</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -1243,7 +1243,7 @@ function clore(){if(!seanceActive())return;const H=lsGet('deHist',[]),L=tousGrou
  sess=null;lsSet('deSession',null);fermerAlerte();majSeance();majBarre()}
 // ===== Demarrage : mode d'utilisation, puis meteo et orientation (chaque etape peut etre passee) =====
 let dmT=null,dm0={};
-function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v40'+(L[MODE]?' · '+L[MODE]:'');majBarre();
+function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v41'+(L[MODE]?' · '+L[MODE]:'');majBarre();
  $('tbC').hidden=MODE=='sans';$('tabs').hidden=MODE=='sans'||MODE=='cam'}
 function demarrage(){clearInterval(dmT);$('demar').hidden=false;etape(1);document.querySelectorAll('#dm1 button[data-m]').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE))}
 function choixMode(m){MODE=m;lsSet('deMode',m);appliquerMode();if(m=='cam'){$('demar').hidden=true;tab('c');modeCamera();return}etape(2)}
@@ -1300,7 +1300,8 @@ document.querySelectorAll('.molette').forEach(initMolette);
 
 // ===== Ecran d'accueil =====
 function entrerMode(m){entrer();demarrage();choixMode(m)}
-function entrer(){const a=$('accueil');if(!a||a.classList.contains('sort'))return;a.classList.add('sort');setTimeout(()=>a.remove(),450)}
+function entrer(){const a=$('accueil');if(!a||a.hidden||a.classList.contains('sort'))return;a.classList.add('sort');setTimeout(()=>{a.hidden=true},450)}
+function accueil(){const a=$('accueil');if(!a)return demarrage();document.querySelectorAll('.amodes button').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE));a.hidden=false;a.classList.remove('sort');window.scrollTo(0,0)}
 
 document.querySelectorAll('.amodes button').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE));
 
