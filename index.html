@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye Calculateur balistique v39</title>
+<title>Distant Eye Calculateur balistique v40</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='55' fill='%230d0820' stroke='%2305d9e8' stroke-width='6'/%3E%3Cpath d='M4 60H20M100 60H116M60 4V24M60 96V116' stroke='%23f9f871' stroke-width='6'/%3E%3Cpath d='M20 60Q60 28 100 60Q60 92 20 60Z' fill='%23150c2c' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -266,7 +266,7 @@ body:not([data-mode=tir]) .tirOnly{display:none}
 </g>
 <g stroke="#f9f871" fill="none"><path d="M4 60H16M104 60H116M60 4V16M60 104V116" stroke-width="4" stroke-linecap="butt"/><path d="M16 60H104M60 16V104" stroke-width="1"/></g><g fill="#f9f871"><circle cx="24" cy="60" r="2.1"/><circle cx="60" cy="24" r="2.1"/><circle cx="33" cy="60" r="2.1"/><circle cx="60" cy="33" r="2.1"/><circle cx="42" cy="60" r="2.1"/><circle cx="60" cy="42" r="2.1"/><circle cx="51" cy="60" r="2.1"/><circle cx="60" cy="51" r="2.1"/><circle cx="69" cy="60" r="2.1"/><circle cx="60" cy="69" r="2.1"/><circle cx="78" cy="60" r="2.1"/><circle cx="60" cy="78" r="2.1"/><circle cx="87" cy="60" r="2.1"/><circle cx="60" cy="87" r="2.1"/><circle cx="96" cy="60" r="2.1"/><circle cx="60" cy="96" r="2.1"/></g>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v39</small></div>
+<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v40</small></div>
 <button class="home" onclick="demarrage()">Mode</button>
 </header>
 <div id="connexion" class="card tirOnly"><h3>Connexion</h3>
@@ -319,6 +319,8 @@ body:not([data-mode=tir]) .tirOnly{display:none}
 </div>
 <div class="bloc ro"><div class="bt">Réglages du calculateur <span class="small">(non modifiables)</span></div><div id="gReco"></div></div>
 <label>Remarque sur la série</label><input id="gNote" type="text" placeholder="ex. nouvel appui, rafales, canon froid…">
+<button class="pri big envoi" onclick="fermerSerieApp()">&#128228; Envoyer cette série au calculateur…</button>
+<p class="hint">Tu choisis ensuite <b>Envoyer</b> (le calculateur apprend), <b>Garder sans envoyer</b> ou <b>Corriger</b> (la série reste ouverte).</p>
 <p id="gMsg" class="hint"></p>
 <details class="edit"><summary>Détection des impacts (sensibilité)</summary>
 <div class="reg"><label>Sensibilité <span class="sub">(petit = plus sensible)</span></label><span class="val" id="sv">30</span></div>
@@ -378,6 +380,8 @@ body:not([data-mode=tir]) .tirOnly{display:none}
 <details><summary>Écart restant à la fermeture (facultatif)</summary>
 <div class="grid2"><div><label>Vertical (cm, + = haut)</label><input id="sE" type="number" step="0.1" value="0"></div><div><label>Horizontal (cm, + = droite)</label><input id="sX" type="number" step="0.1" value="0"></div></div>
 <p class="hint">Laisse 0 si les derniers tirs étaient centrés avec le réglage appliqué.</p></details>
+<button class="pri big envoi" onclick="fermerSerieApp()">&#128228; Envoyer cette série au calculateur…</button>
+<p class="hint">Envoie quand le dernier réglage appliqué centre tes tirs. Tu peux aussi <b>garder la série sans l'envoyer</b>.</p>
 <div id="sMsg" class="res" hidden></div>
 <div class="sessList"></div>
 </div>
@@ -526,7 +530,7 @@ body:not([data-mode=tir]) .tirOnly{display:none}
 <button class="pri" data-m="cam" onclick="entrerMode('cam')">&#128247; Téléphone caméra<small>Posé près de la cible</small></button>
 <button class="live" data-m="sans" onclick="entrerMode('sans')">&#129518; Sans caméra<small>Calculateur seul</small></button>
 </div>
-<div class="aver">v39</div>
+<div class="aver">v40</div>
 </div></div>
 <div id="demar" class="modal demar" hidden><div class="box">
 <div id="dm1"><h3>Distant Eye · Calculateur balistique<br><span style="color:var(--txt);letter-spacing:0;text-transform:none;font-size:15px">Comment utilises-tu l'appli ?</span></h3>
@@ -547,7 +551,7 @@ body:not([data-mode=tir]) .tirOnly{display:none}
 <button class="big pri" onclick="viser()">&#129517; Viser la cible</button>
 <div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="finDemar()">Passer</button></div></div>
 </div></div>
-<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v39</footer>
+<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v40</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -752,10 +756,12 @@ function recaler(a,b,W,H){let best=Infinity,bx=0,by=0;
  return [bx,by];}
 function detecter(a,b,W,H,dx,dy){const s=+$('seuil').value,m=new Uint8Array(W*H),M=R+2;
  for(let y=M;y<H-M;y++)for(let x=M;x<W-M;x++){const i=y*W+x;if(Math.abs(b[i]-a[(y-dy)*W+(x-dx)])>s)m[i]=1}
- let n=0;const pile=[];photoN++;
+ let n=0;const pile=[],n0=impacts.length;photoN++;
  for(let i=0;i<W*H;i++)if(m[i]){let sx=0,sy=0,k=0;pile.push(i);m[i]=0;
   while(pile.length){const p=pile.pop(),x=p%W,y=(p/W)|0;sx+=x;sy+=y;k++;for(const q of [p-1,p+1,p-W,p+W])if(q>=0&&q<W*H&&m[q]){m[q]=0;pile.push(q)}}
-  if(k>=4&&k<800){impacts.push({x:sx/k,y:sy/k,ph:photoN});n++}}
+  if(k>=4&&k<800){const x=sx/k,y=sy/k;
+   // un nouveau trou pres d'anciens modifie l'eclairage local : les anciens trous ressortent a ~1 px pres, on ne les recompte pas
+   if(!impacts.some((q,j)=>j<n0&&Math.hypot(q.x-x,q.y-y)<3.5)){impacts.push({x,y,ph:photoN});n++}}}
  return n;}
 function dessinBrut(im,croix){const cv=$('vue'),W=600,H=Math.round(im.height*W/im.width);cv.width=W;cv.height=H;const ctx=cv.getContext('2d');ctx.drawImage(im,0,0,W,H);
  if(croix){ctx.strokeStyle='rgba(249,248,113,.85)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();ctx.beginPath();ctx.arc(W/2,H/2,Math.min(W,H)/6,0,7);ctx.stroke()}}
@@ -1154,7 +1160,7 @@ function ouvrirModal(w,a,r,ok){const RR=deuxReglages(w,a,getCond(r.loc),r.d),kv=
  const row=(k,v)=>'<tr><td>'+k+'</td><td>'+v+'</td></tr>';
  $('mBody').innerHTML='<table>'+row('Arme / munition',esc(w.name)+' / '+esc(a.name))+row('Lieu',esc((locById(r.loc)||{}).name))+(r.cible?row('Cible / zone',esc(r.cible)+(r.zone?' / '+esc(r.zone):'')):'')+row('Distance',r.d+' m')+row('Tirs',r.n)
   +row('Écart vertical',fx(r.dy,1)+' cm ('+fx(r.dy/moaCm(r.d),2)+' MOA)')+row('Écart horizontal',fx(r.dx,1)+' cm ('+fx(r.dx/moaCm(r.d),2)+' MOA)')+(r.size!=null?row('Taille',r.size.toFixed(1)+' cm'):'')
-  +row('Clics réglés V / H',r.clV+' / '+r.clH)+row('Base / optimisé',RR.b.kv+' / '+RR.b.kh+' · '+kv+' / '+kh)+row('Température / pression',r.T+' °C / '+r.P+' hPa / '+r.RH+' %')+row('Vent météo',r.wxV+' m/s, vient de '+r.wxDir+'°'+(wx?' ('+fmtT(wx.time)+')':''))+row('Azimut de tir',r.az==null?'—':r.az+'°')+row('Vent utilisé',r.src=='man'?'saisi : '+r.manV+' m/s à '+r.manH+' h':'météo')+'</table>'
+  +(seanceActive()&&sess.log.length?row('Alertes météo de la série',sess.log.map(l=>hm(l.t)+' : '+l.txt).join('<br>')):'')+row('Clics réglés V / H',r.clV+' / '+r.clH)+row('Base / optimisé',RR.b.kv+' / '+RR.b.kh+' · '+kv+' / '+kh)+row('Température / pression',r.T+' °C / '+r.P+' hPa / '+r.RH+' %')+row('Vent météo',r.wxV+' m/s, vient de '+r.wxDir+'°'+(wx?' ('+fmtT(wx.time)+')':''))+row('Azimut de tir',r.az==null?'—':r.az+'°')+row('Vent utilisé',r.src=='man'?'saisi : '+r.manV+' m/s à '+r.manH+' h':'météo')+'</table>'
   +(W.length?'<div class="res" style="border-left-color:#f9a03f"><span class="warn">'+W.join('<br>')+'</span></div>':'<div class="res">Tout semble cohérent.</div>');
  $('modal').hidden=false;$('mOk').onclick=()=>{fermerModal();ok(true)};$('mNo').onclick=()=>{fermerModal();ok(false)}}
 function fermerModal(){$('modal').hidden=true}
@@ -1223,9 +1229,9 @@ function htmlDeux(w,d,R,court){const l=x=>'<b>'+clk(x.kv,'HAUT','BAS')+'</b> · 
  return'<div class="deux"><div class="r1"><div class="lb">Base <span class="small">calcul balistique seul, sans apprentissage</span></div>'+l(R.b)+'</div>'+
   '<div class="r2"><div class="lb">Optimisé <span class="small">avec apprentissage</span></div>'+(R.appris?l(R.o)+'<br><span class="small">'+(dv||dh?'Écart avec la base : '+(dv?(dv>0?'+':'')+dv+' en hauteur':'')+(dv&&dh?', ':'')+(dh?(dh>0?'+':'')+dh+' en dérive':''):'identique à la base')+'</span>':'<span class="small">Rien d\'appris encore pour cette munition et ce lieu : identique à la base.</span>')+'</div></div>'+
   '<p class="small" style="margin:4px 0 0">À '+d+' m · clics de '+w.click+' '+w.unit+' · conditions actuelles</p>'}
-function majBarre(){const b=$('sessBar');if(!b)return;b.hidden=!(MODE=='tir'||MODE=='sans');
+function majBarre(){document.querySelectorAll('.envoi').forEach(e=>{e.hidden=!seanceActive();if(e.nextElementSibling&&e.nextElementSibling.classList.contains('hint'))e.nextElementSibling.hidden=!seanceActive()});const b=$('sessBar');if(!b)return;b.hidden=!(MODE=='tir'||MODE=='sans');
  if(seanceActive()){b.className='sessbar on';const sub=MODE=='tir'?tirsGroupe(1e9).length+' tir(s) sur la zone visée':(sess.mods.length?sess.mods.length+' modification(s) de réglage':'Aucune modification de réglage');
-  b.innerHTML='<div class="t"><span class="dot"></span><b>Série n°'+sess.no+' ouverte</b> depuis '+hm(sess.start)+'<br><span class="small">'+sub+'</span></div><button class="pri" onclick="fermerSerieApp()">&#9632; Fermer la série</button>'}
+  b.innerHTML='<div class="t"><span class="dot"></span><b>Série n°'+sess.no+' ouverte</b> depuis '+hm(sess.start)+'<br><span class="small">'+sub+'</span></div><button class="pri" onclick="fermerSerieApp()">&#128228; Fermer / envoyer</button>'}
  else{b.className='sessbar';b.innerHTML='<div class="t"><b>Aucune série ouverte</b><br><span class="small">'+(MODE=='tir'?'Elle s\'ouvre aussi toute seule au premier tir détecté':'Ouvre-la avant de tirer : le réglage de départ est le réglage optimisé')+'</span></div><button class="ok" onclick="ouvrirSerieApp()">&#9654; Ouvrir une série</button>'}
  const L=tousGroupes().sort((x,y)=>x.g.date<y.g.date?1:-1).slice(0,8).reverse(),h='<h4>Dernières séries</h4>'+tabGroupes(L,true)+(L.length?'<p class="small">Touche l\'interrupteur pour envoyer ou retirer une série du calculateur.</p>':'');
  document.querySelectorAll('.sessList').forEach(e=>e.innerHTML=h)}
@@ -1237,7 +1243,7 @@ function clore(){if(!seanceActive())return;const H=lsGet('deHist',[]),L=tousGrou
  sess=null;lsSet('deSession',null);fermerAlerte();majSeance();majBarre()}
 // ===== Demarrage : mode d'utilisation, puis meteo et orientation (chaque etape peut etre passee) =====
 let dmT=null,dm0={};
-function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v39'+(L[MODE]?' · '+L[MODE]:'');majBarre();
+function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v40'+(L[MODE]?' · '+L[MODE]:'');majBarre();
  $('tbC').hidden=MODE=='sans';$('tabs').hidden=MODE=='sans'||MODE=='cam'}
 function demarrage(){clearInterval(dmT);$('demar').hidden=false;etape(1);document.querySelectorAll('#dm1 button[data-m]').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE))}
 function choixMode(m){MODE=m;lsSet('deMode',m);appliquerMode();if(m=='cam'){$('demar').hidden=true;tab('c');modeCamera();return}etape(2)}
