@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye Calculateur balistique v30</title>
+<title>Distant Eye Calculateur balistique v31</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 4L108 32V88L60 116L12 88V32Z' fill='%230d0820' stroke='%2305d9e8' stroke-width='5'/%3E%3Cpath d='M14 60Q60 18 106 60Q60 102 14 60Z' fill='none' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -157,6 +157,11 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 .deux .r1{background:rgba(255,255,255,.03)}.deux .r2{background:rgba(0,245,160,.07);border-color:rgba(0,245,160,.45)}
 .deux .lb{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:2px}.deux .r2 .lb{color:var(--ok)}
 .deux .lb .small{text-transform:none;letter-spacing:0}
+
+.vbar{display:flex;align-items:center;gap:8px;margin:6px 2px 0;font-size:12px;color:var(--mut)}
+.vbar input[type=range]{flex:1;min-width:0}.vbar select{width:auto;flex:none;padding:6px 8px;font-size:12px}
+.row.act .big{flex:2}.row.act>button:not(.big){flex:1;font-size:14px}
+details.edit>summary{cursor:pointer;color:var(--cya);font-size:14px;padding:4px 0}
 </style></head><body>
 <div id="fond"><div class="halo h1"></div><div class="halo h2"></div><div class="halo h3"></div><div class="grille"></div>
 <svg viewBox="0 0 1000 300" fill="none" stroke-linejoin="round" stroke-linecap="round">
@@ -197,7 +202,7 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 </g>
 <path d="M60 22V36M60 84V98M8 60H26M94 60H112" stroke="#f9f871" stroke-width="2.5"/>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v30</small></div>
+<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v31</small></div>
 <button class="home" onclick="demarrage()">Mode</button>
 </header>
 <nav class="tabs" id="tabs"><button id="tbC" class="on" onclick="tab('c')">&#127919; Cible</button><button id="tbK" onclick="tab('k')">&#129518; Calcul</button></nav>
@@ -223,48 +228,42 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 <div class="card">
 <div class="viewer"><div class="zw" id="zw"><canvas id="vue" width="600" height="400"></canvas>
 <div class="zbtn"><button onclick="zoomVue(1.5)" aria-label="Zoomer">+</button><button onclick="zoomVue(1/1.5)" aria-label="Dézoomer">−</button><button onclick="zoomVue(0)" aria-label="Taille normale">1:1</button></div></div>
+<div class="vbar"><span>Repères</span><input type="range" id="taille" min="2" max="12" value="5" oninput="rendu()"><select id="nums" onchange="rendu()"><option value="der">Tirs du groupement et derniers</option><option value="tous">Tous</option><option value="aucun">Aucun</option></select></div>
 <p id="info"></p><p id="status"></p></div>
 <div class="seg" id="seg"><button data-p="pTirs" class="on">Tirs</button><button data-p="pCad">Cadrage</button><button data-p="pCal">Calage</button></div>
 
 <div id="pTirs">
-<div class="row"><button class="ok big" onclick="demander('ref')">1. Référence<br><span class="sub">cible vierge</span></button>
-<button class="pri big" onclick="demander('tir')">2. Voir mes tirs<br><span class="sub">détecter</span></button></div>
-<div class="reg"><label>Sensibilité <span class="sub">(petit = plus sensible)</span></label><span class="val" id="sv">30</span></div>
-<div class="slider"><button class="pm" onclick="regSeuil(-1)">−</button><input type="range" id="seuil" min="10" max="80" step="1" value="30" oninput="majSeuil()"><button class="pm" onclick="regSeuil(1)">+</button></div>
-<div class="grad"><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span></div>
-<div class="edit"><span class="fl">Série</span>
-<div class="grid2">
-<div><label>Arme</label><select id="gW" onchange="gFillA();gSave();rendu()"></select></div>
-<div><label>Munition</label><select id="gA" onchange="gSave();rendu()"></select></div>
-<div><label>Lieu de tir</label><select id="gL" onchange="gSave();rendu()"></select></div>
-<div><label>Distance (m)</label><input id="gD" type="number" inputmode="numeric" value="200" oninput="gSave();rendu();calc(true)"></div>
-</div>
+<div class="row act"><button class="pri big" onclick="demander('tir')">&#127919; Voir mes tirs<br><span class="sub">détecter les impacts</span></button>
+<button class="ok" onclick="demander('ref')">Référence<br><span class="sub">cible vierge</span></button></div>
+<div class="bloc dyn"><div class="bt">Nouvelle correction conseillée</div><div id="gNew"></div></div>
+<div class="bloc"><div class="bt">Groupement</div><div id="gRes"></div>
 <label class="fl2">Tirs pris en compte</label>
 <div class="row2"><select id="gMode" onchange="gSave();rendu()"><option value="tous">Toute la série</option><option value="n">Les derniers :</option></select>
-<span class="nbox" id="gNbox"><button class="pm" onclick="regN(-1)">−</button><input id="gN" type="number" min="1" max="99" value="5" oninput="gSave();rendu()"><button class="pm" onclick="regN(1)">+</button></span></div>
-
-<div class="bloc ro"><div class="bt">Réglages du calculateur <span class="small">(non modifiables)</span></div><div id="gReco"></div></div>
-
-<div class="bloc"><div class="bt">Saisie libre</div>
+<span class="nbox" id="gNbox"><button class="pm" onclick="regN(-1)">−</button><input id="gN" type="number" min="1" max="99" value="5" oninput="gSave();rendu()"><button class="pm" onclick="regN(1)">+</button></span></div></div>
+<div class="bloc"><div class="bt">Clics réglés sur ta lunette <span class="small">(saisie libre)</span></div>
 <div class="grid2">
 <div><label>Clics réglés en hauteur (+ = haut)</label><input id="gCV" type="number" value="0" oninput="majGroupe()"></div>
 <div><label>Clics réglés en dérive (+ = droite)</label><input id="gCH" type="number" value="0" oninput="majGroupe()"></div>
 </div>
 <div class="row2"><button onclick="clicsConseilles(true)">= Base</button><button class="ok" onclick="clicsConseilles(false)">= Optimisé</button></div>
-<label>Remarque sur la série</label><input id="gNote" type="text" placeholder="ex. nouvel appui, rafales, canon froid…"></div>
-
-<div class="bloc"><div class="bt">Groupement</div><div id="gRes"></div></div>
-<div class="bloc dyn"><div class="bt">Nouvelle correction conseillée</div><div id="gNew"></div></div>
-
+</div>
+<div class="bloc ro"><div class="bt">Réglages du calculateur <span class="small">(non modifiables)</span></div><div id="gReco"></div></div>
+<label>Remarque sur la série</label><input id="gNote" type="text" placeholder="ex. nouvel appui, rafales, canon froid…">
 <div id="gFerme"></div>
 <p id="gMsg" class="hint"></p>
-<div class="sessList"></div>
-</div>
-<details class="edit"><summary>Apparence des repères</summary>
-
-<div class="grid2"><div><label>Numéros</label><select id="nums" onchange="rendu()"><option value="der">Tirs du groupement et derniers</option><option value="tous">Tous</option><option value="aucun">Aucun</option></select></div>
-<div><label>Taille des repères</label><input type="range" id="taille" min="2" max="12" value="5" oninput="rendu()" style="width:100%;margin-top:18px"></div></div>
+<div class="bloc"><div class="bt">Arme, munition, lieu, distance</div>
+<div class="grid2">
+<div><label>Arme</label><select id="gW" onchange="gFillA();gSave();rendu()"></select></div>
+<div><label>Munition</label><select id="gA" onchange="gSave();rendu()"></select></div>
+<div><label>Lieu de tir</label><select id="gL" onchange="gSave();rendu()"></select></div>
+<div><label>Distance (m)</label><input id="gD" type="number" inputmode="numeric" value="200" oninput="gSave();rendu();calc(true)"></div>
+</div></div>
+<details class="edit"><summary>Détection des impacts (sensibilité)</summary>
+<div class="reg"><label>Sensibilité <span class="sub">(petit = plus sensible)</span></label><span class="val" id="sv">30</span></div>
+<div class="slider"><button class="pm" onclick="regSeuil(-1)">−</button><input type="range" id="seuil" min="10" max="80" step="1" value="30" oninput="majSeuil()"><button class="pm" onclick="regSeuil(1)">+</button></div>
+<div class="grad"><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span></div>
 </details>
+<div class="sessList"></div>
 </div>
 
 <div id="pCad" hidden>
@@ -297,9 +296,6 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 <div id="tabCalc" hidden>
 <div class="card sansOnly"><h3>Tir sans téléphone caméra</h3>
 <p id="sCtx" class="small"></p>
-<div class="grid2"><div><label>Distance (m)</label><input id="sD" type="number" inputmode="numeric" value="100" oninput="majSans()"></div><div><label>Nombre de tirs de la série</label><input id="sN" type="number" inputmode="numeric" value="5"></div></div>
-<p class="small">Cette distance règle toute l'appli, y compris la correction de l'onglet Calcul.</p>
-<div class="bloc ro"><div class="bt">Réglages du calculateur <span class="small">(non modifiables)</span></div><div id="sConseil"></div></div>
 <div class="bloc dyn"><div class="bt">Réglage appliqué sur la lunette</div><div id="sReg"></div>
 <div id="sMods" hidden>
 <label class="fl2">Modification appliquée (1 clic par appui)</label>
@@ -310,6 +306,9 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 <div id="sBase"></div>
 <div id="sLog" class="small"></div>
 </div></div>
+<div class="bloc ro"><div class="bt">Réglages du calculateur <span class="small">(non modifiables)</span></div><div id="sConseil"></div></div>
+<div class="grid2"><div><label>Distance (m)</label><input id="sD" type="number" inputmode="numeric" value="100" oninput="majSans()"></div><div><label>Nombre de tirs de la série</label><input id="sN" type="number" inputmode="numeric" value="5"></div></div>
+<p class="small">Cette distance règle toute l'appli, y compris la correction de l'onglet Calcul.</p>
 <label>Remarque sur la série</label><input id="sNote" type="text" placeholder="ex. nouvel appui, rafales…">
 <details><summary>Écart restant à la fermeture (facultatif)</summary>
 <div class="grid2"><div><label>Vertical (cm, + = haut)</label><input id="sE" type="number" step="0.1" value="0"></div><div><label>Horizontal (cm, + = droite)</label><input id="sX" type="number" step="0.1" value="0"></div></div>
@@ -318,41 +317,20 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 <div id="sMsg" class="res" hidden></div>
 <div class="sessList"></div>
 </div>
-<div class="card"><h3>1 · Arme et lunette</h3>
-<label class="fl">Profil</label><select id="selW" class="full" onchange="refresh()"></select>
-<div class="edit"><span class="fl">Modifier ce profil</span>
-<div class="grid2">
-<div class="s2"><label>Nom</label><input id="wName"></div>
-<div><label>Hauteur lunette / canon (cm)</label><input id="wSH" type="number" step="0.1"></div>
-<div><label>Distance de réglage du zéro (m)</label><input id="wZero" type="number"></div>
-<div><label>Unité de la lunette</label><select id="wUnit"><option>MOA</option><option>MRAD</option></select></div>
-<div><label>Valeur d'un clic</label><input id="wClick" type="number" step="0.01"></div>
-<div class="s2"><label>Notes (calibre, canon, pas)</label><input id="wNotes"></div>
-</div>
-<div class="btns"><button class="ok" onclick="saveW()">Enregistrer les modifications</button></div></div>
-<div class="btns"><button onclick="newW()">+ Nouvelle arme</button><button onclick="delW()">Supprimer</button></div>
-</div>
-
-<div class="card"><h3>2 · Munition</h3>
-<label class="fl">Profil (pour l'arme choisie)</label><select id="selA" class="full" onchange="showA()"></select>
-<div class="edit"><span class="fl">Modifier ce profil</span>
-<div class="grid2">
-<div class="s2"><label>Nom</label><input id="aName"></div>
-<div><label>Poids (gr)</label><input id="aWt" type="number"></div>
-<div><label>Modèle</label><select id="aMod"><option>G7</option><option>G1</option></select></div>
-<div><label>Coefficient balistique</label><input id="aBC" type="number" step="0.001"></div>
-<div><label>Vitesse initiale catalogue (m/s)</label><input id="aV0" type="number"></div>
-
-</div>
-<div class="btns"><button class="ok" onclick="saveA()">Enregistrer les modifications</button></div></div>
-<div class="btns"><button onclick="newA()">+ Nouvelle munition</button><button onclick="delA()">Supprimer</button></div>
-<div class="avecOnly"><div id="qualInfo"></div></div>
-</div>
-
-<div class="card"><h3>3 · Météo et zéro</h3>
+<div class="card"><h3>Météo, vent et réglages</h3>
+<div id="out"></div>
 <div class="grid2"><div class="s2"><label>Lieu de tir</label><select id="cL" onchange="saveCond();majVent()"></select></div></div>
-<button class="pri big" onclick="meteo()">&#128205; Météo ici</button>
+<div class="row"><button class="pri" onclick="meteo()">&#128205; Météo ici</button><button onclick="viser()">&#129517; Viser la cible</button></div>
 <p id="wxInfo" class="small"></p>
+<p id="azInfo" class="small"></p>
+<div id="windInfo" class="res"></div>
+<div id="sessInfo" class="res"></div>
+<div class="grid2">
+<div class="s2"><label>Vent utilisé pour le calcul</label><select id="cSrc"><option value="meteo">Vent météo (corrigé pour ce lieu)</option><option value="man">Vent saisi au stand</option></select></div>
+<div><label>Vent saisi (m/s)</label><input id="manV" type="number" step="0.1" value="0"></div>
+<div><label>Vent saisi, heure (3 = vient de droite)</label><input id="manH" type="number" value="3"></div>
+</div>
+<details class="edit"><summary>Valeurs météo détaillées (modifiables)</summary>
 <div class="grid2">
 <div><label>Température (°C)</label><input id="cT" type="number" step="0.1" value="15"></div>
 <div><label>Pression au stand (hPa)</label><input id="cP" type="number" step="0.1" value="1013"></div>
@@ -361,18 +339,10 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 <div><label>Vent météo, vient de (°)</label><input id="wxDir" type="number" value="0"></div>
 <div><label>Azimut de tir (°)</label><input id="cAz" type="number" placeholder="?"></div>
 </div>
-<button class="big" onclick="viser()">&#129517; Viser la cible</button>
-<p id="azInfo" class="small"></p>
-<div id="windInfo" class="res"></div>
-<div class="grid2">
-<div class="s2"><label>Vent utilisé pour le calcul</label><select id="cSrc"><option value="meteo">Vent météo (corrigé pour ce lieu)</option><option value="man">Vent saisi au stand</option></select></div>
-<div><label>Vent saisi (m/s)</label><input id="manV" type="number" step="0.1" value="0"></div>
-<div><label>Vent saisi, heure (3 = vient de droite)</label><input id="manH" type="number" value="3"></div>
-</div>
-<div class="edit"><span class="fl">Zéro</span>
+</details>
+<details class="edit"><summary>Zéro de l'arme</summary>
 <div id="zInfo" class="res"></div>
 <button class="live big" onclick="zeroIci()">&#128204; Mon zéro est fait ici (conditions actuelles)</button>
-<div id="sessInfo" class="res"></div>
 <details><summary>Modifier les conditions du zéro à la main</summary>
 <div class="grid2">
 <div><label>Température (°C)</label><input id="zT" type="number" step="0.1"></div>
@@ -383,13 +353,43 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 </div>
 <button class="full ok" onclick="saveZero()">Enregistrer les conditions du zéro</button>
 </details>
-</div>
-<div id="out" style="margin-top:12px"></div>
+</details>
 </div>
 
-<div class="card avecOnly"><h3>4 · Cibles</h3>
+<div class="card"><h3>Arme et lunette</h3>
+<label class="fl">Profil</label><select id="selW" class="full" onchange="refresh()"></select>
+<details class="edit"><summary>Modifier ce profil</summary>
+<div class="grid2">
+<div class="s2"><label>Nom</label><input id="wName"></div>
+<div><label>Hauteur lunette / canon (cm)</label><input id="wSH" type="number" step="0.1"></div>
+<div><label>Distance de réglage du zéro (m)</label><input id="wZero" type="number"></div>
+<div><label>Unité de la lunette</label><select id="wUnit"><option>MOA</option><option>MRAD</option></select></div>
+<div><label>Valeur d'un clic</label><input id="wClick" type="number" step="0.01"></div>
+<div class="s2"><label>Notes (calibre, canon, pas)</label><input id="wNotes"></div>
+</div>
+<div class="btns"><button class="ok" onclick="saveW()">Enregistrer les modifications</button></div></details>
+<div class="btns"><button onclick="newW();ouvrirFiche(this)">+ Nouvelle arme</button><button onclick="delW()">Supprimer</button></div>
+</div>
+
+<div class="card"><h3>Munition</h3>
+<label class="fl">Profil (pour l'arme choisie)</label><select id="selA" class="full" onchange="showA()"></select>
+<details class="edit"><summary>Modifier ce profil</summary>
+<div class="grid2">
+<div class="s2"><label>Nom</label><input id="aName"></div>
+<div><label>Poids (gr)</label><input id="aWt" type="number"></div>
+<div><label>Modèle</label><select id="aMod"><option>G7</option><option>G1</option></select></div>
+<div><label>Coefficient balistique</label><input id="aBC" type="number" step="0.001"></div>
+<div><label>Vitesse initiale catalogue (m/s)</label><input id="aV0" type="number"></div>
+
+</div>
+<div class="btns"><button class="ok" onclick="saveA()">Enregistrer les modifications</button></div></details>
+<div class="btns"><button onclick="newA();ouvrirFiche(this)">+ Nouvelle munition</button><button onclick="delA()">Supprimer</button></div>
+<div class="avecOnly"><div id="qualInfo"></div></div>
+</div>
+
+<div class="card avecOnly"><h3>Cibles</h3>
 <label class="fl">Profil</label><select id="selT" class="full" onchange="showT()"></select>
-<div class="edit"><span class="fl">Modifier ce profil</span>
+<details class="edit"><summary>Modifier ce profil</summary>
 <div class="grid2">
 <div class="s2"><label>Nom</label><input id="tName"></div>
 <div><label>Largeur (cm)</label><input id="tW" type="number" step="0.1"></div>
@@ -400,20 +400,20 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 <p class="small">Une zone par ligne : nom, x, y, diamètre, en cm depuis le coin haut-gauche.</p>
 <textarea id="tZ" rows="5" style="width:100%;font:13px ui-monospace,monospace;color:var(--txt);background:rgba(6,4,13,.7);border:1px solid rgba(5,217,232,.3);border-radius:10px;padding:10px"></textarea>
 </details>
-<div class="btns"><button class="ok" onclick="saveT()">Enregistrer les modifications</button></div></div>
-<div class="btns"><button onclick="newT()">+ Nouvelle cible</button><button onclick="delT()">Supprimer</button></div>
+<div class="btns"><button class="ok" onclick="saveT()">Enregistrer les modifications</button></div></details>
+<div class="btns"><button onclick="newT();ouvrirFiche(this)">+ Nouvelle cible</button><button onclick="delT()">Supprimer</button></div>
 </div>
 
-<div class="card"><h3>5 · Lieux de tir</h3>
+<div class="card"><h3>Lieux de tir</h3>
 <label class="fl">Lieu</label><select id="selL" class="full" onchange="showL()"></select>
-<div class="edit"><span class="fl">Modifier ce lieu</span>
+<details class="edit"><summary>Modifier ce lieu</summary>
 <div class="grid2"><div class="s2"><label>Nom</label><input id="lName"></div>
 <div class="s2"><label>Exposition estimée au vent</label><select id="lExpo"><option value="">Non précisée (vent météo pris tel quel)</option><option value="faible">Faible : stand abrité, merlons, arbres (vent × 0,3)</option><option value="moyenne">Moyenne : partiellement dégagé (vent × 0,5)</option><option value="forte">Forte : plaine, terrain dégagé (vent × 0,7)</option></select></div>
 <div class="s2"><label>Notes</label><input id="lNotes"></div></div>
 <p class="small">L'exposition sert de point de départ. Après 3 séances venteuses ici, l'appli la remplace par ce qu'elle a réellement mesuré, direction par direction, puis selon la distance de tir si tu tires à des distances différentes.</p>
-<div class="btns"><button class="ok" onclick="saveL()">Enregistrer les modifications</button></div></div>
+<div class="btns"><button class="ok" onclick="saveL()">Enregistrer les modifications</button></div></details>
 <div id="lInfo" class="res"></div>
-<div class="btns"><button onclick="newL()">+ Nouveau lieu</button><button onclick="delL()">Supprimer</button><button onclick="resetVentL()">Oublier le vent appris ici</button></div>
+<div class="btns"><button onclick="newL();ouvrirFiche(this)">+ Nouveau lieu</button><button onclick="delL()">Supprimer</button><button onclick="resetVentL()">Oublier le vent appris ici</button></div>
 </div>
 
 <div class="card"><h3>Apprentissage</h3>
@@ -455,7 +455,7 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 <button class="big pri" onclick="viser()">&#129517; Viser la cible</button>
 <div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="finDemar()">Passer</button></div></div>
 </div></div>
-<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v30</footer>
+<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v31</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -1142,7 +1142,7 @@ function clore(){if(!seanceActive())return;const H=lsGet('deHist',[]),L=tousGrou
  sess=null;lsSet('deSession',null);fermerAlerte();majSeance();majBarre()}
 // ===== Demarrage : mode d'utilisation, puis meteo et orientation (chaque etape peut etre passee) =====
 let dmT=null,dm0={};
-function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v30'+(L[MODE]?' · '+L[MODE]:'');majBarre();
+function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v31'+(L[MODE]?' · '+L[MODE]:'');majBarre();
  $('tbC').hidden=MODE=='sans';$('tabs').hidden=MODE=='sans'||MODE=='cam'}
 function demarrage(){clearInterval(dmT);$('demar').hidden=false;etape(1);document.querySelectorAll('#dm1 button[data-m]').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE))}
 function choixMode(m){MODE=m;lsSet('deMode',m);appliquerMode();if(m=='cam'){$('demar').hidden=true;tab('c');modeCamera();return}etape(2)}
@@ -1178,5 +1178,6 @@ CF.forEach(k=>$(k).addEventListener('change',()=>{majSans();calc(true)}));
 if(sess&&!sess.id)sess=null;if(sess&&!sess.no)sess.no=prochainNo();if(sess&&!sess.reg){sess.reg={v:0,h:0};sess.mods=[]}
 if(MODE=='tir'&&seanceActive()){serieOn=true;serie0=0;serieNo=sess.no;serieT=sess.start}
 appliquerMode();demarrage();
+function ouvrirFiche(b){const d=b.closest('.card').querySelector('details.edit');if(d){d.open=true;d.scrollIntoView({block:'center',behavior:'smooth'})}}
 
 </script></body></html>
