@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye v23</title>
+<title>Distant Eye Calculateur balistique v24</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 4L108 32V88L60 116L12 88V32Z' fill='%230d0820' stroke='%2305d9e8' stroke-width='5'/%3E%3Cpath d='M14 60Q60 18 106 60Q60 102 14 60Z' fill='none' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -124,6 +124,19 @@ body[data-mode=sans] .avecOnly{display:none}
 .demar .menu button.der{box-shadow:0 0 0 2px var(--yel),0 0 18px rgba(249,248,113,.35)}
 .demar .menu button.der small::after{content:" · dernier choix";color:var(--yel)}
 .demar .big{width:100%;margin:6px 0}
+
+header .h2{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--cya);margin-top:1px}
+.sessbar{display:flex;align-items:center;gap:10px;margin:8px 0 10px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card2);font-size:14px}
+.sessbar .t{flex:1;line-height:1.35}.sessbar button{flex:none;font-size:14px;padding:10px 12px}
+.sessbar.on{border-color:var(--ok);box-shadow:0 0 14px rgba(0,245,160,.25)}
+.sessbar .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ok);margin-right:6px;box-shadow:0 0 8px var(--ok);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.sessList table,.rTab{width:100%;font-size:13px}
+.sessList h4,.rH{margin:14px 0 4px;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cya)}
+.sw{border-radius:999px;padding:6px 10px;font-size:12px;font-weight:700;white-space:nowrap;min-width:0;border:1px solid var(--mut);background:transparent;color:var(--mut)}
+.sw.on{background:var(--ok);border-color:var(--ok);color:#04130d;box-shadow:0 0 10px rgba(0,245,160,.4)}
+tr.off td{opacity:.5}tr.off td:last-child{opacity:1}
+header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 </style></head><body>
 <div id="fond"><div class="halo h1"></div><div class="halo h2"></div><div class="halo h3"></div><div class="grille"></div>
 <svg viewBox="0 0 1000 300" fill="none" stroke-linejoin="round" stroke-linecap="round">
@@ -164,11 +177,12 @@ body[data-mode=sans] .avecOnly{display:none}
 </g>
 <path d="M60 22V36M60 84V98M8 60H26M94 60H112" stroke="#f9f871" stroke-width="2.5"/>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><small id="sub">v23 · impact analysis</small></div>
+<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v24</small></div>
 <button class="home" onclick="demarrage()">Mode</button>
 </header>
 <nav class="tabs" id="tabs"><button id="tbC" class="on" onclick="tab('c')">&#127919; Cible</button><button id="tbK" onclick="tab('k')">&#129518; Calcul</button></nav>
 <p id="err"></p>
+<div id="sessBar" class="sessbar" hidden></div>
 <div id="alerte" class="alerte" hidden><button class="x" onclick="fermerAlerte()">&#10005;</button><div id="alerteTxt"></div></div>
 
 <div id="tabCible">
@@ -213,8 +227,10 @@ body[data-mode=sans] .avecOnly{display:none}
 <div><label>Clics affichés horizontal (+ = droite)</label><input id="gCH" type="number" value="0"></div>
 </div>
 <button class="full" onclick="clicsConseilles()">Reprendre les clics conseillés par le calcul</button>
-<button class="pri big" style="margin-top:10px" onclick="verifierEnvoi()">Vérifier et envoyer au calculateur</button>
+<button class="pri big" style="margin-top:10px" onclick="verifierEnvoi()">&#10003; Enregistrer ce groupement</button>
+<p class="hint">Tu choisis ensuite de l'<b>envoyer au calculateur</b> (il apprend) ou de le <b>garder sans l'envoyer</b> (tir raté, essai…). Tu peux changer d'avis à tout moment dans la liste de la séance.</p>
 <p id="gMsg" class="hint"></p>
+<div class="sessList"></div>
 </div>
 <details class="edit"><summary>Affichage des tirs</summary>
 <div class="reg"><label>Derniers tirs en rouge</label><span class="val" id="dv">5</span></div>
@@ -264,8 +280,9 @@ body[data-mode=sans] .avecOnly{display:none}
 <div><label>Écart restant horizontal (cm, + = droite)</label><input id="sX" type="number" step="0.1" value="0"></div>
 </div>
 <p class="hint">Écart restant : laisse 0 si le groupement final est centré. Sinon, indique où il est encore par rapport au point visé.</p>
-<button class="ok big" onclick="saisieSans()">&#10003; Vérifier et apprendre</button>
+<button class="ok big" onclick="saisieSans()">&#10003; Enregistrer ce groupement</button>
 <div id="sMsg" class="res" hidden></div>
+<div class="sessList"></div>
 </div>
 <div class="card"><h3>1 · Arme et lunette</h3>
 <label class="fl">Profil</label><select id="selW" class="full" onchange="refresh()"></select>
@@ -321,7 +338,6 @@ body[data-mode=sans] .avecOnly{display:none}
 <div class="edit"><span class="fl">Zéro et séance</span>
 <div id="zInfo" class="res"></div>
 <button class="live big" onclick="zeroIci()">&#128204; Mon zéro est fait ici (conditions actuelles)</button>
-<button class="full" onclick="nouvelleSeance()">&#9654; Nouvelle séance, zéro inchangé</button>
 <div id="sessInfo" class="res"></div>
 <details><summary>Modifier les conditions du zéro à la main</summary>
 <div class="grid2">
@@ -387,9 +403,11 @@ body[data-mode=sans] .avecOnly{display:none}
 </div>
 </div>
 <div id="modal" class="modal" hidden><div class="box"><h3>Vérification avant envoi</h3><div id="mBody"></div>
-<div class="btns" style="margin-top:12px"><button onclick="fermerModal()">Corriger</button><button class="pri" id="mOk">Confirmer l'envoi</button></div></div></div>
+<div class="btns" style="margin-top:12px"><button onclick="fermerModal()">&#8592; Corriger</button><button id="mNo">Garder sans envoyer</button></div><button class="pri big" id="mOk" style="width:100%">&#10148; Envoyer au calculateur</button></div></div>
+<div id="recap" class="modal" hidden><div class="box"><h3>Fin de séance</h3><div id="rBody"></div>
+<div class="btns" style="margin-top:12px"><button onclick="$('recap').hidden=true">&#8592; Continuer la séance</button></div><button class="pri big" style="width:100%" onclick="cloreSeance()">&#9632; Terminer la séance</button></div></div>
 <div id="demar" class="modal demar" hidden><div class="box">
-<div id="dm1"><h3>Comment utilises-tu l'appli ?</h3>
+<div id="dm1"><h3>Distant Eye · Calculateur balistique<br><span style="color:var(--txt);letter-spacing:0;text-transform:none;font-size:15px">Comment utilises-tu l'appli ?</span></h3>
 <div class="menu">
 <button class="ok" data-m="tir" onclick="choixMode('tir')"><b>&#127919;</b><span>Tireur, avec téléphone caméra<small>Les impacts sont détectés sur la photo, analysés et appris</small></span></button>
 <button class="live" data-m="sans" onclick="choixMode('sans')"><b>&#129518;</b><span>Tireur, sans téléphone caméra<small>Calculateur seul : tu indiques les clics réellement réglés et il apprend</small></span></button>
@@ -405,9 +423,10 @@ body[data-mode=sans] .avecOnly{display:none}
 <p class="hint">Tiens le téléphone à plat, le haut pointé vers la cible, puis touche « Viser ». L'appli en déduit d'où vient le vent par rapport à ta ligne de tir.</p>
 <div id="dAz" class="res"></div>
 <button class="big pri" onclick="viser()">&#129517; Viser la cible</button>
-<div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="finDemar()">Passer</button></div></div>
+<div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="etape(4)">Passer</button></div></div>
+<div id="dm4" hidden><h3>Séance de tir</h3><div id="dSess" class="res"></div><div id="dSessB"></div></div>
 </div></div>
-<footer>DISTANT EYE v23</footer>
+<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v24</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -493,7 +512,7 @@ function fitVitesse(w,a,G,now){const L={Tref:TREF,vOk:false,kOk:false,bOk:false,
 // Apprentissage complet : vitesse par munition, decalage horizontal par munition, vent par lieu et par secteur
 function fitAll(db,now){now=now||Date.now();const W=id=>db.w.find(x=>x.id==id),LOC=id=>db.l.find(x=>x.id==id);
  const H=[];// points horizontaux de toutes les munitions
- for(const a of db.a){const w=W(a.wid);if(!w){a.learn=null;continue}const G=(a.groups||[]).filter(g=>!g.ign&&g.n>=3&&g.d>=w.zero);G.forEach(g=>g.flag='');
+ for(const a of db.a){const w=W(a.wid);if(!w){a.learn=null;continue}const G=(a.groups||[]).filter(g=>!g.ign&&!g.off&&g.n>=3&&g.d>=w.zero);G.forEach(g=>g.flag='');
   const L=fitVitesse(w,a,G,now);a.learn=L;
   const zc=zeroCond(w),vz=L.vOk?L.V+L.k*(zc.T-TREF):a.v0*(1+(a.tr||0)/100);
   for(const g of G){const c={T:g.T,P:g.P,RH:g.RH},v=L.vOk?L.V+L.k*(g.T-TREF):a.v0*(1+(a.tr||0)/100),p=pathRel(w,a,c,g.d,v,vz),lag=p.t-g.d/v,lag0=p.tz-w.zero/vz,m=moaCm(g.d);
@@ -870,7 +889,7 @@ function refresh(sel,selA){sel=sel||$('selW').value;$('selW').innerHTML=opts(db.
 // puis on l'exprime en "groupement de 5 tirs equivalent" (MOA). Facteurs obtenus par simulation d'une dispersion normale.
 const KES=[[2,1.77],[3,2.41],[5,3.07],[10,3.81],[20,4.45],[40,5.05]];
 function kES(n){n=Math.max(2,Math.min(40,n));for(let i=1;i<KES.length;i++)if(n<=KES[i][0]){const[a,b]=KES[i-1],[c,d]=KES[i],t=(Math.log(n)-Math.log(a))/(Math.log(c)-Math.log(a));return b+(d-b)*t}return 5.05}
-function qualite(a){const all=(a.groups||[]).filter(g=>!g.ign&&g.size!=null&&g.n>=3&&g.d>0),venteux=g=>Math.abs(g.src=='man'?compsOf(g.manV||0,(g.manH||0)*30).cross:(g.crossMeteo??0))>=4;
+function qualite(a){const all=(a.groups||[]).filter(g=>!g.ign&&!g.off&&g.size!=null&&g.n>=3&&g.d>0),venteux=g=>Math.abs(g.src=='man'?compsOf(g.manV||0,(g.manH||0)*30).cross:(g.crossMeteo??0))>=4;
  const G=all.filter(g=>!venteux(g));if(!G.length)return{n:0,G:0,exclus:all.length};let S=0,W=0,N=0;
  for(const g of G){const s=g.size/moaCm(g.d)/kES(g.n),w=g.n-1;S+=w*s;W+=w;N+=g.n}const sig=S/W;
  return{idx:sig*kES(5),sig,G:G.length,n:N,exclus:all.length-G.length,inc:75/Math.sqrt(W),fiab:G.length>=5&&N>=40?'bonne':G.length>=3&&N>=15?'moyenne':'faible'}}
@@ -895,8 +914,8 @@ function showZero(){const w=curW();if(!w){$('zInfo').innerHTML='Crée d\'abord u
  $('zInfo').innerHTML=z.set?'Zéro de <b>'+esc(w.name)+'</b> à '+w.zero+' m, fait le '+(z.date?z.date.split('-').reverse().join('/'):'?')+' : '+z.T+' °C, '+z.P+' hPa, '+z.RH+' %, vent latéral '+(+z.cross).toFixed(1)+' m/s. À '+w.zero+' m dans ces conditions, la correction vaut 0.'
   :'<span class="warn">Conditions du zéro de '+esc(w.name)+' non enregistrées</span> : l\'appli suppose 15 °C, 1013 hPa, 50 % et pas de vent. Appuie sur « Mon zéro est fait ici » une fois ton zéro confirmé.'}
 function zeroIci(){const w=curW();if(!w)return alert("Crée d'abord une arme");saveCond();const c=getCond(),cr=crossEff(c,w.zero);
- w.zc={T:c.T,P:c.P,RH:c.RH,cross:cr,date:new Date().toISOString().slice(0,10)};ZC.clear();fitAll(db);store();showZero();nouvelleSeance(true);
- flash('Zéro enregistré pour '+w.name+' : '+c.T+' °C, '+c.P+' hPa, '+c.RH+' %, vent latéral '+cr.toFixed(1)+' m/s. Séance démarrée.')}
+ w.zc={T:c.T,P:c.P,RH:c.RH,cross:cr,date:new Date().toISOString().slice(0,10)};ZC.clear();fitAll(db);store();showZero();let st='';if(seanceActive()){const i=instantane();sess.s0=i;sess.last=i;sess.log.push({t:Date.now(),txt:'Zéro refait pour '+esc(w.name)});lsSet('deSession',sess);majSeance()}else{nouvelleSeance(true);st=' Séance démarrée.'}
+ flash('Zéro enregistré pour '+w.name+' : '+c.T+' °C, '+c.P+' hPa, '+c.RH+' %, vent latéral '+cr.toFixed(1)+' m/s.'+st)}
 function saveZero(){const w=curW();if(!w)return;w.zc={T:num('zT'),P:num('zP'),RH:num('zRH'),cross:num('zW')||0,date:$('zDate').value||null};ZC.clear();fitAll(db);store();showZero();flash('Conditions du zéro enregistrées.')}
 // ===== Seance : suivi de la meteo et alertes =====
 let sess=lsGet('deSession',null);
@@ -904,9 +923,9 @@ function ctxSeance(){const g=gWA(),w=g.w||curW(),a=(g.a&&g.w?g.a:null)||curA(),d
 function instantane(){const{w,a,d}=ctxSeance();if(!w||!a)return null;const c=getCond(),p=predict(w,a,c,d),uc=unitCm(w,d);
  return{t:Date.now(),w:w.id,a:a.id,d,kv:Math.round(-p.cm/uc/w.click),kh:Math.round(-p.drift/uc/w.click),T:c.T,P:c.P,wxV:c.wxV,wxDir:c.wxDir,cross:crossEff(c,d)}}
 const hm=t=>new Date(t).toTimeString().slice(0,5),clk=(k,p,n)=>Math.abs(k)+' '+(k>=0?p:n);
-function nouvelleSeance(silencieux){const s=instantane();sess={start:Date.now(),s0:s,last:s,log:[]};lsSet('deSession',sess);fermerAlerte();majSeance();if(!silencieux)flash('Nouvelle séance démarrée à '+hm(sess.start)+'.')}
-function seanceActive(){return sess&&Date.now()-sess.start<12*36e5}
-function majSeance(){const el=$('sessInfo');if(!el)return;if(!seanceActive()){el.innerHTML='Pas de séance en cours. Elle démarre avec « Mon zéro est fait ici » ou « Nouvelle séance ».';return}
+function nouvelleSeance(silencieux){const s=instantane(),t=Date.now(),L0={};db.a.forEach(a=>L0[a.id]=a.learn?{V:a.learn.vOk?a.learn.V:null,b:a.learn.bOk?a.learn.b:null}:null);sess={id:'s'+t,start:t,s0:s,last:s,log:[],L0};lsSet('deSession',sess);fermerAlerte();majSeance();if(!silencieux)flash('Séance démarrée à '+hm(sess.start)+'.');majBarre()}
+function seanceActive(){return!!(sess&&sess.id&&Date.now()-sess.start<12*36e5)}
+function majSeance(){const el=$('sessInfo');if(!el)return;if(!seanceActive()){el.innerHTML='Pas de séance en cours : démarre-la avec le bouton « Démarrer la séance » en haut de l\'écran.';return}
  const s0=sess.s0,s=instantane();if(!s0||!s){el.innerHTML='Séance en cours depuis '+hm(sess.start)+'.';return}const w=db.w.find(x=>x.id==s.w);
  let h='Séance en cours depuis <b>'+hm(sess.start)+'</b> · météo relue automatiquement toutes les 15 min<br>À '+s.d+' m : réglage de départ <b>'+clk(s0.kv,'H','B')+' / '+clk(s0.kh,'D','G')+'</b>, maintenant <b>'+clk(s.kv,'H','B')+' / '+clk(s.kh,'D','G')+'</b>';
  if(sess.log.length)h+='<br><span class="small">'+sess.log.slice(-5).map(l=>hm(l.t)+' : '+l.txt).join('<br>')+'</span>';el.innerHTML=h}
@@ -957,7 +976,7 @@ function showLearn(){const a=curA(),w=curW(),el=$('learnInfo');if(!a||!w){el.inn
  if(L&&L.msgs.length)h+='<br><br><span class="small">'+L.msgs.map(esc).join('<br>')+'</span>';
  h+='<br><br><span class="small">Le vent s\'apprend par lieu de tir : voir la carte Lieux de tir.<br>Chaque valeur est recalculée à partir de tout l\'historique : un groupement isolé ne la fait bouger que faiblement, et les groupements incohérents sont écartés. Compte 3 à 5 groupements cohérents pour qu\'une valeur devienne fiable.</span></div>';el.innerHTML=h;
  const G=[...a.groups].reverse().slice(0,12);if(!G.length){$('grpList').innerHTML='';return}
- $('grpList').innerHTML='<table><tr><th>Date</th><th>Lieu</th><th>m</th><th>Tirs</th><th>V cm</th><th>H cm</th><th>°C</th><th></th></tr>'+G.map(g=>'<tr><td>'+g.date.slice(8,10)+'/'+g.date.slice(5,7)+'</td><td>'+esc((locById(g.loc)||{name:'?'}).name.slice(0,8))+'</td><td>'+g.d+'</td><td>'+g.n+'</td><td>'+fx(g.dy,1)+'</td><td>'+fx(g.dx,1)+'</td><td>'+(+g.T).toFixed(0)+'</td><td>'+(g.ign?'<span class="tag t-off">annulé</span>':g.flag?'<span class="tag t-low">'+g.flag+'</span>':'')+'</td></tr>').join('')+'</table>'}
+ $('grpList').innerHTML='<table><tr><th>Date</th><th>Lieu</th><th>m</th><th>Tirs</th><th>V cm</th><th>H cm</th><th>°C</th><th></th></tr>'+G.map(g=>'<tr><td>'+g.date.slice(8,10)+'/'+g.date.slice(5,7)+'</td><td>'+esc((locById(g.loc)||{name:'?'}).name.slice(0,8))+'</td><td>'+g.d+'</td><td>'+g.n+'</td><td>'+fx(g.dy,1)+'</td><td>'+fx(g.dx,1)+'</td><td>'+(+g.T).toFixed(0)+'</td><td>'+inter(g)+(g.flag&&!g.ign&&!g.off?' <span class="tag t-low">'+g.flag+'</span>':'')+'</td></tr>').join('')+'</table>'}
 function resume(a,old){const L=a.learn,V=x=>x&&x.vOk?x.V.toFixed(0)+' m/s':'—';const p=['V0 '+V(old)+' → <b>'+V(L)+'</b>'];if(L.kOk)p.push('temp. '+L.k.toFixed(2)+' m/s/°C');if(L.bOk)p.push('décalage '+fx(L.b,2)+' MOA');return esc(a.name)+' : '+p.join(' · ')}
 function snapshot(){const m=new Map();db.a.forEach(a=>m.set(a.id,a.learn?{...a.learn}:null));return m}
 function processQueue(){const q=lsGet('balGroups',[]),todo=q.filter(g=>!g.done);if(!todo.length)return'';const b='b'+Date.now(),touched=new Set(),lines=[],old=snapshot(),oldL=db.l.map(l=>[l.id,l.learn?l.learn.c:1,l.learn&&l.learn.cOk]);
@@ -997,7 +1016,7 @@ function ouvrirModal(w,a,r,ok){const pr=predict(w,a,getCond(r.loc),r.d),uc=unitC
   +row('Écart vertical',fx(r.dy,1)+' cm ('+fx(r.dy/moaCm(r.d),2)+' MOA)')+row('Écart horizontal',fx(r.dx,1)+' cm ('+fx(r.dx/moaCm(r.d),2)+' MOA)')+(r.size!=null?row('Taille',r.size.toFixed(1)+' cm'):'')
   +row('Clics affichés V / H',r.clV+' / '+r.clH)+row('Température / pression',r.T+' °C / '+r.P+' hPa / '+r.RH+' %')+row('Vent météo',r.wxV+' m/s, vient de '+r.wxDir+'°'+(wx?' ('+fmtT(wx.time)+')':''))+row('Azimut de tir',r.az==null?'—':r.az+'°')+row('Vent utilisé',r.src=='man'?'saisi : '+r.manV+' m/s à '+r.manH+' h':'météo')+'</table>'
   +(W.length?'<div class="res" style="border-left-color:#f9a03f"><span class="warn">'+W.join('<br>')+'</span></div>':'<div class="res">Tout semble cohérent.</div>');
- $('modal').hidden=false;$('mOk').onclick=()=>{fermerModal();ok()}}
+ $('modal').hidden=false;$('mOk').onclick=()=>{fermerModal();ok(true)};$('mNo').onclick=()=>{fermerModal();ok(false)}}
 function fermerModal(){$('modal').hidden=true}
 
 // ===== Groupement dans l'onglet Cible =====
@@ -1027,23 +1046,54 @@ function verifierEnvoi(){const{w,a}=gWA(),d=Math.round(num('gD')),G=groupe();
  if(!w||!a)return alert('Choisis une arme et une munition (onglet Calcul pour les créer)');if(+$('gN').value<3)return alert('Pour apprendre, il faut un groupement d\'au moins 3 tirs : choisis 3, 5, 10 ou 20 tirs.');if(!G)return alert('Groupement incomplet : cale la cible et vérifie qu\'il y a assez d\'impacts dans la zone visée');
  if(d<w.zero)return alert('Distance en deçà de la distance de réglage ('+w.zero+' m) : pas d\'apprentissage');
  const T=cible(),r=groupeRecord(w,a,$('gL').value,d,G.n,G.dx,G.dy,G.size,num('gCV')||0,num('gCH')||0,{cible:T?T.name:null,zone:G.zone});
- ouvrirModal(w,a,r,()=>{enfiler(r);$('gMsg').innerHTML='Groupement envoyé ('+G.n+' tirs, '+d+' m). Il sera appris à l\'ouverture de l\'onglet Calcul.'})}
+ ouvrirModal(w,a,r,send=>{const t=enregistrer(r,send);$('gMsg').innerHTML=(send?'<b>Envoyé au calculateur</b> ('+G.n+' tirs, '+d+' m). '+t:'<b>Gardé sans envoi</b> ('+G.n+' tirs, '+d+' m) : le calculateur ne l\'apprend pas.')})}
 CF.forEach(k=>$(k).addEventListener('change',()=>{saveCond();majVent();verifierSeance()}));
 fitAll(db);store();loadCond();refresh();gFill();majDer();majVent();majSeance();
 
+// ===== Seance : debut, fin, groupements envoyes ou non =====
+function envoye(g){return!g.ign&&!g.off}
+function inter(g){return'<button class="sw'+(envoye(g)?' on':'')+'" onclick="basculer(\''+g.id+'\')">'+(envoye(g)?'✓ Envoyé':'Non envoyé')+'</button>'}
+function tousGroupes(){const L=[];db.a.forEach(a=>(a.groups||[]).forEach(g=>L.push({g,a})));return L}
+function groupesSeance(id){return tousGroupes().filter(x=>x.g.sess==id).sort((x,y)=>x.g.date<y.g.date?-1:1)}
+function enregistrer(r,send){if(!seanceActive())nouvelleSeance(true);r.sess=sess.id;r.off=!send;enfiler(r);const t=processQueue();refresh();majBarre();return send?t:''}
+function basculer(id){const x=tousGroupes().find(x=>x.g.id==id);if(!x)return;const g=x.g;if(envoye(g))g.off=true;else{g.off=false;g.ign=false}
+ const old=snapshot();fitAll(db);store();refresh();majBarre();if(!$('recap').hidden)recapSeance();
+ const m=(envoye(g)?'Groupement renvoyé au calculateur. ':'Groupement retiré du calculateur. ')+resume(x.a,old.get(x.a.id));flash(m);['gMsg','sMsg'].forEach(k=>{if($(k)){$(k).innerHTML=m;$(k).hidden=false}})}
+function tabGroupes(L,heure){if(!L.length)return'<p class="small">Aucun groupement enregistré.</p>';
+ return'<table class="rTab"><tr><th>'+(heure?'Heure':'Date')+'</th><th>Munition</th><th>m</th><th>Tirs</th><th>V/H cm</th><th></th></tr>'+L.map(({g,a})=>'<tr'+(envoye(g)?'':' class="off"')+'><td>'+(heure?hm(g.date):g.date.slice(8,10)+'/'+g.date.slice(5,7))+'</td><td>'+esc(a.name.slice(0,14))+'</td><td>'+g.d+'</td><td>'+g.n+(g.size!=null?'<br><span class="small">'+g.size.toFixed(1)+' cm</span>':'')+'</td><td>'+fx(g.dy,1)+'<br>'+fx(g.dx,1)+'</td><td>'+inter(g)+'</td></tr>').join('')+'</table>'}
+function majBarre(){const b=$('sessBar');if(!b)return;b.hidden=!(MODE=='tir'||MODE=='sans');
+ if(seanceActive()){const L=groupesSeance(sess.id),n=L.filter(x=>envoye(x.g)).length;b.className='sessbar on';
+  b.innerHTML='<div class="t"><span class="dot"></span><b>Séance en cours</b> depuis '+hm(sess.start)+'<br><span class="small">'+L.length+' groupement(s) · '+n+' envoyé(s) au calculateur</span></div><button class="pri" onclick="recapSeance()">&#9632; Terminer la séance</button>'}
+ else{b.className='sessbar';b.innerHTML='<div class="t"><b>Aucune séance en cours</b><br><span class="small">Démarre-la pour suivre la météo et regrouper tes tirs</span></div><button class="ok" onclick="nouvelleSeance()">&#9654; Démarrer la séance</button>'}
+ const h=seanceActive()?'<h4>Groupements de la séance</h4>'+tabGroupes(groupesSeance(sess.id),true)+'<p class="small">Touche l\'interrupteur pour envoyer ou retirer un groupement du calculateur.</p>':'';
+ document.querySelectorAll('.sessList').forEach(e=>e.innerHTML=h)}
+function recapSeance(){if(!seanceActive())return majBarre();const L=groupesSeance(sess.id),n=L.filter(x=>envoye(x.g)).length,fin=Date.now(),du=Math.round((fin-sess.start)/6e4),s0=sess.s0,s1=instantane();
+ let h='<table><tr><td>Début</td><td>'+hm(sess.start)+'</td></tr><tr><td>Fin</td><td>'+hm(fin)+' ('+(du>=60?Math.floor(du/60)+' h '+String(du%60).padStart(2,'0'):du+' min')+')</td></tr>';
+ if(s0&&s1)h+='<tr><td>Température</td><td>'+s0.T+' → '+s1.T+' °C</td></tr><tr><td>Vent météo</td><td>'+(+s0.wxV).toFixed(1)+' → '+(+s1.wxV).toFixed(1)+' m/s</td></tr>';
+ h+='<tr><td>Alertes météo</td><td>'+sess.log.length+'</td></tr><tr><td>Groupements</td><td><b>'+L.length+'</b> dont <b>'+n+' envoyé(s)</b> au calculateur</td></tr></table>';
+ h+='<div class="rH">Groupements</div>'+tabGroupes(L,true)+'<p class="small">Tu peux encore changer : touche l\'interrupteur d\'un groupement pour l\'envoyer ou le retirer.</p>';
+ const A=[...new Set(L.filter(x=>envoye(x.g)).map(x=>x.a))];if(A.length){h+='<div class="rH">Ce que le calculateur a appris</div>'+A.map(a=>{const o=(sess.L0||{})[a.id]||{},l=a.learn||{},p=[];
+  p.push('V0 '+(o.V?o.V.toFixed(0):'—')+' → <b>'+(l.vOk?l.V.toFixed(0)+' m/s':'—')+'</b>');p.push('décalage '+(o.b!=null?fx(o.b,2):'—')+' → <b>'+(l.bOk?fx(l.b,2)+' MOA':'—')+'</b>');return esc(a.name)+' : '+p.join(' · ')}).join('<br>')}
+ $('rBody').innerHTML=h;$('recap').hidden=false}
+function cloreSeance(){if(!seanceActive())return;const L=groupesSeance(sess.id),H=lsGet('deHist',[]);H.push({id:sess.id,start:sess.start,end:Date.now(),n:L.length,env:L.filter(x=>envoye(x.g)).length,alertes:sess.log.length});lsSet('deHist',H.slice(-50));
+ const t=hm(sess.start);sess=null;lsSet('deSession',null);$('recap').hidden=true;fermerAlerte();majSeance();majBarre();flash('Séance de '+t+' terminée.');['gMsg','sMsg'].forEach(k=>{if($(k))$(k).innerHTML='Séance de '+t+' terminée.'})}
+function etapeSeance(){const B=$('dSessB');if(seanceActive()){const L=groupesSeance(sess.id);$('dSess').innerHTML='Une séance est déjà en cours depuis <b>'+hm(sess.start)+'</b> ('+L.length+' groupement(s)).';
+  B.innerHTML='<button class="ok big" onclick="finDemar()">&#9654; Continuer cette séance</button><div class="btns"><button onclick="etape(3)">&#8592; Retour</button><button onclick="recapSeance()">La terminer d\'abord</button></div>'}
+ else{$('dSess').innerHTML='La séance regroupe tes tirs de la journée : la météo est suivie toutes les 15 min avec une alerte si le réglage change, et à la fin tu obtiens un récapitulatif.';
+  B.innerHTML='<button class="ok big" onclick="nouvelleSeance(true);finDemar()">&#9654; Démarrer la séance</button><div class="btns"><button onclick="etape(3)">&#8592; Retour</button><button onclick="finDemar()">Plus tard</button></div>'}}
 // ===== Demarrage : mode d'utilisation, puis meteo et orientation (chaque etape peut etre passee) =====
 let MODE=lsGet('deMode',null),dmT=null,dm0={};
-function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec téléphone caméra',sans:'sans téléphone caméra',cam:'téléphone caméra'};$('sub').textContent='v23 · '+(L[MODE]||'impact analysis');
+function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v24'+(L[MODE]?' · '+L[MODE]:'');majBarre();
  $('tbC').hidden=MODE=='sans';$('tabs').hidden=MODE=='sans'||MODE=='cam'}
 function demarrage(){clearInterval(dmT);$('demar').hidden=false;etape(1);document.querySelectorAll('#dm1 button[data-m]').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE))}
 function choixMode(m){MODE=m;lsSet('deMode',m);appliquerMode();if(m=='cam'){$('demar').hidden=true;tab('c');modeCamera();return}etape(2)}
 function wxResume(){const c=getCond(),wx=lsGet('balWx',null);return($('wxInfo').innerHTML||(wx?'Dernière météo : '+fmtT(wx.time):'Aucune météo enregistrée'))+'<br>'+c.T+' °C · '+c.P+' hPa · '+c.RH+' % · vent '+c.wxV+' m/s venant de '+c.wxDir+'°'}
 function suivant(id,ok,txt){const b=$(id);b.textContent=ok?txt:'Passer';b.className=ok?'ok':''}
-function etape(n){[1,2,3].forEach(i=>$('dm'+i).hidden=i!=n);clearInterval(dmT);
+function etape(n){[1,2,3,4].forEach(i=>$('dm'+i).hidden=i!=n);clearInterval(dmT);if(n==4)etapeSeance();
  if(n==2){dm0.wx=(lsGet('balWx',{})||{}).got||0;const f=()=>{$('dWx').innerHTML=wxResume();suivant('dN2',((lsGet('balWx',{})||{}).got||0)>dm0.wx,'Suivant →')};f();dmT=setInterval(f,400)}
- if(n==3){$('dL').innerHTML=opts(db.l,$('cL').value);dm0.az=azGot;const f=()=>{const az=$('cAz').value;$('dAz').innerHTML=($('azInfo').textContent||'')+(az!==''?'<br>Azimut de tir : <b>'+az+'°</b>':'<br>Azimut de tir inconnu')+($('windInfo').innerHTML?'<br>'+$('windInfo').innerHTML:'');suivant('dN3',azGot>dm0.az,'Terminer ✓')};f();dmT=setInterval(f,400)}}
+ if(n==3){$('dL').innerHTML=opts(db.l,$('cL').value);dm0.az=azGot;const f=()=>{const az=$('cAz').value;$('dAz').innerHTML=($('azInfo').textContent||'')+(az!==''?'<br>Azimut de tir : <b>'+az+'°</b>':'<br>Azimut de tir inconnu')+($('windInfo').innerHTML?'<br>'+$('windInfo').innerHTML:'');suivant('dN3',azGot>dm0.az,'Suivant →')};f();dmT=setInterval(f,400)}}
 function choixLieuD(){$('cL').value=$('dL').value;$('cL').dispatchEvent(new Event('change'));if($('gL'))$('gL').value=$('dL').value;gSave()}
-function finDemar(){clearInterval(dmT);$('demar').hidden=true;if(MODE=='sans')tab('k');else{tab('c');show('tir')}majSans()}
+function finDemar(){clearInterval(dmT);$('demar').hidden=true;$('recap').hidden=true;majBarre();if(MODE=='sans')tab('k');else{tab('c');show('tir')}majSans()}
 // ===== Tir sans telephone camera : apprendre a partir des clics reellement regles =====
 function majSans(){if(MODE!='sans'||!$('sD'))return;const w=curW(),a=curA(),d=Math.round(num('sD')),l=locById($('cL').value);
  $('sCtx').innerHTML=w&&a?'Arme <b>'+esc(w.name)+'</b> · munition <b>'+esc(a.name)+'</b> · '+(l?esc(l.name):'lieu ?')+' <span class="small">(à changer plus bas)</span>':'<span class="warn">Crée d\'abord une arme et une munition plus bas.</span>';
@@ -1054,9 +1104,9 @@ function majSans(){if(MODE!='sans'||!$('sD'))return;const w=curW(),a=curA(),d=Ma
 function saisieSans(){const w=curW(),a=curA();if(!w||!a)return alert('Choisis une arme et une munition');const d=Math.round(num('sD')),n=Math.round(num('sN'));
  if(!(d>0))return alert('Indique la distance');if(n<3)return alert('Il faut un groupement d\'au moins 3 tirs pour apprendre');if(d<w.zero)return alert('Distance en deçà de la distance de réglage ('+w.zero+' m) : pas d\'apprentissage');
  saveCond();const r=groupeRecord(w,a,$('cL').value,d,n,num('sX')||0,num('sE')||0,null,num('sCV')||0,num('sCH')||0,{manual:true,sansCam:true});
- ouvrirModal(w,a,r,()=>{enfiler(r);const t=processQueue();refresh();$('sMsg').hidden=false;$('sMsg').innerHTML='Appris ('+n+' tirs à '+d+' m). '+t;$('sCV').dataset.t='';$('sCH').dataset.t='';$('sE').value=0;$('sX').value=0;majSans()})}
+ ouvrirModal(w,a,r,send=>{const t=enregistrer(r,send);$('sMsg').hidden=false;$('sMsg').innerHTML=send?'<b>Envoyé au calculateur</b> ('+n+' tirs à '+d+' m). '+t:'<b>Gardé sans envoi</b> ('+n+' tirs à '+d+' m).';$('sCV').dataset.t='';$('sCH').dataset.t='';$('sE').value=0;$('sX').value=0;majSans()})}
 {const _rf=refresh;refresh=function(a,b){_rf(a,b);majSans()}}
 CF.forEach(k=>$(k).addEventListener('change',majSans));
-appliquerMode();demarrage();
+if(sess&&!sess.id)sess=null;appliquerMode();demarrage();
 
 </script></body></html>
