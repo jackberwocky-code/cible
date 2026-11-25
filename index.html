@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye v22</title>
+<title>Distant Eye v23</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 4L108 32V88L60 116L12 88V32Z' fill='%230d0820' stroke='%2305d9e8' stroke-width='5'/%3E%3Cpath d='M14 60Q60 18 106 60Q60 102 14 60Z' fill='none' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -164,7 +164,7 @@ body[data-mode=sans] .avecOnly{display:none}
 </g>
 <path d="M60 22V36M60 84V98M8 60H26M94 60H112" stroke="#f9f871" stroke-width="2.5"/>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><small id="sub">v22 · impact analysis</small></div>
+<div><h1>Distant <span>Eye</span></h1><small id="sub">v23 · impact analysis</small></div>
 <button class="home" onclick="demarrage()">Mode</button>
 </header>
 <nav class="tabs" id="tabs"><button id="tbC" class="on" onclick="tab('c')">&#127919; Cible</button><button id="tbK" onclick="tab('k')">&#129518; Calcul</button></nav>
@@ -191,7 +191,7 @@ body[data-mode=sans] .avecOnly{display:none}
 <div class="zbtn"><button onclick="zoomVue(1.5)" aria-label="Zoomer">+</button><button onclick="zoomVue(1/1.5)" aria-label="Dézoomer">−</button><button onclick="zoomVue(0)" aria-label="Taille normale">1:1</button></div></div>
 <p id="info"></p><p id="status"></p></div>
 <div id="grpTab"></div>
-<div class="seg" id="seg"><button data-p="pTirs" class="on">Tirs</button><button data-p="pCal">Calage</button><button data-p="pCad">Cadrage</button><button data-p="pGrp">Groupe</button><button data-p="pAff">Affichage</button></div>
+<div class="seg" id="seg"><button data-p="pTirs" class="on">Tirs</button><button data-p="pCad">Cadrage</button><button data-p="pCal">Calage</button></div>
 
 <div id="pTirs">
 <div class="row"><button class="ok big" onclick="demander('ref')">1. Référence<br><span class="sub">cible vierge</span></button>
@@ -199,33 +199,7 @@ body[data-mode=sans] .avecOnly{display:none}
 <div class="reg"><label>Sensibilité <span class="sub">(petit = plus sensible)</span></label><span class="val" id="sv">30</span></div>
 <div class="slider"><button class="pm" onclick="regSeuil(-1)">−</button><input type="range" id="seuil" min="10" max="80" step="1" value="30" oninput="majSeuil()"><button class="pm" onclick="regSeuil(1)">+</button></div>
 <div class="grad"><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span></div>
-</div>
-
-<div id="pCal" hidden>
-<div class="grid2">
-<div class="s2"><label>Cible utilisée</label><select id="gT" onchange="choixCible()"></select></div>
-<div class="s2"><label>Zone visée</label><select id="gZ" onchange="gSave();rendu()"></select></div>
-</div>
-<button class="ok big" onclick="calageAuto()">&#10022; Détection automatique</button>
-<p class="hint">L'appli cherche la feuille claire sur la photo, choisit le profil de cible qui a les mêmes proportions, puis trouve les visuels noirs et leur centre. Faite automatiquement à chaque nouvelle référence si la cible n'est pas calée.</p>
-<button class="full" onclick="modeTap('cal')">&#8689; Caler à la main (4 coins)</button>
-<button class="full" onclick="modeTap('aim')">&#8982; Point visé à la main (sans calage)</button>
-<p class="hint">À la main : touche les 4 coins de la feuille, dans n'importe quel ordre. Comme le téléphone caméra voit la cible de biais, l'appli corrige la perspective à partir de ces 4 coins : la vue est redressée et les centimètres sont justes partout sur la feuille.</p>
-<p id="gTap" class="hint"></p>
-<button class="full" onclick="annulerCalage()">Effacer le calage</button>
-</div>
-
-<div id="pCad" hidden>
-<div class="row" style="margin-bottom:12px"><button class="live" onclick="live(true)">&#9654; Vidéo 60 s</button><button onclick="live(false)">&#9632; Stop</button></div>
-<div class="reg"><label>Zoom</label><span class="val" id="zv">1x</span></div>
-<div class="slider"><button class="pm" onclick="regZoom(-0.5)">−</button><input type="range" id="zoom" min="1" max="8" step="0.5" value="1" oninput="majZoom()" onchange="zoomer()"><button class="pm" onclick="regZoom(0.5)">+</button></div>
-<div class="grad"><span>1x</span><span>2x</span><span>3x</span><span>4x</span><span>5x</span><span>6x</span><span>7x</span><span>8x</span></div>
-<div class="pad"><span></span><button onclick="pan(0,-0.2)">&#9650;</button><span></span><button onclick="pan(-0.2,0)">&#9664;</button><button class="c" onclick="pan(0,0)">&#9673;</button><button onclick="pan(0.2,0)">&#9654;</button><span></span><button onclick="pan(0,0.2)">&#9660;</button><span></span></div>
-<button class="full" onclick="demander('apercu')">Aperçu du cadrage</button>
-<p class="hint">L'image reste visible en haut pendant que tu règles.</p>
-</div>
-
-<div id="pGrp" hidden>
+<div class="edit"><span class="fl">Groupement</span>
 <div class="grid2">
 <div><label>Arme</label><select id="gW" onchange="gFillA();gSave()"></select></div>
 <div><label>Munition</label><select id="gA" onchange="gSave();rendu()"></select></div>
@@ -242,12 +216,36 @@ body[data-mode=sans] .avecOnly{display:none}
 <button class="pri big" style="margin-top:10px" onclick="verifierEnvoi()">Vérifier et envoyer au calculateur</button>
 <p id="gMsg" class="hint"></p>
 </div>
-
-<div id="pAff" hidden>
+<details class="edit"><summary>Affichage des tirs</summary>
 <div class="reg"><label>Derniers tirs en rouge</label><span class="val" id="dv">5</span></div>
 <div class="slider" style="margin-bottom:14px"><button class="pm" onclick="regDer(-1)">−</button><input type="range" id="nder" min="1" max="20" step="1" value="5" oninput="majDer()"><button class="pm" onclick="regDer(1)">+</button></div>
 <div class="grid2"><div><label>Numéros</label><select id="nums" onchange="rendu()"><option value="der">Derniers tirs</option><option value="tous">Tous</option><option value="aucun">Aucun</option></select></div>
 <div><label>Taille des repères</label><input type="range" id="taille" min="2" max="12" value="5" oninput="rendu()" style="width:100%;margin-top:18px"></div></div>
+</details>
+</div>
+
+<div id="pCad" hidden>
+<div class="row" style="margin-bottom:12px"><button class="live" onclick="live(true)">&#9654; Vidéo 60 s</button><button onclick="live(false)">&#9632; Stop</button></div>
+<div class="reg"><label>Zoom</label><span class="val" id="zv">1x</span></div>
+<div class="slider"><button class="pm" onclick="regZoom(-0.5)">−</button><input type="range" id="zoom" min="1" max="8" step="0.5" value="1" oninput="majZoom()" onchange="zoomer()"><button class="pm" onclick="regZoom(0.5)">+</button></div>
+<div class="grad"><span>1x</span><span>2x</span><span>3x</span><span>4x</span><span>5x</span><span>6x</span><span>7x</span><span>8x</span></div>
+<div class="pad"><span></span><button onclick="pan(0,-0.2)">&#9650;</button><span></span><button onclick="pan(-0.2,0)">&#9664;</button><button class="c" onclick="pan(0,0)">&#9673;</button><button onclick="pan(0.2,0)">&#9654;</button><span></span><button onclick="pan(0,0.2)">&#9660;</button><span></span></div>
+<button class="full" onclick="demander('apercu')">Aperçu du cadrage</button>
+<p class="hint">L'image reste visible en haut pendant que tu règles.</p>
+</div>
+
+<div id="pCal" hidden>
+<div class="grid2">
+<div class="s2"><label>Cible utilisée</label><select id="gT" onchange="choixCible()"></select></div>
+<div class="s2"><label>Zone visée</label><select id="gZ" onchange="gSave();rendu()"></select></div>
+</div>
+<button class="ok big" onclick="calageAuto()">&#10022; Détection automatique</button>
+<p class="hint">L'appli cherche la feuille claire sur la photo, choisit le profil de cible qui a les mêmes proportions, puis trouve les visuels noirs et leur centre. Faite automatiquement à chaque nouvelle référence si la cible n'est pas calée.</p>
+<button class="full" onclick="modeTap('cal')">&#8689; Caler à la main (4 coins)</button>
+<button class="full" onclick="modeTap('aim')">&#8982; Point visé à la main (sans calage)</button>
+<p class="hint">À la main : touche les 4 coins de la feuille, dans n'importe quel ordre. Comme le téléphone caméra voit la cible de biais, l'appli corrige la perspective à partir de ces 4 coins : la vue est redressée et les centimètres sont justes partout sur la feuille.</p>
+<p id="gTap" class="hint"></p>
+<button class="full" onclick="annulerCalage()">Effacer le calage</button>
 </div>
 </div>
 </div>
@@ -409,7 +407,7 @@ body[data-mode=sans] .avecOnly{display:none}
 <button class="big pri" onclick="viser()">&#129517; Viser la cible</button>
 <div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="finDemar()">Passer</button></div></div>
 </div></div>
-<footer>DISTANT EYE v22</footer>
+<footer>DISTANT EYE v23</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -1035,7 +1033,7 @@ fitAll(db);store();loadCond();refresh();gFill();majDer();majVent();majSeance();
 
 // ===== Demarrage : mode d'utilisation, puis meteo et orientation (chaque etape peut etre passee) =====
 let MODE=lsGet('deMode',null),dmT=null,dm0={};
-function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec téléphone caméra',sans:'sans téléphone caméra',cam:'téléphone caméra'};$('sub').textContent='v22 · '+(L[MODE]||'impact analysis');
+function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec téléphone caméra',sans:'sans téléphone caméra',cam:'téléphone caméra'};$('sub').textContent='v23 · '+(L[MODE]||'impact analysis');
  $('tbC').hidden=MODE=='sans';$('tabs').hidden=MODE=='sans'||MODE=='cam'}
 function demarrage(){clearInterval(dmT);$('demar').hidden=false;etape(1);document.querySelectorAll('#dm1 button[data-m]').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE))}
 function choixMode(m){MODE=m;lsSet('deMode',m);appliquerMode();if(m=='cam'){$('demar').hidden=true;tab('c');modeCamera();return}etape(2)}
