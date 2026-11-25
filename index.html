@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye Calculateur balistique v27</title>
+<title>Distant Eye Calculateur balistique v29</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 4L108 32V88L60 116L12 88V32Z' fill='%230d0820' stroke='%2305d9e8' stroke-width='5'/%3E%3Cpath d='M14 60Q60 18 106 60Q60 102 14 60Z' fill='none' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -190,7 +190,7 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 </g>
 <path d="M60 22V36M60 84V98M8 60H26M94 60H112" stroke="#f9f871" stroke-width="2.5"/>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v27</small></div>
+<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v29</small></div>
 <button class="home" onclick="demarrage()">Mode</button>
 </header>
 <nav class="tabs" id="tabs"><button id="tbC" class="on" onclick="tab('c')">&#127919; Cible</button><button id="tbK" onclick="tab('k')">&#129518; Calcul</button></nav>
@@ -329,11 +329,11 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 <div><label>Modèle</label><select id="aMod"><option>G7</option><option>G1</option></select></div>
 <div><label>Coefficient balistique</label><input id="aBC" type="number" step="0.001"></div>
 <div><label>Vitesse initiale catalogue (m/s)</label><input id="aV0" type="number"></div>
-<div class="s2"><label>Correction manuelle de vitesse (%) — tant que rien n'est appris</label><input id="aTr" type="number" step="0.1"></div>
+
 </div>
 <div class="btns"><button class="ok" onclick="saveA()">Enregistrer les modifications</button></div></div>
 <div class="btns"><button onclick="newA()">+ Nouvelle munition</button><button onclick="delA()">Supprimer</button></div>
-<div id="qualInfo"></div>
+<div class="avecOnly"><div id="qualInfo"></div></div>
 </div>
 
 <div class="card"><h3>3 · Météo, zéro et séance</h3>
@@ -447,7 +447,7 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 <div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="etape(4)">Passer</button></div></div>
 <div id="dm4" hidden><h3>Séance de tir</h3><div id="dSess" class="res"></div><div id="dSessB"></div></div>
 </div></div>
-<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v27</footer>
+<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v29</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -932,7 +932,7 @@ function showQual(){const el=$('qualInfo');if(!el)return;const w=curW(),a=curA()
  const R=L.filter(x=>x.q.G).sort((x,y)=>x.q.idx-y.q.idx);
  if(R.length>1)h+='<br><br><span class="small">Classement des munitions pour '+esc(w.name)+' (plus petit = plus précis) :</span><table><tr><th>#</th><th>Munition</th><th>Indice</th><th>Fiabilité</th><th>Gr. / tirs</th></tr>'+R.map((x,i)=>'<tr><td>'+(i+1)+'</td><td style="text-align:left">'+esc(x.a.name)+'</td><td><b>'+x.q.idx.toFixed(2)+'</b></td><td>'+x.q.fiab+'</td><td>'+x.q.G+' / '+x.q.n+'</td></tr>').join('')+'</table><span class="small">Compare de préférence des munitions à fiabilité moyenne ou bonne : avec peu de tirs, un écart de quelques dixièmes de MOA peut être dû au hasard.</span>';
  el.innerHTML=h+'</div>'}
-function showA(){const a=curA();if(a){$('aName').value=a.name;$('aWt').value=a.wt;$('aMod').value=a.mod;$('aBC').value=a.bc;$('aV0').value=a.v0;$('aTr').value=(a.tr||0).toFixed(2)}showLearn();showQual();majVent()}
+function showA(){const a=curA();if(a){$('aName').value=a.name;$('aWt').value=a.wt;$('aMod').value=a.mod;$('aBC').value=a.bc;$('aV0').value=a.v0}showLearn();showQual();majVent()}
 function showT(){const t=curT();if(!t)return;$('tName').value=t.name;$('tW').value=t.w;$('tH').value=t.h;$('tZ').value=(t.zones||[]).map(z=>[z.n,z.x,z.y,z.d].join(', ')).join('\n')}
 function showL(){const l=curL();if(!l){$('lInfo').innerHTML='';return}$('lName').value=l.name;$('lNotes').value=l.notes||'';$('lExpo').value=l.expo||'';const ex=EXPO[l.expo];const L=l.learn;
  let h='<b>Vent appris à '+esc(l.name)+'</b> '+tagConf(L?L.conf:'—')+'<br>';
@@ -978,7 +978,7 @@ async function meteoAuto(){const wx=lsGet('balWx',null);if(!seanceActive()||!wx|
 setInterval(meteoAuto,6e4);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')meteoAuto()});
 function delW(){const w=curW();if(!w||!confirm('Supprimer '+w.name+' et ses munitions ?'))return;db.a=db.a.filter(a=>a.wid!=w.id);db.w=db.w.filter(x=>x!==w);fitAll(db);store();refresh(db.w[0]&&db.w[0].id)}
 function newA(){const w=curW();if(!w)return alert("Crée d'abord une arme");const a={id:''+Date.now(),wid:w.id,name:'Nouvelle munition',wt:69,mod:'G7',bc:.17,v0:900,tr:0,hist:[],groups:[]};db.a.push(a);store();refresh(w.id,a.id);$('aName').focus()}
-function saveA(){const a=curA();if(!a)return alert("Crée d'abord une munition");a.name=$('aName').value;a.wt=num('aWt');a.mod=$('aMod').value;a.bc=num('aBC');a.v0=num('aV0');a.tr=num('aTr')||0;fitAll(db);store();refresh(a.wid,a.id);flash('Munition enregistrée')}
+function saveA(){const a=curA();if(!a)return alert("Crée d'abord une munition");a.name=$('aName').value;a.wt=num('aWt');a.mod=$('aMod').value;a.bc=num('aBC');a.v0=num('aV0');fitAll(db);store();refresh(a.wid,a.id);flash('Munition enregistrée')}
 function delA(){const a=curA();if(!a||!confirm('Supprimer '+a.name+' et son historique ?'))return;db.a=db.a.filter(x=>x!==a);fitAll(db);store();refresh()}
 function lireZones(txt){return txt.split('\n').map(l=>l.split(/[,;]/).map(s=>s.trim())).filter(p=>p.length>=4&&!isNaN(parseFloat(p[1]))).map(p=>({n:p[0],x:parseFloat(p[1]),y:parseFloat(p[2]),d:parseFloat(p[3])}))}
 function newT(){const t={id:''+Date.now(),name:'Nouvelle cible',w:50,h:50,zones:[{n:'Centre',x:25,y:25,d:10}]};db.t.push(t);store();$('selT').innerHTML=opts(db.t,t.id);showT();$('tName').focus()}
@@ -1091,6 +1091,8 @@ function demanderFermeture(suite){const{w,a}=gWA(),d=Math.round(num('gD')),G=gro
  ouvrirModal(w,a,r,send=>{const t=enregistrer(r,send);fin((send?'<b>Série n°'+serieNo+' envoyée au calculateur</b> ('+G.n+' tirs, '+d+' m). '+t:'<b>Série n°'+serieNo+' gardée sans envoi</b> ('+G.n+' tirs, '+d+' m).'))})}
 function verifierEnvoi(){demanderFermeture()}
 CF.forEach(k=>$(k).addEventListener('change',()=>{saveCond();majVent();verifierSeance()}));
+// ancienne correction de vitesse en % : integree une fois pour toutes a la vitesse de la munition
+db.a.forEach(a=>{if(a.tr){a.v0=Math.round(a.v0*(1+a.tr/100)*10)/10}a.tr=0});
 fitAll(db);store();loadCond();if(!(+$('cD').value>0))$('cD').value=100;refresh();gFill();majDer();majVent();majSeance();
 
 // ===== Seance : debut, fin, groupements envoyes ou non =====
@@ -1126,7 +1128,7 @@ function etapeSeance(){const B=$('dSessB');if(seanceActive()){const L=groupesSea
   B.innerHTML='<button class="ok big" onclick="nouvelleSeance(true);finDemar()">&#9654; Démarrer la séance</button><div class="btns"><button onclick="etape(3)">&#8592; Retour</button><button onclick="finDemar()">Plus tard</button></div>'}}
 // ===== Demarrage : mode d'utilisation, puis meteo et orientation (chaque etape peut etre passee) =====
 let MODE=lsGet('deMode',null),dmT=null,dm0={};
-function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v27'+(L[MODE]?' · '+L[MODE]:'');majBarre();
+function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v29'+(L[MODE]?' · '+L[MODE]:'');majBarre();
  $('tbC').hidden=MODE=='sans';$('tabs').hidden=MODE=='sans'||MODE=='cam'}
 function demarrage(){clearInterval(dmT);$('demar').hidden=false;etape(1);document.querySelectorAll('#dm1 button[data-m]').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE))}
 function choixMode(m){MODE=m;lsSet('deMode',m);appliquerMode();if(m=='cam'){$('demar').hidden=true;tab('c');modeCamera();return}etape(2)}
