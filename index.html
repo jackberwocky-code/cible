@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye Calculateur balistique v25</title>
+<title>Distant Eye Calculateur balistique v26</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 4L108 32V88L60 116L12 88V32Z' fill='%230d0820' stroke='%2305d9e8' stroke-width='5'/%3E%3Cpath d='M14 60Q60 18 106 60Q60 102 14 60Z' fill='none' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -137,6 +137,19 @@ header .h2{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(
 .sw.on{background:var(--ok);border-color:var(--ok);color:#04130d;box-shadow:0 0 10px rgba(0,245,160,.4)}
 tr.off td{opacity:.5}tr.off td:last-child{opacity:1}
 header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
+
+.serie{display:flex;align-items:center;gap:10px;margin:10px 0;padding:10px 12px;border-radius:12px;border:1px dashed var(--line);font-size:14px}
+.serie .t{flex:1;line-height:1.35}.serie button{flex:none;font-size:14px;padding:10px 12px}
+.serie.on{border:1px solid #ff2a6d;box-shadow:0 0 12px rgba(255,42,109,.25)}
+.serie .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ff2a6d;margin-right:6px;box-shadow:0 0 8px #ff2a6d;animation:pulse 1.6s infinite}
+.fl2{display:block;margin-top:6px}
+.row2{display:flex;gap:8px;align-items:center}.row2 select{flex:1}
+.nbox{display:flex;align-items:center;gap:4px}.nbox input{width:58px;text-align:center}.nbox[hidden]{display:none}
+.bloc{margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.bloc .bt{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cya);margin-bottom:6px}
+.bloc.ro{background:rgba(5,217,232,.06)}.bloc.ro #gReco{font-size:15px}
+.bloc.dyn{border-color:var(--yel);background:rgba(249,248,113,.06)}.bloc.dyn .bt{color:var(--yel)}
+.big2{font-size:18px;font-weight:800}
 </style></head><body>
 <div id="fond"><div class="halo h1"></div><div class="halo h2"></div><div class="halo h3"></div><div class="grille"></div>
 <svg viewBox="0 0 1000 300" fill="none" stroke-linejoin="round" stroke-linecap="round">
@@ -177,7 +190,7 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 </g>
 <path d="M60 22V36M60 84V98M8 60H26M94 60H112" stroke="#f9f871" stroke-width="2.5"/>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v25</small></div>
+<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v26</small></div>
 <button class="home" onclick="demarrage()">Mode</button>
 </header>
 <nav class="tabs" id="tabs"><button id="tbC" class="on" onclick="tab('c')">&#127919; Cible</button><button id="tbK" onclick="tab('k')">&#129518; Calcul</button></nav>
@@ -204,7 +217,6 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 <div class="viewer"><div class="zw" id="zw"><canvas id="vue" width="600" height="400"></canvas>
 <div class="zbtn"><button onclick="zoomVue(1.5)" aria-label="Zoomer">+</button><button onclick="zoomVue(1/1.5)" aria-label="Dézoomer">−</button><button onclick="zoomVue(0)" aria-label="Taille normale">1:1</button></div></div>
 <p id="info"></p><p id="status"></p></div>
-<div id="grpTab"></div>
 <div class="seg" id="seg"><button data-p="pTirs" class="on">Tirs</button><button data-p="pCad">Cadrage</button><button data-p="pCal">Calage</button></div>
 
 <div id="pTirs">
@@ -213,30 +225,38 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 <div class="reg"><label>Sensibilité <span class="sub">(petit = plus sensible)</span></label><span class="val" id="sv">30</span></div>
 <div class="slider"><button class="pm" onclick="regSeuil(-1)">−</button><input type="range" id="seuil" min="10" max="80" step="1" value="30" oninput="majSeuil()"><button class="pm" onclick="regSeuil(1)">+</button></div>
 <div class="grad"><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span><span>70</span><span>80</span></div>
-<div class="edit"><span class="fl">Groupement</span>
+<div class="edit"><span class="fl">Série</span>
 <div class="grid2">
-<div><label>Arme</label><select id="gW" onchange="gFillA();gSave()"></select></div>
+<div><label>Arme</label><select id="gW" onchange="gFillA();gSave();rendu()"></select></div>
 <div><label>Munition</label><select id="gA" onchange="gSave();rendu()"></select></div>
-<div><label>Lieu de tir</label><select id="gL" onchange="gSave()"></select></div>
+<div><label>Lieu de tir</label><select id="gL" onchange="gSave();rendu()"></select></div>
 <div><label>Distance (m)</label><input id="gD" type="number" value="200" oninput="gSave();rendu()"></div>
-<div class="s2"><label>Tirs pris en compte (en rouge : les plus récents de la série, sur la zone visée)</label><select id="gN" onchange="gSave();rendu()"><option>1</option><option>3</option><option selected>5</option><option>10</option><option>20</option></select></div>
 </div>
-<div id="gRes" class="res"></div>
+<div id="gSerie" class="serie"></div>
+<label class="fl2">Tirs pris en compte</label>
+<div class="row2"><select id="gMode" onchange="gSave();rendu()"><option value="tous">Toute la série</option><option value="n">Les derniers :</option></select>
+<span class="nbox" id="gNbox"><button class="pm" onclick="regN(-1)">−</button><input id="gN" type="number" min="1" max="99" value="5" oninput="gSave();rendu()"><button class="pm" onclick="regN(1)">+</button></span></div>
+
+<div class="bloc ro"><div class="bt">Recommandation du calculateur <span class="small">(non modifiable)</span></div><div id="gReco"></div></div>
+
+<div class="bloc"><div class="bt">Saisie libre</div>
 <div class="grid2">
-<div><label>Clics affichés vertical (+ = haut)</label><input id="gCV" type="number" value="0"></div>
-<div><label>Clics affichés horizontal (+ = droite)</label><input id="gCH" type="number" value="0"></div>
+<div><label>Clics réglés en hauteur (+ = haut)</label><input id="gCV" type="number" value="0" oninput="majGroupe()"></div>
+<div><label>Clics réglés en dérive (+ = droite)</label><input id="gCH" type="number" value="0" oninput="majGroupe()"></div>
 </div>
-<button class="full" onclick="clicsConseilles()">Reprendre les clics conseillés par le calcul</button>
-<button class="pri big" style="margin-top:10px" onclick="verifierEnvoi()">&#10003; Enregistrer ce groupement</button>
-<p class="hint">Tu choisis ensuite de l'<b>envoyer au calculateur</b> (il apprend) ou de le <b>garder sans l'envoyer</b> (tir raté, essai…). Tu peux changer d'avis à tout moment dans la liste de la séance.</p>
-<button class="full" onclick="nouvelleSerie()">&#8635; Nouvelle série (j'ai changé mes clics)</button>
-<p class="hint">Une nouvelle série démarre aussi automatiquement après chaque groupement enregistré : les mêmes tirs ne peuvent pas être comptés deux fois.</p>
+<button class="full" onclick="clicsConseilles()">= Reprendre la recommandation du calculateur</button>
+<label>Remarque sur la série</label><input id="gNote" type="text" placeholder="ex. nouvel appui, rafales, canon froid…"></div>
+
+<div class="bloc"><div class="bt">Groupement</div><div id="gRes"></div></div>
+<div class="bloc dyn"><div class="bt">Nouvelle correction conseillée</div><div id="gNew"></div></div>
+
+<div id="gFerme"></div>
 <p id="gMsg" class="hint"></p>
 <div class="sessList"></div>
 </div>
-<details class="edit"><summary>Affichage des tirs</summary>
-<p class="hint"><b style="color:#00f5a0">Vert</b> : tir(s) de la dernière photo. <b style="color:#ff2a6d">Rouge</b> : tirs utilisés pour le groupement (réglé par « Tirs pris en compte » ou le tableau). <b style="color:#8f8aa8">Gris</b> : autres tirs (autre visuel, série précédente). <b>✕</b> : faux impact écarté. Touche un impact sur l'image pour l'écarter ou le reprendre.</p>
-<div class="grid2"><div><label>Numéros</label><select id="nums" onchange="rendu()"><option value="der">Tirs du groupement</option><option value="tous">Tous</option><option value="aucun">Aucun</option></select></div>
+<details class="edit"><summary>Apparence des repères</summary>
+
+<div class="grid2"><div><label>Numéros</label><select id="nums" onchange="rendu()"><option value="der">Tirs du groupement et derniers</option><option value="tous">Tous</option><option value="aucun">Aucun</option></select></div>
 <div><label>Taille des repères</label><input type="range" id="taille" min="2" max="12" value="5" oninput="rendu()" style="width:100%;margin-top:18px"></div></div>
 </details>
 </div>
@@ -427,7 +447,7 @@ header .h2{font-size:11px;letter-spacing:2px}header #sub{letter-spacing:1px}
 <div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="etape(4)">Passer</button></div></div>
 <div id="dm4" hidden><h3>Séance de tir</h3><div id="dSess" class="res"></div><div id="dSessB"></div></div>
 </div></div>
-<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v25</footer>
+<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v26</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -544,7 +564,7 @@ function fitAll(db,now){now=now||Date.now();const W=id=>db.w.find(x=>x.id==id),L
 
 // ===== Distant Eye : camera, connexion, detection, vue de la cible =====
 window.onerror=function(m){document.getElementById('err').textContent='Erreur : '+m};
-const P='cible-flo-';const R=20;let conn,ref=null,impacts=[],lastIm=null,serie0=0,photoN=0;
+const P='cible-flo-';const R=20;let conn,ref=null,impacts=[],lastIm=null,serie0=0,photoN=0,serieOn=false,serieFin=null,serieT=0,serieNo=0;
 let track=null,caps=null,HW=1,DZ=1,PX=0,PY=0,liveInt=null,liveFin=null,wake=null;
 let tapMode=null,cal=null,calPts=[],aim=null,VIEW=null,zonesDet=null;
 const $=id=>document.getElementById(id),num=id=>parseFloat($(id).value);
@@ -603,7 +623,7 @@ function connecter(){
  peer.on('error',e=>status('Erreur : '+e.type));}
 function status(t){$('status').textContent=t}
 function demander(t){if(!conn)return status("Connecte-toi d'abord");status('Photo en cours…');conn.send(t)}
-function toutEffacer(){ref=null;impacts=[];serie0=0;lastIm=null;cal=null;calPts=[];aim=null;tapMode=null;zonesDet=null}
+function toutEffacer(){ref=null;impacts=[];serie0=0;serieOn=false;serieFin=null;lastIm=null;cal=null;calPts=[];aim=null;tapMode=null;zonesDet=null}
 function live(on){if(!conn)return status("Connecte-toi d'abord");conn.send({cmd:'live',on:on});
  if(on){toutEffacer();status('Vidéo de cadrage en cours (60 s)… règle le zoom et le cadrage juste en dessous')}}
 function zoomer(){const z=+$('zoom').value;majZoom();
@@ -643,9 +663,9 @@ function recevoir(d){if(d.type==='info'){status(d.txt);return}
  const W=600,H=Math.round(im.height*W/im.width),o=document.createElement('canvas');o.width=W;o.height=H;const c=o.getContext('2d');c.drawImage(im,0,0,W,H);
  const px=c.getImageData(0,0,W,H).data;let g=new Float32Array(W*H);for(let i=0;i<W*H;i++)g[i]=px[i*4]*.3+px[i*4+1]*.59+px[i*4+2]*.11;
  g=normaliser(g,W,H);
- if(d.type==='ref'||!ref){ref=g;impacts=[];serie0=0;let auto=false;if(!cal){lastIm=im;auto=calageAuto(true)}status('Référence enregistrée'+(cal?(auto?' · cible détectée et calée automatiquement (vérifie dans Calage)':''):' · cible non trouvée : cale-la dans l\'onglet Calage'));}
+ if(d.type==='ref'||!ref){ref=g;impacts=[];serie0=0;serieOn=false;serieFin=null;let auto=false;if(!cal){lastIm=im;auto=calageAuto(true)}status('Référence enregistrée'+(cal?(auto?' · cible détectée et calée automatiquement (vérifie dans Calage)':''):' · cible non trouvée : cale-la dans l\'onglet Calage'));}
  else{const [dx,dy]=recaler(ref,g,W,H),sh=p=>{if(p){p.x+=dx;p.y+=dy}};impacts.forEach(sh);sh(aim);if(cal)cal.q.forEach(sh)
-  const n=detecter(ref,g,W,H,dx,dy);ref=g;status(n+' nouvel(s) impact(s) · sensibilité '+$('seuil').value+' · recalage '+dx+','+dy+' px');}
+  const i0=impacts.length,n=detecter(ref,g,W,H,dx,dy);ref=g;let auto='';if(n&&!serieOn){ouvrirSerie(i0,true);auto=' · série n°'+serieNo+' ouverte automatiquement'}status(n+' nouvel(s) impact(s) · sensibilité '+$('seuil').value+' · recalage '+dx+','+dy+' px'+auto);}
  lastIm=im;rendu()};im.src=d.img;}
 // ---- vue redressee au format de la cible ----
 function cible(){return typeof db!=='undefined'?db.t.find(x=>x.id==$('gT').value):null}
@@ -776,7 +796,7 @@ function rendu(){const cv=$('vue');if(!lastIm){if(typeof majGroupe=='function')m
  const S=new Set(tirsGroupe()),lastPh=impacts.reduce((m,p)=>Math.max(m,p.ph||0),0),VERT='#00f5a0';let nV=0;
  impacts.forEach((p,i)=>{const v=versVue(p),der=!p.ex&&(p.ph||0)==lastPh&&lastPh>0,grp=S.has(i);if(der)nV++;
   if(p.ex){ctx.strokeStyle='#8f8aa8';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(v.x-r,v.y-r);ctx.lineTo(v.x+r,v.y+r);ctx.moveTo(v.x+r,v.y-r);ctx.lineTo(v.x-r,v.y+r);ctx.stroke();return}
-  const col=der?VERT:grp?'#ff2a6d':i<serie0?'#5f5a78':'#8f8aa8';ctx.lineWidth=der?3:grp?2:1.2;ctx.strokeStyle=ctx.fillStyle=col;
+  const col=der?VERT:grp?'#ff2a6d':(i<serie0||i>=finSerie())?'#5f5a78':'#8f8aa8';ctx.lineWidth=der?3:grp?2:1.2;ctx.strokeStyle=ctx.fillStyle=col;
   if(der){ctx.save();ctx.shadowColor=VERT;ctx.shadowBlur=10}ctx.beginPath();ctx.arc(v.x,v.y,der?r+2:r,0,7);ctx.stroke();if(der)ctx.restore();
   // un tir vert qui compte aussi dans le groupement garde un anneau rouge
   if(der&&grp){ctx.strokeStyle='#ff2a6d';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(v.x,v.y,r+6,0,7);ctx.stroke();ctx.fillStyle=VERT}
@@ -786,13 +806,18 @@ function rendu(){const cv=$('vue');if(!lastIm){if(typeof majGroupe=='function')m
  if(G){const v=versVue(G.cImg);cr(v.x,v.y,12,'#000',5);cr(v.x,v.y,12,'#f9f871',2.5);
   if(A){const a=versVue(A);ctx.setLineDash([4,4]);ctx.strokeStyle='#f9f871';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(v.x,v.y);ctx.stroke();ctx.setLineDash([])}
   const t=(G.dy>=0?'↑':'↓')+Math.abs(G.dy).toFixed(1)+' '+(G.dx>=0?'→':'←')+Math.abs(G.dx).toFixed(1)+' cm';ctx.font='bold 15px ui-monospace,monospace';ctx.lineWidth=4;ctx.strokeStyle='#000';ctx.strokeText(t,v.x+16,v.y+20);ctx.fillStyle='#f9f871';ctx.fillText(t,v.x+16,v.y+20)}
- const nEx=impacts.filter(p=>p.ex).length;$('info').innerHTML='Total : '+(impacts.length-nEx)+' impact(s) · <span style="color:#00f5a0">● '+(nV>1?nV+' derniers tirs':'dernier tir')+'</span> · <span style="color:#ff2a6d">● '+S.size+' du groupement</span> · <span style="color:#8f8aa8">● autres</span>'+(nEx?' · ✕ '+nEx+' écarté(s)':'')+(serie0>0?' · série depuis le n°'+(serie0+1):'')+(calOk()?' · '+cible().name:' · cible non calée');
+ const nEx=impacts.filter(p=>p.ex).length;$('info').innerHTML='Total : '+(impacts.length-nEx)+' impact(s) · <span style="color:#00f5a0">● '+(nV>1?nV+' derniers tirs':'dernier tir')+'</span> · <span style="color:#ff2a6d">● '+S.size+' du groupement</span> · <span style="color:#8f8aa8">● autres</span>'+(impacts.length?' · <span class="small">touche un impact pour l\'écarter</span>':'')+(nEx?' · ✕ '+nEx+' écarté(s)':'')+(serieOn?' · série n°'+serieNo+' ouverte (depuis le tir n°'+(serie0+1)+')':serieFin!=null?' · série n°'+serieNo+' fermée':' · aucune série')+(calOk()?' · '+cible().name:' · cible non calée');
  if(typeof majGroupe=='function')majGroupe()}
 function pointVise(){if(aim)return aim;if(!calOk())return null;const Z=zones(),T=cible();const z=zoneChoisie();return cmVersImg(z>=0?Z[z]:{x:T.w/2,y:T.h/2})}
-// indices des tirs qui forment le groupement : serie en cours, zone visee, faux impacts ecartes, les N plus recents
-function tirsGroupe(N){N=N||+$('gN').value;const z=calOk()?zoneChoisie():-1,I=[];for(let i=impacts.length-1;i>=serie0&&I.length<N;i--){const p=impacts[i];if(p.ex||(z>=0&&zoneDe(p)!=z))continue;I.push(i)}return I.reverse()}
-function nouvelleSerie(silencieux){serie0=impacts.length;if(!silencieux&&typeof $==='function')status('Nouvelle série : les tirs précédents ne comptent plus dans le groupement.');rendu()}
-function groupe(Nopt){if(!calOk())return null;const N=Nopt||+$('gN').value,A=pointVise(),z=zoneChoisie();const P=tirsGroupe(N).map(i=>impacts[i]);if(P.length<(Nopt?Nopt:Math.min(3,N))||!A)return null;
+// ---- series : une serie = les tirs faits avec le meme reglage de lunette ----
+function finSerie(){return serieOn?impacts.length:(serieFin??serie0)}
+function ouvrirSerie(i0,auto){serie0=i0??impacts.length;serieFin=null;serieOn=true;serieT=Date.now();serieNo++;if(!auto)status('Série n°'+serieNo+' ouverte : les prochains tirs en font partie.');rendu()}
+function fermerSerie(){if(!serieOn)return;serieOn=false;serieFin=impacts.length;rendu()}
+function nouvelleSerie(){if(serieOn)fermerSerie();ouvrirSerie()}
+// indices des tirs du groupement : serie en cours (ou derniere fermee), zone visee, faux impacts ecartes ; toute la serie ou les N derniers
+function tirsGroupe(N){if(!N){const m=$('gMode');N=m&&m.value=='n'?Math.max(1,Math.round(+$('gN').value)||1):1e9}const z=calOk()?zoneChoisie():-1,I=[];
+ for(let i=finSerie()-1;i>=serie0&&I.length<N;i--){const p=impacts[i];if(p.ex||(z>=0&&zoneDe(p)!=z))continue;I.push(i)}return I.reverse()}
+function groupe(Nopt){if(!calOk())return null;const A=pointVise(),z=zoneChoisie();const P=tirsGroupe(Nopt).map(i=>impacts[i]);if(!P.length||(Nopt&&P.length<Nopt)||!A)return null;
  const C=P.map(imgVersCm),cx=C.reduce((s,p)=>s+p.x,0)/C.length,cy=C.reduce((s,p)=>s+p.y,0)/C.length,a=imgVersCm(A);let size=0;
  for(let i=0;i<C.length;i++)for(let j=i+1;j<C.length;j++)size=Math.max(size,Math.hypot(C[i].x-C[j].x,C[i].y-C[j].y));
  return{n:P.length,dx:cx-a.x,dy:a.y-cy,size,cImg:cmVersImg({x:cx,y:cy}),zone:z>=0?zones()[z].n:null}}
@@ -1028,33 +1053,42 @@ function ouvrirModal(w,a,r,ok){const pr=predict(w,a,getCond(r.loc),r.d),uc=unitC
 function fermerModal(){$('modal').hidden=true}
 
 // ===== Groupement dans l'onglet Cible =====
-function gSave(){lsSet('deG',{w:$('gW').value,a:$('gA').value,l:$('gL').value,d:$('gD').value,n:$('gN').value,t:$('gT').value,z:$('gZ').value})}
+function gSave(){lsSet('deG',{w:$('gW').value,a:$('gA').value,l:$('gL').value,d:$('gD').value,n:$('gN').value,m:$('gMode').value,t:$('gT').value,z:$('gZ').value})}
 function gFill(){const o=lsGet('deG',{});$('gW').innerHTML=opts(db.w,o.w);$('gL').innerHTML=opts(db.l,o.l||$('cL').value);$('gT').innerHTML=opts(db.t,o.t);
- if(o.d)$('gD').value=o.d;if(o.n)$('gN').value=o.n;gFillA(o.a);majZonesSel(o.z)}
+ if(o.d)$('gD').value=o.d;if(o.n)$('gN').value=o.n;if(o.m)$('gMode').value=o.m;gFillA(o.a);majZonesSel(o.z)}
 function gFillA(sel){const wid=$('gW').value;$('gA').innerHTML=opts(db.a.filter(a=>a.wid==wid),sel);majGroupe()}
 function majZonesSel(sel){const T=cible(),Z=calOk()?zones():(T&&T.zones)||[];$('gZ').innerHTML='<option value="auto">Automatique (zone du dernier tir)</option>'+(Z.length?Z.map((z,i)=>'<option value="'+i+'">'+esc(z.n)+'</option>').join(''):'');if(sel!=null&&[...$('gZ').options].some(o=>o.value==sel))$('gZ').value=sel}
 function choixCible(){zonesDet=null;if(calOk())detecterVisuels();majZonesSel('auto');gSave();rendu()}
 function gWA(){return{w:db.w.find(x=>x.id==$('gW').value),a:db.a.find(x=>x.id==$('gA').value)}}
-function tableGroupes(){const el=$('grpTab');if(!el)return;const{w}=gWA(),d=num('gD'),sel=+$('gN').value;if(!calOk()||!impacts.length){el.innerHTML='';return}
- let h='<table><tr><th>Tirs</th><th>Écart V</th><th>Écart H</th><th>Taille</th><th>Correction</th></tr>';
- for(const N of [1,3,5,10,20]){const G=groupe(N);if(!G){h+='<tr data-n="'+N+'"'+(N==sel?' class="sel"':'')+'><td>'+N+'</td><td colspan="4" class="small">pas assez de tirs</td></tr>';continue}
-  const m=d>0?moaCm(d):0,kv=w&&d>0?Math.round(-G.dy/unitCm(w,d)/w.click):null,kh=w&&d>0?Math.round(-G.dx/unitCm(w,d)/w.click):null;
-  h+='<tr data-n="'+N+'"'+(N==sel?' class="sel"':'')+'><td><b>'+N+'</b></td><td>'+Math.abs(G.dy).toFixed(1)+(G.dy>=0?' ↑':' ↓')+'</td><td>'+Math.abs(G.dx).toFixed(1)+(G.dx>=0?' →':' ←')+'</td><td>'+(N>1?G.size.toFixed(1)+(m?' <span class="small">('+(G.size/m).toFixed(1)+' MOA)</span>':''):'—')+'</td><td>'+(kv==null?'—':Math.abs(kv)+(kv>=0?'H':'B')+' '+Math.abs(kh)+(kh>=0?'D':'G'))+'</td></tr>'}
- el.innerHTML=h+'</table>';el.querySelectorAll('tr[data-n]').forEach(r=>r.onclick=()=>{$('gN').value=r.dataset.n;gSave();rendu()})}
-function majGroupe(){tableGroupes();const el=$('gRes');if(!el)return;const G=groupe(),{w}=gWA(),d=num('gD');
- if(!G){const m=[];if(!lastIm)m.push('une photo');if(!calOk())m.push('le calage de la cible (onglet Calage)');if(lastIm&&calOk())m.push((+$('gN').value==1?'un impact':'assez d\'impacts')+' dans la zone visée'+(serie0>0?' depuis le début de la série (n°'+(serie0+1)+')':''));el.innerHTML='Pour calculer le groupement, il manque : '+m.join(', ')+'.';return}
- let h='Groupement de <b>'+G.n+' tirs</b>'+(G.zone?' sur <b>'+esc(G.zone)+'</b>':'')+' · taille <b>'+G.size.toFixed(1)+' cm</b>'+(d>0?' ('+(G.size/moaCm(d)).toFixed(2)+' MOA)':'');
- h+='<br>Écart : <b>'+Math.abs(G.dy).toFixed(1)+' cm '+(G.dy>=0?'haut':'bas')+'</b>, <b>'+Math.abs(G.dx).toFixed(1)+' cm '+(G.dx>=0?'droite':'gauche')+'</b>';
- if(d>0){h+='<br>Soit '+Math.abs(G.dy/moaCm(d)).toFixed(2)+' MOA vertical, '+Math.abs(G.dx/moaCm(d)).toFixed(2)+' MOA horizontal';
-  if(w){const kv=Math.round(-G.dy/unitCm(w,d)/w.click),kh=Math.round(-G.dx/unitCm(w,d)/w.click);h+='<br>Correction : <b>'+Math.abs(kv)+' clic(s) '+(kv>=0?'HAUT':'BAS')+'</b>, <b>'+Math.abs(kh)+' clic(s) '+(kh>=0?'DROITE':'GAUCHE')+'</b>'}}
- el.innerHTML=h}
-function clicsConseilles(){const{w,a}=gWA(),d=num('gD');if(!w||!a)return alert('Choisis une arme et une munition (onglet Calcul pour les créer)');const p=predict(w,a,getCond($('gL').value),d);
- $('gCV').value=Math.round(-p.cm/unitCm(w,d)/w.click);$('gCH').value=Math.round(-p.drift/unitCm(w,d)/w.click);$('gMsg').textContent='Clics conseillés à '+d+' m repris. Mets les valeurs réellement réglées sur ta lunette.'}
-function verifierEnvoi(){const{w,a}=gWA(),d=Math.round(num('gD')),G=groupe();
- if(!w||!a)return alert('Choisis une arme et une munition (onglet Calcul pour les créer)');if(+$('gN').value<3)return alert('Pour apprendre, il faut un groupement d\'au moins 3 tirs : choisis 3, 5, 10 ou 20 tirs.');if(!G)return alert('Groupement incomplet : cale la cible et vérifie qu\'il y a assez d\'impacts dans la zone visée');
- if(d<w.zero)return alert('Distance en deçà de la distance de réglage ('+w.zero+' m) : pas d\'apprentissage');
- const T=cible(),r=groupeRecord(w,a,$('gL').value,d,G.n,G.dx,G.dy,G.size,num('gCV')||0,num('gCH')||0,{cible:T?T.name:null,zone:G.zone});
- ouvrirModal(w,a,r,send=>{const t=enregistrer(r,send);nouvelleSerie(true);$('gMsg').innerHTML=(send?'<b>Envoyé au calculateur</b> ('+G.n+' tirs, '+d+' m). '+t:'<b>Gardé sans envoi</b> ('+G.n+' tirs, '+d+' m) : le calculateur ne l\'apprend pas.')})}
+function tableGroupes(){}
+function regN(d){const e=$('gN');e.value=Math.max(1,Math.min(99,(Math.round(+e.value)||1)+d));$('gMode').value='n';gSave();rendu()}
+const sensClk=(k,p,m)=>'<b>'+Math.abs(k)+' clic'+(Math.abs(k)>1?'s':'')+' '+(k>=0?p:m)+'</b>';
+function recoCalc(){const{w,a}=gWA(),d=num('gD');if(!w||!a||!(d>0))return null;const p=predict(w,a,getCond($('gL').value),d),uc=unitCm(w,d);
+ return{w,d,kv:Math.round(-p.cm/uc/w.click),kh:Math.round(-p.drift/uc/w.click),mv:-p.cm/moaCm(d),mh:-p.drift/moaCm(d)}}
+function majSerie(){const el=$('gSerie');if(!el)return;const n=tirsGroupe(1e9).length;
+ if(serieOn){el.className='serie on';el.innerHTML='<div class="t"><span class="dot"></span><b>Série n°'+serieNo+' ouverte</b> depuis '+hm(serieT)+'<br><span class="small">'+n+' tir(s) sur la zone visée</span></div><button class="pri" onclick="demanderFermeture()">&#9632; Fermer la série</button>'}
+ else{el.className='serie';el.innerHTML='<div class="t"><b>'+(serieFin!=null?'Série n°'+serieNo+' fermée':'Aucune série ouverte')+'</b><br><span class="small">'+(serieFin!=null?'Les prochains tirs ouvriront la suivante automatiquement':'Elle s\'ouvre toute seule au premier tir détecté')+'</span></div><button class="ok" onclick="ouvrirSerie()">&#9654; Ouvrir une série</button>'}
+ $('gFerme').innerHTML=serieOn?'<button class="pri big" style="margin-top:12px;width:100%" onclick="demanderFermeture()">&#9632; Fermer la série et l\'envoyer au calculateur…</button><p class="hint">À la fermeture, tu choisis d\'<b>envoyer</b> les tirs pris en compte au calculateur ou de les <b>garder sans envoi</b>.</p>':''}
+function majGroupe(){$('gNbox').hidden=$('gMode').value!='n';majSerie();const R=recoCalc(),G=groupe(),{w}=gWA(),d=num('gD');
+ $('gReco').innerHTML=R?'À '+R.d+' m : '+sensClk(R.kv,'HAUT','BAS')+' · '+sensClk(R.kh,'DROITE','GAUCHE')+'<br><span class="small">'+fx(R.mv,2)+' MOA vertical · '+fx(R.mh,2)+' MOA horizontal · clics de '+R.w.click+' '+R.w.unit+' · conditions actuelles</span>':'<span class="small">Choisis une arme, une munition et une distance.</span>';
+ if(!G){const m=[];if(!lastIm)m.push('une photo');if(!calOk())m.push('le calage de la cible (onglet Calage)');if(lastIm&&calOk())m.push(serieOn||serieFin!=null?'des tirs dans la zone visée pour cette série':'une série (elle s\'ouvre au premier tir)');
+  $('gRes').innerHTML='<span class="small">Il manque : '+m.join(', ')+'.</span>';$('gNew').innerHTML='<span class="small">Apparaît dès qu\'il y a des tirs dans la série.</span>';return}
+ let h='<b>'+G.n+' tir'+(G.n>1?'s':'')+'</b>'+(G.zone?' sur <b>'+esc(G.zone)+'</b>':'')+(G.n>1?' · taille <b>'+G.size.toFixed(1)+' cm</b>'+(d>0?' ('+(G.size/moaCm(d)).toFixed(2)+' MOA)':''):'');
+ h+='<br>Écart au point visé : <b>'+Math.abs(G.dy).toFixed(1)+' cm '+(G.dy>=0?'haut':'bas')+'</b>, <b>'+Math.abs(G.dx).toFixed(1)+' cm '+(G.dx>=0?'droite':'gauche')+'</b>';
+ if(d>0)h+='<br><span class="small">'+fx(G.dy/moaCm(d),2)+' MOA vertical · '+fx(G.dx/moaCm(d),2)+' MOA horizontal</span>';$('gRes').innerHTML=h;
+ if(!w||!(d>0)){$('gNew').innerHTML='<span class="small">Choisis une arme et une distance.</span>';return}
+ const kv=Math.round(-G.dy/unitCm(w,d)/w.click),kh=Math.round(-G.dx/unitCm(w,d)/w.click),cv=Math.round(num('gCV')||0),ch=Math.round(num('gCH')||0),nv=cv+kv,nh=ch+kh;
+ $('gNew').innerHTML='Règle ta lunette sur <span class="big2">'+sensClk(nv,'HAUT','BAS')+' · '+sensClk(nh,'DROITE','GAUCHE')+'</span><br><span class="small">soit '+(kv||kh?(kv?(kv>0?'+':'')+kv+' en hauteur':'')+(kv&&kh?', ':'')+(kh?(kh>0?'+':'')+kh+' en dérive':''):'aucun changement')+' par rapport aux clics saisis ('+cv+' / '+ch+')'+(G.n<3?' · <span class="warn">moins de 3 tirs : à confirmer</span>':'')+'</span>'+
+  ((kv||kh)?'<button class="full" style="margin-top:8px" onclick="appliquerNouvelle('+nv+','+nh+')">J\'ai réglé ces clics : nouvelle série</button>':'')}
+function appliquerNouvelle(v,h){const go=()=>{$('gCV').value=v;$('gCH').value=h;ouvrirSerie();majGroupe()};if(serieOn){demanderFermeture(go)}else go()}
+function clicsConseilles(){const R=recoCalc();if(!R)return alert('Choisis une arme, une munition et une distance');$('gCV').value=R.kv;$('gCH').value=R.kh;majGroupe();$('gMsg').textContent='Recommandation du calculateur reprise dans la saisie.'}
+// fermer la serie : verification puis envoyer / garder ; « Corriger » laisse la serie ouverte
+function demanderFermeture(suite){const{w,a}=gWA(),d=Math.round(num('gD')),G=groupe();const fin=m=>{fermerSerie();$('gMsg').innerHTML=m;$('gNote').value='';majGroupe();if(suite)suite()};
+ if(!G||G.n<3||!w||!a||d<(w?w.zero:0)){const why=!w||!a?'pas d\'arme ou de munition choisie':!G?'aucun tir dans la série':G.n<3?'moins de 3 tirs':'distance en deçà du zéro ('+w.zero+' m)';
+  if(confirm('Cette série ne peut pas être envoyée au calculateur ('+why+'). La fermer quand même ?'))fin('Série n°'+serieNo+' fermée sans envoi ('+why+').');return}
+ const T=cible(),r=groupeRecord(w,a,$('gL').value,d,G.n,G.dx,G.dy,G.size,num('gCV')||0,num('gCH')||0,{cible:T?T.name:null,zone:G.zone,serie:serieNo,note:$('gNote').value.trim()||undefined});
+ ouvrirModal(w,a,r,send=>{const t=enregistrer(r,send);fin((send?'<b>Série n°'+serieNo+' envoyée au calculateur</b> ('+G.n+' tirs, '+d+' m). '+t:'<b>Série n°'+serieNo+' gardée sans envoi</b> ('+G.n+' tirs, '+d+' m).'))})}
+function verifierEnvoi(){demanderFermeture()}
 CF.forEach(k=>$(k).addEventListener('change',()=>{saveCond();majVent();verifierSeance()}));
 fitAll(db);store();loadCond();refresh();gFill();majDer();majVent();majSeance();
 
@@ -1068,7 +1102,7 @@ function basculer(id){const x=tousGroupes().find(x=>x.g.id==id);if(!x)return;con
  const old=snapshot();fitAll(db);store();refresh();majBarre();if(!$('recap').hidden)recapSeance();
  const m=(envoye(g)?'Groupement renvoyé au calculateur. ':'Groupement retiré du calculateur. ')+resume(x.a,old.get(x.a.id));flash(m);['gMsg','sMsg'].forEach(k=>{if($(k)){$(k).innerHTML=m;$(k).hidden=false}})}
 function tabGroupes(L,heure){if(!L.length)return'<p class="small">Aucun groupement enregistré.</p>';
- return'<table class="rTab"><tr><th>'+(heure?'Heure':'Date')+'</th><th>Munition</th><th>m</th><th>Tirs</th><th>V/H cm</th><th></th></tr>'+L.map(({g,a})=>'<tr'+(envoye(g)?'':' class="off"')+'><td>'+(heure?hm(g.date):g.date.slice(8,10)+'/'+g.date.slice(5,7))+'</td><td>'+esc(a.name.slice(0,14))+'</td><td>'+g.d+'</td><td>'+g.n+(g.size!=null?'<br><span class="small">'+g.size.toFixed(1)+' cm</span>':'')+'</td><td>'+fx(g.dy,1)+'<br>'+fx(g.dx,1)+'</td><td>'+inter(g)+'</td></tr>').join('')+'</table>'}
+ return'<table class="rTab"><tr><th>'+(heure?'Heure':'Date')+'</th><th>Munition</th><th>m</th><th>Tirs</th><th>V/H cm</th><th></th></tr>'+L.map(({g,a})=>'<tr'+(envoye(g)?'':' class="off"')+'><td>'+(heure?hm(g.date):g.date.slice(8,10)+'/'+g.date.slice(5,7))+'</td><td>'+esc(a.name.slice(0,14))+(g.note?'<br><span class="small"><i>'+esc(g.note)+'</i></span>':'')+'</td><td>'+g.d+'</td><td>'+g.n+(g.size!=null?'<br><span class="small">'+g.size.toFixed(1)+' cm</span>':'')+'</td><td>'+fx(g.dy,1)+'<br>'+fx(g.dx,1)+'</td><td>'+inter(g)+'</td></tr>').join('')+'</table>'}
 function majBarre(){const b=$('sessBar');if(!b)return;b.hidden=!(MODE=='tir'||MODE=='sans');
  if(seanceActive()){const L=groupesSeance(sess.id),n=L.filter(x=>envoye(x.g)).length;b.className='sessbar on';
   b.innerHTML='<div class="t"><span class="dot"></span><b>Séance en cours</b> depuis '+hm(sess.start)+'<br><span class="small">'+L.length+' groupement(s) · '+n+' envoyé(s) au calculateur</span></div><button class="pri" onclick="recapSeance()">&#9632; Terminer la séance</button>'}
@@ -1091,7 +1125,7 @@ function etapeSeance(){const B=$('dSessB');if(seanceActive()){const L=groupesSea
   B.innerHTML='<button class="ok big" onclick="nouvelleSeance(true);finDemar()">&#9654; Démarrer la séance</button><div class="btns"><button onclick="etape(3)">&#8592; Retour</button><button onclick="finDemar()">Plus tard</button></div>'}}
 // ===== Demarrage : mode d'utilisation, puis meteo et orientation (chaque etape peut etre passee) =====
 let MODE=lsGet('deMode',null),dmT=null,dm0={};
-function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v25'+(L[MODE]?' · '+L[MODE]:'');majBarre();
+function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v26'+(L[MODE]?' · '+L[MODE]:'');majBarre();
  $('tbC').hidden=MODE=='sans';$('tabs').hidden=MODE=='sans'||MODE=='cam'}
 function demarrage(){clearInterval(dmT);$('demar').hidden=false;etape(1);document.querySelectorAll('#dm1 button[data-m]').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE))}
 function choixMode(m){MODE=m;lsSet('deMode',m);appliquerMode();if(m=='cam'){$('demar').hidden=true;tab('c');modeCamera();return}etape(2)}
