@@ -2,11 +2,11 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye Calculateur balistique v49</title>
+<title>Distant Eye Calculateur balistique v50</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='55' fill='%230d0820' stroke='%2305d9e8' stroke-width='6'/%3E%3Cpath d='M4 60H20M100 60H116M60 4V24M60 96V116' stroke='%23f9f871' stroke-width='6'/%3E%3Cpath d='M20 60Q60 28 100 60Q60 92 20 60Z' fill='%23150c2c' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
-:root{--bg:#06040d;--card:rgba(18,12,34,.72);--card2:rgba(30,20,56,.85);--line:rgba(5,217,232,.22);--txt:#e9e6ff;--mut:#9a93c4;--mag:#ff2a6d;--cya:#05d9e8;--vio:#7c3aed;--yel:#f9f871;--ok:#00f5a0}
+:root{--bg:#06040d;--card:rgba(18,12,34,.72);--card2:rgba(30,20,56,.85);--line:rgba(5,217,232,.22);--txt:#e9e6ff;--mut:#bcb6e2;--mag:#ff2a6d;--cya:#05d9e8;--vio:#7c3aed;--yel:#f9f871;--ok:#00f5a0}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html{-webkit-tap-highlight-color:transparent;background:var(--bg)}
@@ -234,6 +234,13 @@ button:disabled{opacity:.45}
 .znav{display:flex;align-items:center;gap:8px;margin:6px 0 0}.znav span{flex:1;text-align:center;font-size:14px}.znav button{flex:none;width:52px;padding:7px 0;font-size:16px}
 .znav[hidden]{display:none}
 .sugg{display:flex;align-items:center;gap:8px;margin-top:6px;padding:8px 10px;border-radius:10px;border:1px solid var(--yel);background:rgba(249,248,113,.07);font-size:13px}.sugg .t{flex:1}.sugg select{width:auto;max-width:42%;padding:6px;font-size:12px}.sugg button{flex:none;padding:8px 12px}.sugg[hidden]{display:none}
+/* ---- v50 : textes discrets plus lisibles sur fond sombre ---- */
+::placeholder{color:#a9a3cf;opacity:1}
+footer{opacity:.85}
+button:disabled,input:disabled{opacity:.6}
+.aver{color:#bcb6e2}
+.deux .lb{color:#c4bfe6}
+details.edit>summary{color:#4fe6f0}
 </style></head><body>
 <div id="fond"><div class="halo h1"></div><div class="halo h2"></div><div class="halo h3"></div><div class="grille"></div>
 <svg viewBox="0 0 1000 300" fill="none" stroke-linejoin="round" stroke-linecap="round">
@@ -273,7 +280,7 @@ button:disabled{opacity:.45}
 </g>
 <g stroke="#f9f871" fill="none"><path d="M4 60H16M104 60H116M60 4V16M60 104V116" stroke-width="4" stroke-linecap="butt"/><path d="M16 60H104M60 16V104" stroke-width="1"/></g><g fill="#f9f871"><circle cx="24" cy="60" r="2.1"/><circle cx="60" cy="24" r="2.1"/><circle cx="33" cy="60" r="2.1"/><circle cx="60" cy="33" r="2.1"/><circle cx="42" cy="60" r="2.1"/><circle cx="60" cy="42" r="2.1"/><circle cx="51" cy="60" r="2.1"/><circle cx="60" cy="51" r="2.1"/><circle cx="69" cy="60" r="2.1"/><circle cx="60" cy="69" r="2.1"/><circle cx="78" cy="60" r="2.1"/><circle cx="60" cy="78" r="2.1"/><circle cx="87" cy="60" r="2.1"/><circle cx="60" cy="87" r="2.1"/><circle cx="96" cy="60" r="2.1"/><circle cx="60" cy="96" r="2.1"/></g>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v49</small></div>
+<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v50</small></div>
 <button class="home" onclick="accueil()">Mode</button>
 </header>
 <div id="connexion" class="card tirOnly"><h3>Connexion</h3>
@@ -544,7 +551,7 @@ button:disabled{opacity:.45}
 <button class="pri" data-m="cam" onclick="entrerMode('cam')">&#128247; Téléphone caméra<small>Posé près de la cible</small></button>
 <button class="live" data-m="sans" onclick="entrerMode('sans')">&#129518; Sans caméra<small>Calculateur seul</small></button>
 </div>
-<div class="aver">v49</div>
+<div class="aver">v50</div>
 </div></div>
 <div id="zModal" class="modal" hidden><div class="box"><h3>Valider le zéro</h3>
 <p id="zMArme"></p>
@@ -573,7 +580,7 @@ button:disabled{opacity:.45}
 <button class="big pri" onclick="viser()">&#129517; Viser la cible</button>
 <div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="finDemar()">Passer</button></div></div>
 </div></div>
-<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v49</footer>
+<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v50</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -1057,7 +1064,7 @@ zw.addEventListener('wheel',e=>{e.preventDefault();const r=zw.getBoundingClientR
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function lsGet(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-var MODE=lsGet('deMode',null),APPV='v49';
+var MODE=lsGet('deMode',null),APPV='v50';
 const nz=(x,n)=>{const s=x.toFixed(n);return +s===0?(0).toFixed(n):s},fx=(x,n)=>{const s=nz(x,n);return(+s>0?'+':'')+s};
 const CIBLES_DEFAUT=[
  {id:'c50',name:'C50',w:53,h:53,zones:[{n:'Visuel',x:26.5,y:26.5,d:20}]},
@@ -1353,7 +1360,7 @@ function clore(){if(!seanceActive())return;const H=lsGet('deHist',[]),L=tousGrou
  sess=null;lsSet('deSession',null);fermerAlerte();majSeance();majBarre()}
 // ===== Demarrage : mode d'utilisation, puis meteo et orientation (chaque etape peut etre passee) =====
 let dmT=null,dm0={};
-function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v49'+(L[MODE]?' · '+L[MODE]:'');majBarre();
+function appliquerMode(){document.body.dataset.mode=MODE||'';const L={tir:'avec caméra',sans:'sans caméra',cam:'téléphone caméra'};$('sub').textContent='v50'+(L[MODE]?' · '+L[MODE]:'');majBarre();
  $('tbC').hidden=MODE=='sans';$('tabs').hidden=MODE=='sans'||MODE=='cam'}
 function demarrage(){clearInterval(dmT);$('demar').hidden=false;etape(1);document.querySelectorAll('#dm1 button[data-m]').forEach(b=>b.classList.toggle('der',b.dataset.m==MODE))}
 function choixMode(m){MODE=m;lsSet('deMode',m);appliquerMode();if(m=='cam'){$('demar').hidden=true;tab('c');modeCamera();return}etape(2)}
