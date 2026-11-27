@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#06040d">
-<title>Distant Eye Calculateur balistique v61</title>
+<title>Distant Eye Calculateur balistique v62</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='55' fill='%230d0820' stroke='%2305d9e8' stroke-width='6'/%3E%3Cpath d='M4 60H20M100 60H116M60 4V24M60 96V116' stroke='%23f9f871' stroke-width='6'/%3E%3Cpath d='M20 60Q60 28 100 60Q60 92 20 60Z' fill='%23150c2c' stroke='%23ff2a6d' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='16' fill='none' stroke='%2305d9e8' stroke-width='5'/%3E%3Ccircle cx='60' cy='60' r='6' fill='%23ff2a6d'/%3E%3C/svg%3E">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -310,7 +310,7 @@ button.jeter{border-color:rgba(255,42,109,.45);color:#ff9ab5}
 </g>
 <g stroke="#f9f871" fill="none"><path d="M4 60H16M104 60H116M60 4V16M60 104V116" stroke-width="4" stroke-linecap="butt"/><path d="M16 60H104M60 16V104" stroke-width="1"/></g><g fill="#f9f871"><circle cx="24" cy="60" r="2.1"/><circle cx="60" cy="24" r="2.1"/><circle cx="33" cy="60" r="2.1"/><circle cx="60" cy="33" r="2.1"/><circle cx="42" cy="60" r="2.1"/><circle cx="60" cy="42" r="2.1"/><circle cx="51" cy="60" r="2.1"/><circle cx="60" cy="51" r="2.1"/><circle cx="69" cy="60" r="2.1"/><circle cx="60" cy="69" r="2.1"/><circle cx="78" cy="60" r="2.1"/><circle cx="60" cy="78" r="2.1"/><circle cx="87" cy="60" r="2.1"/><circle cx="60" cy="87" r="2.1"/><circle cx="96" cy="60" r="2.1"/><circle cx="60" cy="96" r="2.1"/></g>
 </svg>
-<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v61</small></div>
+<div><h1>Distant <span>Eye</span></h1><div class="h2">Calculateur balistique</div><small id="sub">v62</small></div>
 <button class="home" onclick="accueil()">Mode</button>
 </header>
 <div id="connexion" class="card tirOnly"><h3>Connexion</h3>
@@ -594,7 +594,7 @@ button.jeter{border-color:rgba(255,42,109,.45);color:#ff9ab5}
 <button class="live" data-m="sans" onclick="entrerMode('sans')">&#129518; Sans caméra<small>Calculateur seul</small></button>
 </div>
 <p class="anote" data-en="The &lt;b&gt;With camera&lt;/b&gt; mode requires &lt;b&gt;two Android phones&lt;/b&gt;: the shooter's phone, and a second one placed near the target in &lt;b&gt;Camera phone&lt;/b&gt; mode.">Le mode <b>Avec caméra</b> nécessite <b>deux téléphones Android</b> : celui du tireur, et un second posé près de la cible en mode <b>Téléphone caméra</b>.</p>
-<div class="aver">v61</div>
+<div class="aver">v62</div>
 </div></div>
 <div id="zModal" class="modal" hidden><div class="box"><h3>Valider le zéro</h3>
 <p id="zMArme"></p>
@@ -623,7 +623,7 @@ button.jeter{border-color:rgba(255,42,109,.45);color:#ff9ab5}
 <button class="big pri" onclick="viser()">&#129517; Viser la cible</button>
 <div class="btns"><button onclick="etape(2)">&#8592; Retour</button><button id="dN3" onclick="finDemar()">Passer</button></div></div>
 </div></div>
-<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v61</footer>
+<footer>DISTANT EYE · CALCULATEUR BALISTIQUE v62</footer>
 </div>
 <script>
 // ===== Moteur balistique + apprentissage =====
@@ -1545,7 +1545,7 @@ function loupe(p){const L=$('loupe');if(!lastIm||!p){L.hidden=true;return}L.hidd
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function lsGet(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-var MODE=lsGet('deMode',null),APPV='v61';
+var MODE=lsGet('deMode',null),APPV='v62';
 const nz=(x,n)=>{const s=x.toFixed(n);return +s===0?(0).toFixed(n):s},fx=(x,n)=>{const s=nz(x,n);return(+s>0?'+':'')+s};
 const CIBLES_DEFAUT=[
  {id:'c50',name:'C50',w:53,h:53,zones:[{n:'Visuel',x:26.5,y:26.5,d:20}]},
@@ -1997,15 +1997,15 @@ try{if(localStorage.getItem('deSensAuto')==='0')$('sensAuto').checked=false}catc
 
 // ===== Molette de clics verticale : glisser vers le haut = +1 clic tous les 14 px ; toucher la moitié haute = +1, la moitié basse = −1 ; molette de souris aussi =====
 function initCWheel(el){const inp=$(el.dataset.for);if(!inp||el._ok)return;el._ok=true;el.innerHTML='<div class="cwt"></div><div class="cwc"></div><span class="cwp">+</span><span class="cwm">−</span>';
- const t=el.firstChild,PAS=14;let y0=null,v0=0,dep=0,lastV=null;
+ const t=el.firstChild,PAS=14;/* les graduations suivent le doigt et restent là où il les laisse : doigt vers le haut = valeur qui monte, graduations qui montent */let y0=null,v0=0,dep=0,lastV=null;
  const val=()=>Math.round(+inp.value||0),vib=()=>{try{navigator.vibrate&&navigator.vibrate(4)}catch(_){}},poser=v=>{inp.value=v;inp.dispatchEvent(new Event('input',{bubbles:true}));vib()};
- const fond=px=>{const c=Math.round(el.clientHeight/2)-1;t.style.backgroundPositionY=(px+c)+'px,'+(px+c)+'px'};fond(val()*PAS);
+ const fond=px=>{const c=Math.round(el.clientHeight/2)-1;t.style.backgroundPositionY=(px+c)+'px,'+(px+c)+'px'};fond(-val()*PAS);
  el.addEventListener('pointerdown',e=>{y0=e.clientY;v0=val();dep=0;lastV=v0;el.classList.add('act');try{el.setPointerCapture(e.pointerId)}catch(_){}});
- el.addEventListener('pointermove',e=>{if(y0==null)return;const dy=e.clientY-y0;dep=Math.max(dep,Math.abs(dy));fond(v0*PAS+dy);const v=v0-Math.round(dy/PAS);if(v!==lastV){lastV=v;poser(v)}});
- const fin=e=>{if(y0==null)return;el.classList.remove('act');if(dep<5){const r=el.getBoundingClientRect();poser(val()+(e.clientY<r.top+r.height/2?1:-1))}y0=null;fond(val()*PAS)};
- el.addEventListener('pointerup',fin);el.addEventListener('pointercancel',()=>{y0=null;el.classList.remove('act');fond(val()*PAS)});
- el.addEventListener('wheel',e=>{e.preventDefault();poser(val()+(e.deltaY>0?-1:1));fond(val()*PAS)},{passive:false});
- el._fond=()=>fond(val()*PAS);inp.addEventListener('input',()=>{if(y0==null)fond(val()*PAS)})}
+ el.addEventListener('pointermove',e=>{if(y0==null)return;const dy=e.clientY-y0;dep=Math.max(dep,Math.abs(dy));fond(-v0*PAS+dy);const v=v0-Math.round(dy/PAS);if(v!==lastV){lastV=v;poser(v)}});
+ const fin=e=>{if(y0==null)return;el.classList.remove('act');if(dep<5){const r=el.getBoundingClientRect();poser(val()+(e.clientY<r.top+r.height/2?1:-1))}y0=null;fond(-val()*PAS)};
+ el.addEventListener('pointerup',fin);el.addEventListener('pointercancel',()=>{y0=null;el.classList.remove('act');fond(-val()*PAS)});
+ el.addEventListener('wheel',e=>{e.preventDefault();poser(val()+(e.deltaY>0?-1:1));fond(-val()*PAS)},{passive:false});
+ el._fond=()=>fond(-val()*PAS);inp.addEventListener('input',()=>{if(y0==null)fond(-val()*PAS)})}
 document.querySelectorAll('.cwheel').forEach(initCWheel);
 // Mode sans caméra : la saisie (ou la molette) devient le réglage appliqué, enregistré comme une modification de la série une fois l'appui terminé
 let regT=null,sRR=null;
